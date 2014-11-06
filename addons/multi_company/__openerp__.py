@@ -34,11 +34,11 @@ This module is the base module for other multi-company modules.
     'website': 'https://www.odoo.com',
     'depends': [
         'base',
-        'sale_stock',
-        'project',
+        # 'sale_stock',
+        # 'project',
     ],
     'data': ['res_company_view.xml'],
-    'demo': ['multi_company_demo.xml'],
+    # 'demo': ['multi_company_demo.xml'], Se comento por Ubiar para que no dependa de sale_stock y project
     'installable': True,
     'auto_install': False,
     'images': ['images/companies.jpeg','images/default_company_per_object_form.jpeg', 'images/default_company_per_object_list.jpeg'],
