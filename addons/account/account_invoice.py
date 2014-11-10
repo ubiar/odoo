@@ -1527,13 +1527,31 @@ class account_invoice_tax(models.Model):
         return {'value': {'tax_amount': amount}}
 
     @api.v8
+    def compute_a(self, invoice):
+        return False
+
+    @api.v8
+    def compute_b(self, invoice, line, val, res_a):
+        return False
+
+    @api.v8
+    def compute_c(self, invoice, val, res_a):
+        return False
+
+    @api.v8
+    def compute_d(self, invoice, val, res_a):
+        return False
+
+    @api.v8
     def compute(self, invoice):
         tax_grouped = {}
         currency = invoice.currency_id.with_context(date=invoice.date_invoice or fields.Date.context_today(invoice))
         company_currency = invoice.company_id.currency_id
+        res_a = self.compute_a(invoice)
         for line in invoice.invoice_line:
+            res_d = self.compute_d(invoice, line)
             taxes = line.invoice_line_tax_id.compute_all(
-                (line.price_unit * (1 - (line.discount or 0.0) / 100.0)),
+                ((line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - (res_d or 0.0) / 100.0)),
                 line.quantity, line.product_id, invoice.partner_id)['taxes']
             for tax in taxes:
                 val = {
@@ -1544,6 +1562,7 @@ class account_invoice_tax(models.Model):
                     'sequence': tax['sequence'],
                     'base': currency.round(tax['price_unit'] * line['quantity']),
                 }
+                
                 if invoice.type in ('out_invoice','in_invoice'):
                     val['base_code_id'] = tax['base_code_id']
                     val['tax_code_id'] = tax['tax_code_id']
@@ -1558,6 +1577,8 @@ class account_invoice_tax(models.Model):
                     val['tax_amount'] = currency.compute(val['amount'] * tax['ref_tax_sign'], company_currency, round=False)
                     val['account_id'] = tax['account_paid_id'] or line.account_id.id
                     val['account_analytic_id'] = tax['account_analytic_paid_id']
+
+                self.compute_b(invoice, line, val, tax, res_a)
 
                 # If the taxes generate moves on the same financial account as the invoice line
                 # and no default analytic account is defined at the tax level, propagate the
@@ -1575,7 +1596,7 @@ class account_invoice_tax(models.Model):
                     tax_grouped[key]['amount'] += val['amount']
                     tax_grouped[key]['base_amount'] += val['base_amount']
                     tax_grouped[key]['tax_amount'] += val['tax_amount']
-
+        self.compute_c(invoice, res_a)
         for t in tax_grouped.values():
             t['base'] = currency.round(t['base'])
             t['amount'] = currency.round(t['amount'])
