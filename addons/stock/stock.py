@@ -2082,7 +2082,8 @@ class stock_move(osv.osv):
 
         for state, write_ids in states.items():
             if len(write_ids):
-                self.write(cr, uid, write_ids, {'state': state})
+                if not context.get('stock_move_draft'):
+                    self.write(cr, uid, write_ids, {'state': state})
         #assign picking in batch for all confirmed move that share the same details
         for key, move_ids in to_assign.items():
             procurement_group, location_from, location_to = key
