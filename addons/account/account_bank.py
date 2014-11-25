@@ -53,6 +53,9 @@ class bank(osv.osv):
             data['currency_name'] = data.get('currency_id') and currency_name[data['currency_id'][0]] or ''
         return super(bank, self)._prepare_name_get(cr, uid, bank_dicts, context=context)
 
+    def post_write_default_values(self, cr, uid, partner_bank, context=None):
+        return False, False, {}
+
     def post_write(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
           ids = [ids]
@@ -62,31 +65,33 @@ class bank(osv.osv):
 
         for bank in self.browse(cr, uid, ids, context):
             if bank.company_id and not bank.journal_id:
-                # Find the code and parent of the bank account to create
-                dig = 6
-                current_num = 1
-                ids = obj_acc.search(cr, uid, [('type','=','liquidity'), ('company_id', '=', bank.company_id.id), ('parent_id', '!=', False)], context=context)
-                # No liquidity account exists, no template available
-                if not ids: continue
+                name, acc_bank_id, extra_journal_vals = self.post_write_default_values(cr, uid, bank, context)
+                if not acc_bank_id:
+                    # Find the code and parent of the bank account to create
+                    dig = 6
+                    current_num = 1
+                    ids = obj_acc.search(cr, uid, [('type','=','liquidity'), ('company_id', '=', bank.company_id.id), ('parent_id', '!=', False)], context=context)
+                    # No liquidity account exists, no template available
+                    if not ids: continue
 
-                ref_acc_bank = obj_acc.browse(cr, uid, ids[0], context=context).parent_id
-                while True:
-                    new_code = str(ref_acc_bank.code.ljust(dig-len(str(current_num)), '0')) + str(current_num)
-                    ids = obj_acc.search(cr, uid, [('code', '=', new_code), ('company_id', '=', bank.company_id.id)])
-                    if not ids:
-                        break
-                    current_num += 1
-                name = self._prepare_name(bank)
-                acc = {
-                    'name': name,
-                    'code': new_code,
-                    'type': 'liquidity',
-                    'user_type': ref_acc_bank.user_type.id,
-                    'reconcile': False,
-                    'parent_id': ref_acc_bank.id,
-                    'company_id': bank.company_id.id,
-                }
-                acc_bank_id  = obj_acc.create(cr,uid,acc,context=context)
+                    ref_acc_bank = obj_acc.browse(cr, uid, ids[0], context=context).parent_id
+                    while True:
+                        new_code = str(ref_acc_bank.code.ljust(dig-len(str(current_num)), '0')) + str(current_num)
+                        ids = obj_acc.search(cr, uid, [('code', '=', new_code), ('company_id', '=', bank.company_id.id)])
+                        if not ids:
+                            break
+                        current_num += 1
+                    name = self._prepare_name(bank)
+                    acc = {
+                        'name': name,
+                        'code': new_code,
+                        'type': 'liquidity',
+                        'user_type': ref_acc_bank.user_type.id,
+                        'reconcile': False,
+                        'parent_id': ref_acc_bank.id,
+                        'company_id': bank.company_id.id,
+                    }
+                    acc_bank_id  = obj_acc.create(cr,uid,acc,context=context)
 
                 jour_obj = self.pool.get('account.journal')
                 new_code = 1
@@ -107,6 +112,7 @@ class bank(osv.osv):
                     'default_credit_account_id': acc_bank_id,
                     'default_debit_account_id': acc_bank_id,
                 }
+                vals_journal.update(extra_journal_vals)
                 journal_id = jour_obj.create(cr, uid, vals_journal, context=context)
 
                 self.write(cr, uid, [bank.id], {'journal_id': journal_id}, context=context)
