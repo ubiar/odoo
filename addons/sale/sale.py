@@ -259,8 +259,7 @@ class sale_order(osv.osv):
         'section_id': lambda s, cr, uid, c: s._get_default_section_id(cr, uid, c),
     }
     _sql_constraints = [
-        # TODO: Ver si hay una forma mejor de heredar una sql_constraint
-        # ('name_uniq', 'unique(name, company_id)', 'Order Reference must be unique per Company!'),
+        ('name_uniq', 'unique(name, company_id)', 'Order Reference must be unique per Company!'),
     ]
     _order = 'date_order desc, id desc'
 
