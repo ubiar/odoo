@@ -1292,9 +1292,9 @@ class BaseModel(object):
                 else:
                     res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
                 if extra_error:
-                    res_msg += "\n\n%s\n%s" % (_('Error details:'), extra_error)
+                    res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
                 errors.append(
-                    _("Field(s) `%s` failed against a constraint: %s") %
+                    _("El/Los campo/s `%s` son invalidos: %s") % #Se tradujo en el fuente porque no funcionaba con las traducciones comunes (Por el encoding no se le puede poner el acento a invalidos)
                         (', '.join(names), res_msg)
                 )
         if errors:

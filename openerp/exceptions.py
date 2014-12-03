@@ -51,22 +51,22 @@ class RedirectWarning(Exception):
 class AccessDenied(Exception):
     """ Login/password error. No message, no traceback. """
     def __init__(self):
-        super(AccessDenied, self).__init__('Access denied.')
+        super(AccessDenied, self).__init__('Acceso denegado.')
         self.traceback = ('', '', '')
 
 class AccessError(except_orm):
     """ Access rights error. """
     def __init__(self, msg):
-        super(AccessError, self).__init__('AccessError', msg)
+        super(AccessError, self).__init__('Permiso denegado.', msg)
 
 class MissingError(except_orm):
     """ Missing record(s). """
     def __init__(self, msg):
-        super(MissingError, self).__init__('MissingError', msg)
+        super(MissingError, self).__init__('Registro inexistente.', msg)
 
 class ValidationError(except_orm):
     def __init__(self, msg):
-        super(ValidationError, self).__init__('ValidateError', msg)
+        super(ValidationError, self).__init__('¡Alerta!', msg)
 
 class DeferredException(Exception):
     """ Exception object holding a traceback for asynchronous reporting.

@@ -398,6 +398,16 @@ class date(_column):
             tools.DEFAULT_SERVER_DATE_FORMAT)
 
     @staticmethod
+    def from_string(value):
+        """ Convert an ORM `value` into a :class:`date` value. """
+        return openerp.fields.Date.from_string(value)
+
+    @staticmethod
+    def to_string(value):
+        """ Convert a :class:`date` value into the format expected by the ORM. """
+        return openerp.fields.Date.to_string(value)
+
+    @staticmethod
     def context_today(model, cr, uid, context=None, timestamp=None):
         """Returns the current date as seen in the client's timezone
            in a format fit for date fields.
