@@ -73,7 +73,7 @@ class mail_mail(osv.Model):
     def default_get(self, cr, uid, fields, context=None):
         # protection for `default_type` values leaking from menu action context (e.g. for invoices)
         # To remove when automatic context propagation is removed in web client
-        if context and context.get('default_type') and context.get('default_type') not in self._fields['type'].selection:
+        if context and context.get('default_type') and context.get('default_type') not in self._all_columns['type'].column.selection:
             context = dict(context, default_type=None)
         return super(mail_mail, self).default_get(cr, uid, fields, context=context)
 
@@ -153,7 +153,7 @@ class mail_mail(osv.Model):
         if context is None:
             context = {}
         if partner and partner.user_ids:
-            base_url = self.pool.get('ir.config_parameter').get_param(cr, uid, 'web.base.url')
+            base_url = self.pool.get('ir.config_parameter').get_param(cr, SUPERUSER_ID, 'web.base.url')
             mail_model = mail.model or 'mail.thread'
             url = urljoin(base_url, self.pool[mail_model]._get_access_link(cr, uid, mail, partner, context=context))
             return "<span class='oe_mail_footer_access'><small>%(access_msg)s <a style='color:inherit' href='%(portal_link)s'>%(portal_msg)s</a></small></span>" % {

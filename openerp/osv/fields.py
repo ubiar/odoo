@@ -136,9 +136,8 @@ class _column(object):
         for key, val in args.iteritems():
             setattr(self, key, val)
 
-        # prefetch only if self._classic_write, not self.groups, and not
-        # self.deprecated
-        if not self._classic_write or self.deprecated:
+        # prefetch only if _classic_write, not deprecated and not manual
+        if not self._classic_write or self.deprecated or self.manual:
             self._prefetch = False
 
     def new(self, **args):
@@ -531,6 +530,11 @@ class datetime(_column):
                               "using the UTC value",
                               exc_info=True)
         return utc_timestamp
+
+    @classmethod
+    def _as_display_name(cls, field, cr, uid, obj, value, context=None):
+        value = datetime.context_timestamp(cr, uid, DT.datetime.strptime(value, tools.DEFAULT_SERVER_DATETIME_FORMAT), context=context)
+        return tools.ustr(value.strftime(tools.DEFAULT_SERVER_DATETIME_FORMAT))
 
 class binary(_column):
     _type = 'binary'

@@ -41,6 +41,5 @@ This module is the base module for other multi-company modules.
     # 'demo': ['multi_company_demo.xml'], Se comento por Ubiar para que no dependa de sale_stock y project
     'installable': True,
     'auto_install': False,
-    'images': ['images/companies.jpeg','images/default_company_per_object_form.jpeg', 'images/default_company_per_object_list.jpeg'],
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -330,7 +330,7 @@ class crm_lead(format_address, osv.osv):
         """ When changing the user, also set a section_id or restrict section id
             to the ones user_id is member of. """
         section_id = self._get_default_section_id(cr, uid, user_id=user_id, context=context) or False
-        if user_id and not section_id:
+        if user_id and self.pool['res.users'].has_group(cr, uid, 'base.group_multi_salesteams') and not section_id:
             section_ids = self.pool.get('crm.case.section').search(cr, uid, ['|', ('user_id', '=', user_id), ('member_ids', '=', user_id)], context=context)
             if section_ids:
                 section_id = section_ids[0]
@@ -793,7 +793,7 @@ class crm_lead(format_address, osv.osv):
                 partner_id = self._create_lead_partner(cr, uid, lead, context)
                 self.pool['res.partner'].write(cr, uid, partner_id, {'section_id': lead.section_id and lead.section_id.id or False})
             if partner_id:
-                lead.write({'partner_id': partner_id}, context=context)
+                lead.write({'partner_id': partner_id})
             partner_ids[lead.id] = partner_id
         return partner_ids
 
