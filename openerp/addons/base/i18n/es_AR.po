@@ -5588,6 +5588,11 @@ msgid "Action Target"
 msgstr "Acción destino"
 
 #. module: base
+#: field:res.rule.code,target:0
+msgid "Code"
+msgstr "Codigo"
+
+#. module: base
 #: field:ir.actions.server,state:0
 msgid "Action To Do"
 msgstr ""
