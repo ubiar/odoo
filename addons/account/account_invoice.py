@@ -1532,15 +1532,15 @@ class account_invoice_tax(models.Model):
         return False
 
     @api.v8
-    def compute_b(self, invoice, line, val, res_a):
+    def compute_b(self, invoice, line, val, tax, res_a):
         return False
 
     @api.v8
-    def compute_c(self, invoice, val, res_a):
+    def compute_c(self, invoice, res_a):
         return False
 
     @api.v8
-    def compute_d(self, invoice, val, res_a):
+    def compute_d(self, invoice, line):
         return False
 
     @api.v8
