@@ -256,7 +256,7 @@
                         self.resize_fields();
                         var focus_field = options && options.focus_field ? options.focus_field : undefined;
                         if (!focus_field){
-                            focus_field = _.find(self.editor.form.fields_order, function(field){ return fields[field] && fields[field].$el.is(':visible:has(input)'); });
+                            focus_field = _.find(self.editor.form.fields_order, function(field){ return fields[field] && fields[field].$el.is(':visible:has(input:enabled:not([readonly]))'); });
                         }
                         if (focus_field  && fields[focus_field]) fields[focus_field].$el.find('input').select();
                         return record.attributes;
