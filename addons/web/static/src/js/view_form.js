@@ -593,7 +593,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             return $.Deferred().reject();
         }
     },
-    _process_operations: function() {
+    _process_operations: function(from_button) {
         var self = this;
         return this.mutating_mutex.exec(function() {
             function iterate() {
@@ -611,7 +611,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                 return $.when.apply(null, [mutex.def, self.onchanges_mutex.def]).then(function() {
                     var save_obj = self.save_list.pop();
                     if (save_obj) {
-                        return self._process_save(save_obj).then(function() {
+                        return self._process_save(save_obj, from_button).then(function() {
                             save_obj.ret = _.toArray(arguments);
                             return iterate();
                         }, function() {
@@ -812,10 +812,15 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
      * default, records are added at the end)
      */
     save: function(prepend_on_create) {
+        var from_button = false;
+        if (typeof prepend_on_create == "string" && prepend_on_create == "from_button"){
+            prepend_on_create = null;
+            from_button = true;
+        }
         var self = this;
         var save_obj = {prepend_on_create: prepend_on_create, ret: null};
         this.save_list.push(save_obj);
-        return self._process_operations().then(function() {
+        return self._process_operations(from_button).then(function() {
             if (save_obj.error)
                 return $.Deferred().reject();
             return $.when.apply($, save_obj.ret);
@@ -823,7 +828,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             self.$el.removeClass('oe_form_dirty');
         });
     },
-    _process_save: function(save_obj) {
+    _process_save: function(save_obj, from_button) {
         var self = this;
         var prepend_on_create = save_obj.prepend_on_create;
         try {
@@ -868,7 +873,11 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                     save_deferral = $.Deferred().resolve({}).promise();
                 } else {
                     // Write save
-                    save_deferral = self.dataset.write(self.datarecord.id, values, {readonly_fields: readonly_values}).then(function(r) {
+                    options = {readonly_fields: readonly_values};
+                    if (from_button){
+                        options['context'] = {'from_button':true};
+                    }
+                    save_deferral = self.dataset.write(self.datarecord.id, values, options).then(function(r) {
                         return self.record_saved(r);
                     }, null);
                 }
@@ -990,9 +999,9 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         var id = this.dataset.ids[this.dataset.index];
         return id ? [id] : [];
     },
-    recursive_save: function() {
+    recursive_save: function(to_save) {
         var self = this;
-        return $.when(this.save()).then(function(res) {
+        return $.when(this.save(to_save)).then(function(res) {
             if (self.dataset.parent_view)
                 return self.dataset.parent_view.recursive_save();
         });
@@ -1971,7 +1980,7 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
             }
         };
         if (!this.node.attrs.special) {
-            return this.view.recursive_save().then(exec_action);
+            return this.view.recursive_save('from_button').then(exec_action);
         } else {
             return exec_action();
         }
