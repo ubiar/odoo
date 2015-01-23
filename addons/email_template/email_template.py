@@ -527,7 +527,7 @@ class email_template(osv.osv):
 
         return results
 
-    @api.cr_uid_id_context
+    @api.cr_uid_ids_context
     def send_mail(self, cr, uid, template_id, res_id, force_send=False, raise_exception=False, context=None):
         """Generates a new mail message for the given template and record,
            and schedules it for delivery through the ``mail`` module's scheduler.

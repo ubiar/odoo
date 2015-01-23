@@ -179,7 +179,7 @@ class res_partner_bank(osv.osv):
         res = []
         for data in bank_dicts:
             name = data['acc_number']
-            if data['state'] and bank_code_format.get(data['state']):
+            if data.get('state') and bank_code_format.get(data['state']):
                 try:
                     if not data.get('bank_name'):
                         data['bank_name'] = _('BANK')
