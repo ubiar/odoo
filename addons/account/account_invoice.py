@@ -725,6 +725,8 @@ class account_invoice(models.Model):
                 if key not in compute_taxes:
                     raise except_orm(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
                 base = compute_taxes[key]['base']
+                if self.recargo_financiero_val:
+                    base += self.recargo_financiero_val
                 if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
                     raise except_orm(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
             for key in compute_taxes:
@@ -844,6 +846,8 @@ class account_invoice(models.Model):
             name = inv.name or inv.supplier_invoice_number or '/'
             totlines = []
             if inv.payment_term:
+                if inv.anticipo_porc:
+                    ctx['anticipo_porc'] = inv.anticipo_porc
                 totlines = inv.with_context(ctx).payment_term.compute(total, date_invoice)[0]
             if totlines:
                 res_amount_currency = total_currency
