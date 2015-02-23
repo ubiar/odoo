@@ -731,6 +731,7 @@ form: module.record_id""" % (xml_id,)
                 f_model = model._fields[f_name].comodel_name
             f_use = field.get("use",'').encode('utf-8') or 'id'
             f_val = False
+            f_file = field.get("file",'').encode('utf-8')
 
             if f_search:
                 q = unsafe_eval(f_search, self.idref)
@@ -753,6 +754,20 @@ form: module.record_id""" % (xml_id,)
                     f_val = val[0] + ',' + str(val[1])
                 else:
                     f_val = self.id_get(cr, f_ref)
+            elif f_file:
+                mod = f_file.split('/')[0]
+                file_path = False
+                for addons_path in openerp.modules.module.ad_paths:
+                    for module in sorted(os.listdir(str(addons_path))):
+                        if module == mod:
+                            file_path = addons_path + '/' + f_file
+                if not file_path:
+                    raise Exception(_('Addon %s not found.') % (mod))
+                if not os.path.isfile(file_path):
+                    raise Exception(_('File %s not exists.') % (f_file))
+                fp = misc.file_open(file_path)
+                res[f_name] = fp.read()
+                fp.close()
             else:
                 f_val = _eval_xml(self,field, self.pool, cr, self.uid, self.idref)
                 if f_name in model._fields:
