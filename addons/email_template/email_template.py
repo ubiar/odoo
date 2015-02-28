@@ -194,6 +194,9 @@ class email_template(osv.osv):
             'user': user,
             'ctx': context,  # context kw would clash with mako internals
         }
+        for key, val in context.iteritems():
+            if type(key) is str and 'variable_' in key:
+                variables[key.replace('variable_', '')] = val
         for record in records:
             res_id = record.id if record else None
             variables['object'] = record
