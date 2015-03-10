@@ -1278,7 +1278,11 @@ class BaseModel(object):
                 for id in ids:
                     res_msg += "\n\n%s" % (_('En los registros:'))
                     if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
-                        res_msg += "\n%s" % (self._model.name_get(cr, uid, id)[0][1])
+                        reg_data = ''
+                        for field, data in self._model.read(cr, uid, id, list(field_names)).iteritems():
+                            if field != 'id':
+                                reg_data += "%s: %s (%s) " % (trans._get_source(self._name + ',' + field, 'field', self.env.lang, self._fields[field].string), data, data.encode('ascii', 'replace'))
+                        res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
                 errors.append(
                     _("El/Los campo/s `%s` son invalidos: %s") % #Se tradujo en el fuente porque no funcionaba con las traducciones comunes (Por el encoding no se le puede poner el acento a invalidos)
                         (', '.join(names), res_msg)
