@@ -1280,7 +1280,7 @@ class BaseModel(object):
                     if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
                         reg_data = ''
                         for field, data in self._model.read(cr, uid, id, list(field_names)).iteritems():
-                            if field != 'id':
+                            if field and field != 'id' and data and type(data) == str:
                                 reg_data += "%s: %s (%s) " % (trans._get_source(self._name + ',' + field, 'field', self.env.lang, self._fields[field].string), data, data.encode('ascii', 'replace'))
                         res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
                 errors.append(
