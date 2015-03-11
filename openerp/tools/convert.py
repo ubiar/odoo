@@ -922,7 +922,20 @@ def convert_file(cr, module, filename, idref, mode='update', noupdate=False, kin
         fp.close()
 
 def convert_sql_import(cr, fp):
-    queries = fp.read().split(';')
+    query = fp.read()
+    if 'ubiar' in query.split('\n')[0].lower():
+        regex = """--(((?=[^"]*(?:"[^"]*"[^"]*)*$)((?=[^']*(?:'[^']*'[^']*)*$))).*)|(/\*[\w\W]*?(?=\*/)\*/).*"""
+        query_sub = re.sub(regex, '', query)
+        if not 'function' in query.split('\n')[0].lower():
+            for q in query_sub.split(';'):
+                new_query = ' '.join(q.split())
+                if new_query:
+                    cr.execute(new_query)
+        else:
+            query = (' '.join(query_sub.split())).decode('ascii', 'ignore').strip()
+            cr.execute(query)
+        return None
+    queries = query.split(';')
     for query in queries:
         new_query = ' '.join(query.split())
         if new_query:
