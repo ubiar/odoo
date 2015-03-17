@@ -57,6 +57,8 @@
                                         <field name="state"/>
                                         <field name="field_description"/>
                                         <field name="ubiar_xml_attrs" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
+                                        <field name="ubiar_xml_inherit_field" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
+                                        <field name="ubiar_xml_inherit_field_position" attrs="{'invisible':[('state', '!=', 'manual')], 'required': [('ubiar_xml_inherit_field', '!=', False), ('state', '=', 'manual')]}"/>
                                     </group>
                                     <group string="Properties">
                                         <group>
@@ -158,6 +160,8 @@
                         <group>
                             <field name="name" string="Field Name"/>
                             <field name="field_description"/>
+                            <field name="ubiar_xml_inherit_field" domain="[('state', '=', 'base'), ('model_id', '=', model_id)]" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
+                            <field name="ubiar_xml_inherit_field_position" attrs="{'invisible':[('state', '!=', 'manual')], 'required': [('ubiar_xml_inherit_field', '!=', False), ('state', '=', 'manual')]}"/>
                             <field name="ubiar_xml_attrs" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
                         </group>
                         <group>
