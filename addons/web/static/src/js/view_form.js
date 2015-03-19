@@ -1948,8 +1948,7 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
         this.force_disabled = true;
         this.check_disable();
         this.execute_action().always(function() {
-            self.force_disabled = false;
-            self.check_disable();
+            setTimeout(function(){self.force_disabled = false; self.check_disable();},2000);
         });
     },
     execute_action: function() {
@@ -5651,6 +5650,7 @@ instance.web.form.FieldBinary = instance.web.form.AbstractField.extend(instance.
                     model: this.view.dataset.model,
                     id: (this.view.datarecord.id || ''),
                     field: this.name,
+                    filename: this.view.datarecord[this.node.attrs.filename],
                     filename_field: (this.node.attrs.filename || ''),
                     data: instance.web.form.is_bin_size(value) ? null : value,
                     context: this.view.dataset.get_context()

@@ -1115,6 +1115,7 @@ class Binary(http.Controller):
         model = jdata['model']
         field = jdata['field']
         data = jdata['data']
+        filename_jdata = jdata['filename']
         id = jdata.get('id', None)
         filename_field = jdata.get('filename_field', None)
         context = jdata.get('context', {})
@@ -1124,7 +1125,7 @@ class Binary(http.Controller):
         if filename_field:
             fields.append(filename_field)
         if data:
-            res = { field: data }
+            res = { field: data, filename_field:filename_jdata }
         elif id:
             res = Model.read([int(id)], fields, context)[0]
         else:

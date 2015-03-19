@@ -274,7 +274,7 @@ instance.web.CrashManager = instance.web.Class.extend({
         }
         new instance.web.Dialog(this, {
             size: 'medium',
-            title: "Odoo " + (_.str.capitalize(error.type) || "Warning"),
+            title: "Odoo " + (_.str.capitalize(error.type) || _("Warning")),
             buttons: [
                 {text: _t("Ok"), click: function() { this.parents('.modal').modal('hide'); }}
             ],
@@ -341,7 +341,7 @@ instance.web.RedirectWarningHandler = instance.web.Dialog.extend(instance.web.Ex
 
         new instance.web.Dialog(this, {
             size: 'medium',
-            title: "Odoo " + (_.str.capitalize(error.type) || "Warning"),
+            title: "Odoo " + (_.str.capitalize(error.type) || _("Warning")),
             buttons: [
                 {text: _t("Ok"), click: function() { self.$el.parents('.modal').modal('hide');  self.destroy();}},
                 {text: error.data.arguments[2],
@@ -769,6 +769,7 @@ instance.web.Menu =  instance.web.Widget.extend({
                 this.do_load_needaction(all_menu_ids);
             }
         });
+
     },
     start: function() {
         this._super.apply(this, arguments);
