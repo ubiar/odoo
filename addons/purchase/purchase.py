@@ -65,7 +65,7 @@ class purchase_order(osv.osv):
                     ('order_id', '=', po.id), '|', ('date_planned', '=', po.minimum_planned_date), ('date_planned', '<', value)
                 ], context=context)
                 pol_obj.write(cr, uid, pol_ids, {'date_planned': value}, context=context)
-                self.pool.get('purchase.order').write(cr, uid, po.id, {'minimum_planned_date': value}, context=context)
+                # self.pool.get('purchase.order').write(cr, uid, po.id, {'minimum_planned_date': value}, context=context) maximum recursion depth exceeded
         self.invalidate_cache(cr, uid, context=context)
         return True
 
