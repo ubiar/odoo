@@ -34,6 +34,7 @@ from openerp.tools.translate import _
 
 from itertools import groupby
 from operator import itemgetter
+from openerp.tools.safe_eval import safe_eval as eval
 
 
 FIELD_STATES = [('clear', 'Clear'), ('anonymized', 'Anonymized'), ('not_existing', 'Not Existing'), ('new', 'New')]

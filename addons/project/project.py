@@ -28,6 +28,7 @@ from openerp import tools
 from openerp.addons.resource.faces import task as Task
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
+from openerp.tools.safe_eval import safe_eval as eval
 
 
 class project_task_type(osv.osv):
@@ -501,7 +502,7 @@ def Project():
             result += self.pool.get('project.task')._generate_task(cr, uid, project.tasks, ident=4, context=context)
 
         local_dict = {}
-        exec result in local_dict
+        eval(result, localdict, mode='exec', nocopy=True)
         projects_gantt = Task.BalancedProject(local_dict['Project'])
 
         for project in projects:

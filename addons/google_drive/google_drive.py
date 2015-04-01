@@ -28,6 +28,7 @@ import urllib2
 import json
 import re
 import openerp
+from openerp.tools.safe_eval import safe_eval as eval
 
 _logger = logging.getLogger(__name__)
 
