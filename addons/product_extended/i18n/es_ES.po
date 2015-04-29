@@ -40,7 +40,7 @@ msgstr "¡XML inválido para la definición de la vista!"
 #. module: product_extended
 #: field:mrp.bom,standard_price:0
 msgid "Standard Price"
-msgstr "Precio de coste"
+msgstr "Precio de costo"
 
 #. module: product_extended
 #: model:ir.module.module,shortdesc:product_extended.module_meta_information
@@ -72,7 +72,7 @@ msgstr "Último pedido"
 #: view:product.product:0
 #: field:product.product,calculate_price:0
 msgid "Compute standard price"
-msgstr "Calcular precio de coste"
+msgstr "Calcular precio de costo"
 
 #. module: product_extended
 #: field:product.product,orderpoint_ids:0

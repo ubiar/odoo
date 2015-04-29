@@ -133,7 +133,7 @@ msgstr "Compañía"
 #: view:product.template:stock_account.view_template_property_form
 #: view:stock.change.standard.price:stock_account.view_change_standard_price
 msgid "Cost Price"
-msgstr "Precio de coste"
+msgstr "Precio de costo"
 
 #. module: stock_account
 #: field:product.template,cost_method:0

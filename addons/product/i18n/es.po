@@ -2026,7 +2026,7 @@ msgstr ""
 #: model:product.price.type,name:product.standard_price
 #: field:product.template,standard_price:0
 msgid "Cost Price"
-msgstr "Precio de coste"
+msgstr "Precio de costo"
 
 #. module: product
 #: help:product.template,standard_price:0
@@ -2170,7 +2170,7 @@ msgstr "Descripción"
 #. module: product
 #: view:product.template:product.product_template_form_view
 msgid "Description for Quotations"
-msgstr "Descripción para las ofertas"
+msgstr "Descripción para los clientes"
 
 #. module: product
 #: view:product.template:product.product_template_form_view

@@ -112,7 +112,7 @@ msgstr "Establecer precio en la LdM"
 #. module: product_extended
 #: field:mrp.bom,standard_price:0
 msgid "Standard Price"
-msgstr "Precio de coste"
+msgstr "Precio de costo"
 
 #. module: product_extended
 #: view:wizard.price:product_extended.view_compute_price_wizard
