@@ -40,6 +40,11 @@ from openerp.release import nt_service_name
 import openerp.tools.config as config
 from openerp.tools import stripped_sys_argv, dumpstacks, log_ormcache_stats
 
+try:
+    from newrelic import agent as newrelic_agent
+except Exception:
+    pass
+
 _logger = logging.getLogger(__name__)
 
 SLEEP_INTERVAL = 60     # 1 min
@@ -231,6 +236,9 @@ class ThreadedServer(CommonServer):
 
         #self.socket = None
         self.httpd = None
+        if config.get('newrelic_config_file', False):
+            newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            _logger.info("Newrelic agent initialized")
 
     def signal_handler(self, sig, frame):
         if sig in [signal.SIGINT, signal.SIGTERM]:
@@ -371,6 +379,9 @@ class GeventServer(CommonServer):
         super(GeventServer, self).__init__(app)
         self.port = config['longpolling_port']
         self.httpd = None
+        if config.get('newrelic_config_file', False):
+            newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            _logger.info("Newrelic agent initialized")
 
     def watch_parent(self, beat=4):
         import gevent
@@ -433,6 +444,9 @@ class PreforkServer(CommonServer):
         self.generation = 0
         self.queue = []
         self.long_polling_pid = None
+        if config.get('newrelic_config_file', False):
+            newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            _logger.info("Newrelic agent initialized")
 
     def pipe_new(self):
         pipe = os.pipe()

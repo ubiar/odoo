@@ -313,7 +313,7 @@ class account_voucher(osv.osv):
         'line_dr_ids':fields.one2many('account.voucher.line','voucher_id','Debits',
             domain=[('type','=','dr')], context={'default_type':'dr'}, readonly=True, states={'draft':[('readonly',False)]}),
         'period_id': fields.many2one('account.period', 'Period', required=True, readonly=True, states={'draft':[('readonly',False)]}),
-        'narration':fields.text('Notes', readonly=True, states={'draft':[('readonly',False)]}),
+        'narration':fields.text('Notes'),
         'currency_id': fields.function(_get_journal_currency, type='many2one', relation='res.currency', string='Currency', readonly=True, required=True),
         'company_id': fields.many2one('res.company', 'Company', required=True, readonly=True, states={'draft':[('readonly',False)]}),
         'state':fields.selection(
