@@ -288,7 +288,6 @@ class WorkflowItem(object):
                 result = False
             else:
                 env = Environment(self.session, self.record)
-                print line, env
                 result = eval(line, env, nocopy=True)
         return result
 

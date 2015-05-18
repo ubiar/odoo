@@ -4076,7 +4076,6 @@ class BaseModel(object):
         # low-level implementation of create()
         if not context:
             context = {}
-
         if self.is_transient():
             self._transient_vacuum(cr, user)
 
@@ -4202,7 +4201,7 @@ class BaseModel(object):
                 ', '.join(u[1] for u in updates)
             ),
             tuple([u[2] for u in updates if len(u) > 2])
-        )
+        , log_exceptions=context.get('log_exceptions', None))
 
         id_new, = cr.fetchone()
         recs = self.browse(cr, user, id_new, context)
