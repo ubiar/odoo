@@ -12,6 +12,12 @@ import openerp
 from openerp.osv import osv, fields
 from openerp.http import request
 from openerp.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
+import openerp.tools.config as config
+
+try:
+    from newrelic import agent as newrelic_agent
+except Exception:
+    pass
 
 _logger = logging.getLogger(__name__)
 
@@ -182,6 +188,8 @@ class Controller(openerp.http.Controller):
 
     @openerp.http.route('/longpolling/poll', type="json", auth="public")
     def poll(self, channels, last, options=None):
+        if config.get('newrelic_config_file', False):
+            newrelic.agent.ignore_transaction() 
         if options is None:
             options = {}
         if not dispatch:
