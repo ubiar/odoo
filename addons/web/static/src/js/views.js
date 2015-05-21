@@ -367,13 +367,14 @@ instance.web.ActionManager = instance.web.Widget.extend({
             console.error("No type for action", action);
             return $.Deferred().reject();
         }
+        
         var type = action.type.replace(/\./g,'_');
         var popup = action.target === 'new';
         var inline = action.target === 'inline' || action.target === 'inlineview';
         var form = _.str.startsWith(action.view_mode, 'form');
         action.flags = _.defaults(action.flags || {}, {
             views_switcher : !popup && !inline,
-            search_view : !popup && !inline,
+            search_view : (!popup && !inline) || (action.context && 'search_view' in action.context && action.context.search_view),
             action_buttons : !popup && !inline,
             sidebar : !popup && !inline,
             pager : (!popup || !form) && !inline,
@@ -693,7 +694,11 @@ instance.web.ViewManager =  instance.web.Widget.extend({
         var view = this.views[view_type];
         var viewclass = this.registry.get_object(view_type);
         var options = _.clone(view.options);
-        if (view_type === "form" && this.action && (this.action.target == 'new' || this.action.target == 'inline')) {
+        var mode_edit = true;
+        if (typeof self.flags === typeof {} && 'mode' in self.flags && self.flags['mode'] === 'readonly'){
+            mode_edit = false;
+        }
+        if (mode_edit && view_type === "form" && this.action && (this.action.target == 'new' || this.action.target == 'inline')) {
             options.initial_mode = 'edit';
         }
         var controller = new viewclass(this, this.dataset, view.view_id, options);
