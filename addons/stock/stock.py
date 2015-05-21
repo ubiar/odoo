@@ -952,7 +952,7 @@ class stock_picking(osv.osv):
         """
         if not backorder_moves:
             backorder_moves = picking.move_lines
-        backorder_move_ids = [x.id for x in backorder_moves if x.state not in ('done', 'cancel')]
+        backorder_move_ids = [x.id for x in backorder_moves if x.state not in ('done', 'cancel', context.get('backorder_state', False))]
         if 'do_only_split' in context and context['do_only_split']:
             backorder_move_ids = [x.id for x in backorder_moves if x.id not in context.get('split', [])]
 
