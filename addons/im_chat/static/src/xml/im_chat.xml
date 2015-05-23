@@ -21,7 +21,7 @@
 <t t-name="im_chat.Conversation_content">
     <t t-foreach="_.keys(list)" t-as="date">
         <div class="oe_im_chatview_date_separator">
-            <t t-esc="Date.parse(date).toString(Date.CultureInfo.formatPatterns.longDate)"/>
+            <t t-esc="Date.parse(date).toString(Date.CultureInfo.formatPatterns.shortDate)"/>
         </div>
         <t t-foreach="list[date]" t-as="bubble">
             <t t-if="bubble[0].type === 'message'">
