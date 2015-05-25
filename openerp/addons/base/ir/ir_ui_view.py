@@ -183,6 +183,7 @@ class view(osv.osv):
 * if False, the view currently does not extend its parent but can be enabled
              """),
         'form_field_ids': fields.many2many('ir.model.fields', 'ir_ui_view_x_ir_model_fields_rel', 'view_id', 'field_id', 'Automatic Form Fields'),
+        'form_invisible_field_ids': fields.many2many('ir.model.fields', 'ir_ui_view_x_ir_model_fields_invisible_rel', 'view_id', 'field_id', 'Invisible Form Fields'),
         'ubiar_model_id': fields.function(_get_ubiar_model_id, type='many2one', relation='ir.model', string="Model"), #Le agrego ubiar por si crean model_id en un futuro
     }
     _defaults = {
@@ -564,35 +565,16 @@ class view(osv.osv):
         arch = self.apply_view_inheritance(
             cr, uid, arch_tree, root_id, base.model, context=context)
 
-        x_fields_view = False
-        group_extra_fields = False
-        replace = ''
-        arch_str = etree.tostring(arch, encoding='utf-8')
-        if view and view.get('type') == 'form' and base.form_field_ids:
-            x_fields_view = "<group col='4' string='Extras'>"
-            for field in base.form_field_ids:
-                field_added = False
-                xml_field = "<field name='" + field.name + "' " + (field.ubiar_xml_attrs or '') + "/>"
-                if field.ubiar_xml_inherit_field:
-                    inherit_field = arch.findall(".//field[@name='" + field.ubiar_xml_inherit_field.name + "']")
-                    if inherit_field and len(inherit_field) == 1:
-                        field_index = inherit_field[0].getparent().index(inherit_field[0]) + int(field.ubiar_xml_inherit_field_position)
-                        inherit_field[0].getparent().insert(field_index, etree.XML(xml_field))
-                        field_added = True
-                if not field_added:
-                    x_fields_view += xml_field
-                    group_extra_fields = True
-            x_fields_view += "</group>"
-            if group_extra_fields:
-                replace = '</sheet>' if '</sheet>' in arch_str else '</form>'
-                replace = '</notebook>' if '</notebook>' in arch_str else replace
-                if replace == '</notebook>':
-                    x_fields_view = "<page string='Extras'>" + x_fields_view.replace(" string='Extras'", '') + "</page>"
-                x_fields_view += replace
+        view, arch, special_ctx = self.read_combined_a(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=None)
         arch = etree.tostring(arch, encoding='utf-8')
-        if group_extra_fields:
-            arch = arch.replace(replace.encode("utf8"), x_fields_view.encode("utf8"))
+        view, arch = self.read_combined_b(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=None, special_ctx=special_ctx)
         return dict(view, arch=arch)
+
+    def read_combined_a(self, cr, uid, view_id, view, arch, fields=None, context=None):
+        return view, arch, {}
+
+    def read_combined_b(self, cr, uid, view_id, view, arch, fields=None, context=None, special_ctx=None):
+        return view, arch
 
     #------------------------------------------------------
     # Postprocessing: translation, groups and modifiers
