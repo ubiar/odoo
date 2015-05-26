@@ -182,8 +182,6 @@ class view(osv.osv):
 * if True, the view always extends its parent
 * if False, the view currently does not extend its parent but can be enabled
              """),
-        'form_field_ids': fields.many2many('ir.model.fields', 'ir_ui_view_x_ir_model_fields_rel', 'view_id', 'field_id', 'Automatic Form Fields'),
-        'form_invisible_field_ids': fields.many2many('ir.model.fields', 'ir_ui_view_x_ir_model_fields_invisible_rel', 'view_id', 'field_id', 'Invisible Form Fields'),
         'ubiar_model_id': fields.function(_get_ubiar_model_id, type='many2one', relation='ir.model', string="Model"), #Le agrego ubiar por si crean model_id en un futuro
     }
     _defaults = {
