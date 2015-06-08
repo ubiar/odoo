@@ -907,7 +907,7 @@ msgstr "Ref. #"
 #: view:account.invoice:account_voucher.view_invoice_customer
 #: view:account.voucher:account_voucher.view_vendor_receipt_dialog_form
 msgid "Register Payment"
-msgstr "Registrar pago"
+msgstr "Registrar Cobro"
 
 #. module: account_voucher
 #: selection:account.voucher,type:0
