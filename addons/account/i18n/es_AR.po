@@ -10017,8 +10017,8 @@ msgstr "Las líneas de los asientos contables no están en estado válido."
 #. module: account
 #: code:addons/account/account_move_line.py:969
 #, python-format
-msgid "The account is not defined to be reconciled !"
-msgstr "¡No se ha definido la cuenta como reconciliable!"
+msgid "The account %s is not defined to be reconciled !"
+msgstr "¡No se ha definido la cuenta %s como reconciliable!"
 
 #. module: account
 #: code:addons/account/account_move_line.py:1115
