@@ -154,6 +154,10 @@
                     <rng:empty/>
                 </rng:group>
                 <rng:group>
+                    <rng:attribute name="file"/>
+                    <rng:empty/>
+                </rng:group>
+                <rng:group>
                     <rng:attribute name="eval"/>
                     <rng:optional><rng:attribute name="model"/></rng:optional>
                     <rng:empty/>
