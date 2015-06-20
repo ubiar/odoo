@@ -230,7 +230,6 @@ class ir_model(osv.osv):
     def instanciate(self, cr, user, model, context=None):
         if isinstance(model, unicode):
             model = model.encode('utf-8')
-
         class CustomModel(models.Model):
             _name = model
             _module = False
@@ -351,11 +350,11 @@ class ir_model_fields(osv.osv):
         if context is None: context = {}
         if isinstance(ids, (int, long)):
             ids = [ids]
-        if not context.get(MODULE_UNINSTALL_FLAG) and \
+        if not context.get(MODULE_UNINSTALL_FLAG) and not context.get('_no_drop_column') and \
                 any(field.state != 'manual' for field in self.browse(cr, user, ids, context)):
             raise UserError(_("This column contains module data and cannot be removed!"))
-
-        self._drop_column(cr, user, ids, context)
+        if not context.get('_no_drop_column'):
+            self._drop_column(cr, user, ids, context)
         res = super(ir_model_fields, self).unlink(cr, user, ids, context)
         if not context.get(MODULE_UNINSTALL_FLAG):
             # The field we just deleted might have be inherited, and registry is
@@ -476,7 +475,7 @@ class ir_model_fields(osv.osv):
                 if 'model_id' in vals and vals['model_id'] != item.model_id.id:
                     raise UserError(_("Changing the model of a field is forbidden!"))
 
-                if 'ttype' in vals and vals['ttype'] != item.ttype:
+                if 'ttype' in vals and vals['ttype'] != item.ttype and not context.get('_ignore_val_ttype'):
                     raise UserError(_("Changing the type of a column is not yet supported. " "Please drop it and create it again!"))
 
                 # We don't check the 'state', because it might come from the context
