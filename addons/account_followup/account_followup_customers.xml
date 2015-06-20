@@ -91,16 +91,20 @@
                             was: <field name="latest_followup_level_id" class="oe_inline"/>
                         </p>
                         <group>
-                            <field name="payment_responsible_id" placeholder="Responsible of credit collection" class="oe_inline"/>
-                            <label for="payment_next_action"/>
-                            <div>
-                                <field name="payment_next_action_date" class="oe_inline"/>
-                                <button name="action_done" type="object" string="⇾ Mark as Done"
-                                     help="Click to mark the action as done." class="oe_link"
-                                     attrs="{'invisible':[('payment_next_action_date','=', False)]}"
-                                     groups="account.group_account_user"/>
-                                <field name="payment_next_action" placeholder="Action to be taken e.g. Give a phonecall, Check if it's paid, ..."/>
-                            </div>
+                            <group>
+                                <field name="payment_responsible_id" placeholder="Responsible of credit collection" class="oe_inline"/>
+                            </group>
+                            <group>
+                                <label for="payment_next_action"/>
+                                <div name='payment_next_action'>
+                                    <field name="payment_next_action_date" class="oe_inline"/>
+                                    <button name="action_done" type="object" string="⇾ Mark as Done"
+                                         help="Click to mark the action as done." class="oe_link"
+                                         attrs="{'invisible':[('payment_next_action_date','=', False)]}"
+                                         groups="account.group_account_user"/>
+                                    <field name="payment_next_action" placeholder="Action to be taken e.g. Give a phonecall, Check if it's paid, ..."/>
+                                </div>
+                            </group>
                         </group>
                         <label for="payment_note" class="oe_edit_only"/>
                         <field name="payment_note" placeholder="He said the problem was temporary and promised to pay 50%% before 15th of May, balance before 1st of July."/>
