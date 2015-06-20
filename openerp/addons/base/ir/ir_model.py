@@ -280,6 +280,8 @@ class ir_model_fields(osv.osv):
                                                                            "changed after creation."),
         'form_view_ids': fields.many2many('ir.ui.view', 'ir_ui_view_x_ir_model_fields_rel', 'field_id', 'view_id', 'Automatic Views'),
         'ubiar_xml_attrs': fields.char('View Properties'),
+        'ubiar_xml_inherit_field': fields.many2one('ir.model.fields', 'Inherit Field'),
+        'ubiar_xml_inherit_field_position': fields.selection([('0', 'Before'), ('1', 'After')], 'Inherit Field Position'),
     }
     _rec_name='field_description'
     _defaults = {

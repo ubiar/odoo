@@ -7279,6 +7279,16 @@ msgid "View Properties"
 msgstr "Propiedades de la Vista (XML)"
 
 #. module: base
+#: field:ir.model.fields,ubiar_xml_inherit_field:0
+msgid "Inherit Field"
+msgstr "Campo heredado"
+
+#. module: base
+#: field:ir.model.fields,ubiar_xml_inherit_field_position:0
+msgid "Inherit Field Position"
+msgstr "Posición del Campo heredado"
+
+#. module: base
 #: model:res.partner.category,name:base.res_partner_category_9
 msgid "Components Buyer"
 msgstr ""
@@ -7927,6 +7937,16 @@ msgstr ""
 #: selection:ir.model.fields,state:0
 msgid "Custom Field"
 msgstr "Campo personalizado"
+
+#. module: base
+#: selection:ir.model.fields,ubiar_xml_inherit_field_position:0
+msgid "After"
+msgstr "Después"
+
+#. module: base
+#: selection:ir.model.fields,ubiar_xml_inherit_field_position:0
+msgid "Before"
+msgstr "Antes"
 
 #. module: base
 #: field:res.company,custom_footer:0

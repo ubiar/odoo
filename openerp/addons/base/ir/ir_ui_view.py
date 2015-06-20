@@ -632,19 +632,34 @@ class view(osv.osv):
         arch = self.apply_view_inheritance(
             cr, uid, arch_tree, root_id, base.model, context=context)
 
-        arch = etree.tostring(arch, encoding='utf-8')
+        x_fields_view = False
+        group_extra_fields = False
+        replace = ''
+        arch_str = etree.tostring(arch, encoding='utf-8')
         if view and view.get('type') == 'form' and base.form_field_ids:
             x_fields_view = "<group col='4' string='Extras'>"
             for field in base.form_field_ids:
-                x_fields_view += "<field name='" + field.name + "' " + (field.ubiar_xml_attrs or '') + "/>" 
+                field_added = False
+                xml_field = "<field name='" + field.name + "' " + (field.ubiar_xml_attrs or '') + "/>"
+                if field.ubiar_xml_inherit_field:
+                    inherit_field = arch.findall(".//field[@name='" + field.ubiar_xml_inherit_field.name + "']")
+                    if inherit_field and len(inherit_field) == 1:
+                        field_index = inherit_field[0].getparent().index(inherit_field[0]) + int(field.ubiar_xml_inherit_field_position)
+                        inherit_field[0].getparent().insert(field_index, etree.XML(xml_field))
+                        field_added = True
+                if not field_added:
+                    x_fields_view += xml_field
+                    group_extra_fields = True
             x_fields_view += "</group>"
-            replace = '</sheet>' if '</sheet>' in arch else '</form>'
-            replace = '</notebook>' if '</notebook>' in arch else replace
-            if replace == '</notebook>':
-                x_fields_view = "<page string='Extras'>" + x_fields_view.replace(" string='Extras'", '') + "</page>"
-            x_fields_view += replace
+            if group_extra_fields:
+                replace = '</sheet>' if '</sheet>' in arch_str else '</form>'
+                replace = '</notebook>' if '</notebook>' in arch_str else replace
+                if replace == '</notebook>':
+                    x_fields_view = "<page string='Extras'>" + x_fields_view.replace(" string='Extras'", '') + "</page>"
+                x_fields_view += replace
+        arch = etree.tostring(arch, encoding='utf-8')
+        if group_extra_fields:
             arch = arch.replace(replace.encode("utf8"), x_fields_view.encode("utf8"))
-
         return dict(view, arch=arch)
 
     #------------------------------------------------------
