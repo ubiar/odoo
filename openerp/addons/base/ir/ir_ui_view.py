@@ -643,7 +643,7 @@ class view(osv.osv):
             if replace == '</notebook>':
                 x_fields_view = "<page string='Extras'>" + x_fields_view.replace(" string='Extras'", '') + "</page>"
             x_fields_view += replace
-            arch = arch.replace(replace, x_fields_view)
+            arch = arch.replace(replace.encode("utf8"), x_fields_view.encode("utf8"))
 
         return dict(view, arch=arch)
 
