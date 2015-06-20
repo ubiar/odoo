@@ -626,7 +626,7 @@ class account_account(osv.osv):
             return []
         if isinstance(ids, (int, long)):
                     ids = [ids]
-        reads = self.read(cr, uid, SUPERUSER_ID, ['name', 'code'], context=context)
+        reads = self.read(cr, SUPERUSER_ID, ids, ['name', 'code'], context=context)
         res = []
         for record in reads:
             name = record['name']
