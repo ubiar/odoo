@@ -1256,7 +1256,7 @@ class BaseModel(object):
                 else:
                     res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
                 if extra_error:
-                    res_msg += "\n\n%s\n%s" % (_('Error details:'), extra_error)
+                    res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
                 errors.append(_(res_msg))
         if errors:
             raise ValidationError('\n'.join(errors))

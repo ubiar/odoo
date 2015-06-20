@@ -70,7 +70,7 @@ class AccessDenied(Exception):
     """ Login/password error. No message, no traceback.
     Example: When you try to log with a wrong password."""
     def __init__(self):
-        super(AccessDenied, self).__init__('Access denied')
+        super(AccessDenied, self).__init__('Acceso denegado.')
         self.traceback = ('', '', '')
 
 
@@ -87,13 +87,11 @@ class MissingError(except_orm):
     def __init__(self, msg):
         super(MissingError, self).__init__(msg)
 
-
 class ValidationError(except_orm):
     """ Violation of python constraints
     Example: When you try to create a new user with a login which already exist in the db."""
     def __init__(self, msg):
         super(ValidationError, self).__init__(msg)
-
 
 class DeferredException(Exception):
     """ Exception object holding a traceback for asynchronous reporting.
