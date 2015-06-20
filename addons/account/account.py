@@ -626,7 +626,7 @@ class account_account(osv.osv):
             return []
         if isinstance(ids, (int, long)):
                     ids = [ids]
-        reads = self.read(cr, uid, ids, ['name', 'code'], context=context)
+        reads = self.read(cr, SUPERUSER_ID, ids, ['name', 'code'], context=context)
         res = []
         for record in reads:
             name = record['name']
@@ -852,7 +852,7 @@ class account_journal(osv.osv):
             return []
         if isinstance(ids, (int, long)):
             ids = [ids]
-        result = self.browse(cr, user, ids, context=context)
+        result = self.browse(cr, SUPERUSER_ID, ids, context=context)
         res = []
         for rs in result:
             if rs.currency:

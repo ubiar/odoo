@@ -1300,7 +1300,7 @@ msgstr "Orden"
 #: view:sale.order:sale.view_order_form
 #: field:sale.order,order_line:0
 msgid "Order Lines"
-msgstr "Líneas de la orden"
+msgstr "Líneas"
 
 #. module: sale
 #: model:ir.actions.act_window,name:sale.action_order_line_tree2
@@ -1748,7 +1748,7 @@ msgstr ""
 #: view:sale.order:sale.view_sale_order_calendar
 #: view:sale.order:sale.view_sale_order_graph
 msgid "Sales Orders"
-msgstr "Órdenes de venta"
+msgstr "Notas de Venta"
 
 #. module: sale
 #: model:ir.model,name:sale.model_sale_report

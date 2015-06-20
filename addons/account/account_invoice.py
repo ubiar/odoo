@@ -721,7 +721,7 @@ class account_invoice(models.Model):
                 key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
                 tax_key.append(key)
                 if key not in compute_taxes:
-                    raise UserError(_('Global taxes defined, but they are not in invoice lines !'))
+                    raise except_orm(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
                 base = compute_taxes[key]['base']
                 if self.recargo_financiero_val:
                     base += self.recargo_financiero_val
@@ -846,6 +846,10 @@ class account_invoice(models.Model):
             if inv.payment_term:
                 if inv.anticipo_porc:
                     ctx['anticipo_porc'] = inv.anticipo_porc
+                if inv.anticipo_ult_camb == 'valor':
+                    ctx['anticipo_val'] = inv.anticipo_val
+                else:
+                    ctx['anticipo_val'] = inv.amount_untaxed * (inv.anticipo_porc / 100)
                 totlines = inv.with_context(ctx).payment_term.compute(total, date_invoice)[0]
             if totlines:
                 res_amount_currency = total_currency

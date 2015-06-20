@@ -1257,6 +1257,17 @@ class BaseModel(object):
                     res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
                 if extra_error:
                     res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
+                fields_translated = {}
+                for field in names:
+                    fields_translated[field] = trans._get_source(self._name + ',' + field, 'field', self.env.lang, self._fields[field].string)
+                for id in ids:
+                    res_msg += "\n\n%s" % (_('En los registros:'))
+                    if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
+                        reg_data = ''
+                        for field, data in self._model.read(cr, uid, id, list(names)).iteritems():
+                            if field and field != 'id' and data and type(data) in [str, unicode]:
+                                reg_data += "%s: %s (%s) " % (fields_translated.get(field), data, data.encode('ascii', 'replace'))
+                        res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
                 errors.append(_(res_msg))
         if errors:
             raise ValidationError('\n'.join(errors))
@@ -1269,7 +1280,7 @@ class BaseModel(object):
                 except ValidationError, e:
                     raise
                 except Exception, e:
-                    raise ValidationError("Error while validating constraint\n\n%s" % tools.ustr(e))
+                    raise ValidationError("Error al validar\n\n%s" % tools.ustr(e))
 
     @api.model
     def default_get(self, fields_list):
@@ -4094,7 +4105,6 @@ class BaseModel(object):
         # low-level implementation of create()
         if not context:
             context = {}
-
         if self.is_transient():
             self._transient_vacuum(cr, user)
 
@@ -4220,7 +4230,7 @@ class BaseModel(object):
                 ', '.join(u[1] for u in updates)
             ),
             tuple([u[2] for u in updates if len(u) > 2])
-        )
+        , log_exceptions=context.get('log_exceptions', None))
 
         id_new, = cr.fetchone()
         recs = self.browse(cr, user, id_new, context)

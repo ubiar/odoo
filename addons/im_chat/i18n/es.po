@@ -195,3 +195,10 @@ msgstr "Visitante"
 #: field:im_chat.conversation_state,state:0
 msgid "unknown"
 msgstr "desconocido"
+
+#. module: im_chat
+#. openerp-web
+#: code:addons/im_chat/static/src/xml/im_chat.xml:79
+#, python-format
+msgid "Search users..."
+msgstr "Buscar usuario..."

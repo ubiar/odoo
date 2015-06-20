@@ -3624,7 +3624,7 @@ msgstr "Factura de cliente"
 #: model:ir.actions.act_window,name:account.action_invoice_tree1
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree1
 msgid "Customer Invoices"
-msgstr "Facturas de cliente"
+msgstr "Facturas"
 
 #. module: account
 #: field:res.partner,property_payment_term:0
@@ -3636,13 +3636,13 @@ msgstr ""
 #: selection:account.invoice.report,type:0
 #: selection:report.invoice.created,type:0
 msgid "Customer Refund"
-msgstr "Reembolso al Cliente"
+msgstr "Nota de Credito"
 
 #. module: account
 #: model:ir.actions.act_window,name:account.action_invoice_tree3
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree3
 msgid "Customer Refunds"
-msgstr "Reembolsos al cliente"
+msgstr "Por Producto"
 
 #. module: account
 #: field:product.template,taxes_id:0
@@ -5788,7 +5788,7 @@ msgstr "Referencia de Factura"
 #. module: account
 #: model:ir.model,name:account.model_account_invoice_refund
 msgid "Invoice Refund"
-msgstr "Factura Reembolso"
+msgstr "Nota de Credito"
 
 #. module: account
 #: field:account.invoice.report,state:0
@@ -7700,7 +7700,7 @@ msgstr ""
 #: view:account.invoice:account.invoice_supplier_form
 #: selection:account.vat.declaration,based_on:0
 msgid "Payments"
-msgstr "Pagos"
+msgstr "Conciliaciones"
 
 #. module: account
 #: field:res.company,paypal_account:0
@@ -8375,7 +8375,7 @@ msgstr "Proceso de Conciliación empresa por empresa"
 #: code:addons/account/static/src/xml/account_move_reconciliation.xml:30
 #, python-format
 msgid "Reconcile"
-msgstr "Conciliar"
+msgstr "Conciliación"
 
 #. module: account
 #: view:account.move.reconcile:account.view_move_reconcile_form
@@ -10006,8 +10006,8 @@ msgstr "Las líneas de los asientos contables no están en estado válido."
 #. module: account
 #: code:addons/account/account_move_line.py:970
 #, python-format
-msgid "The account is not defined to be reconciled !"
-msgstr "¡No se ha definido la cuenta como reconciliable!"
+msgid "The account %s is not defined to be reconciled !"
+msgstr "¡No se ha definido la cuenta %s como reconciliable!"
 
 #. module: account
 #: code:addons/account/account_move_line.py:1116
