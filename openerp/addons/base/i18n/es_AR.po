@@ -10399,7 +10399,12 @@ msgstr ""
 #. module: base
 #: view:ir.ui.view:base.view_view_form
 msgid "User Fields"
-msgstr "Campos de usuario"
+msgstr "Campos de Usuario"
+
+#. module: base
+#: view:ir.ui.view:base.view_view_form
+msgid "Invisible Fields"
+msgstr "Campos Ocultos"
 
 #. module: base
 #: field:ir.model,inherited_model_ids:0
