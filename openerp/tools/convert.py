@@ -723,7 +723,7 @@ form: module.record_id""" % (xml_id,)
                 if not os.path.isfile(file_path):
                     raise Exception(_('File %s not exists.') % (f_file))
                 fp = misc.file_open(file_path)
-                f_val = fp.read()
+                f_val = fp.read().encode("base64")
                 fp.close()
             else:
                 f_val = _eval_xml(self,field, self.pool, cr, self.uid, self.idref)
