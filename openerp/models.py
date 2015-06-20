@@ -1257,6 +1257,10 @@ class BaseModel(object):
                     res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
                 if extra_error:
                     res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
+                for id in ids:
+                    res_msg += "\n\n%s" % (_('En los registros:'))
+                    if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
+                        res_msg += "\n%s" % (self._model.name_get(cr, uid, id)[0][1])
                 errors.append(_(res_msg))
         if errors:
             raise ValidationError('\n'.join(errors))
