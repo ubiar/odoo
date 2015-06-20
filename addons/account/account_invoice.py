@@ -310,9 +310,8 @@ class account_invoice(models.Model):
         help="The commercial entity that will be used on Journal Entries for this invoice")
 
     _sql_constraints = [
-        # TODO: Ver si hay una forma mejor de heredar una sql_constraint
-        #('number_uniq', 'unique(number, company_id, journal_id, type)', 
-        #    'Invoice Number must be unique per Company!'),
+        ('number_uniq', 'unique(number, company_id, journal_id, type)', 
+           'Invoice Number must be unique per Company!'),
     ]
 
     @api.model
