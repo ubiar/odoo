@@ -25,7 +25,7 @@ msgstr ""
 #: selection:res.partner,purchase_warn:0
 #: selection:res.partner,sale_warn:0
 msgid "Blocking Message"
-msgstr "Bloqueo de mensajes"
+msgstr "Mensaje y bloqueo"
 
 #. module: warning
 #: model:ir.model,name:warning.model_account_invoice
@@ -71,7 +71,7 @@ msgstr "Mensaje para stock picking"
 #: selection:res.partner,purchase_warn:0
 #: selection:res.partner,sale_warn:0
 msgid "No Message"
-msgstr "Son mensaje"
+msgstr "Sin mensaje"
 
 #. module: warning
 #: model:ir.model,name:warning.model_res_partner
