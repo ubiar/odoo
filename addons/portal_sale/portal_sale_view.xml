@@ -24,7 +24,8 @@
                 </field>
         </record>
 
-        <record model="ir.ui.view" id="invoice_form_portal">
+        <!-- Ya lo reemplazamos en la vista -->
+        <!-- <record model="ir.ui.view" id="invoice_form_portal">
             <field name="name">account.invoice.form.portal</field>
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form"/>
@@ -32,7 +33,7 @@
             <field name="arch" type="xml">
                 <field name="payment_ids" position="replace" />
             </field>
-        </record>
+        </record> -->
 
         <record id="view_account_invoice_filter_share" model="ir.ui.view">
             <field name="name">account.invoice.select.share</field>
