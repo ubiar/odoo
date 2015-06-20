@@ -1748,7 +1748,7 @@ msgstr ""
 #: view:sale.order:sale.view_sale_order_calendar
 #: view:sale.order:sale.view_sale_order_graph
 msgid "Sales Orders"
-msgstr "Órdenes de venta"
+msgstr "Notas de Venta"
 
 #. module: sale
 #: model:ir.model,name:sale.model_sale_report

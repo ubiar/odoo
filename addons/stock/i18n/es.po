@@ -570,7 +570,7 @@ msgstr ""
 #: code:addons/stock/static/src/js/widgets.js:654
 #, python-format
 msgid "<p>We could not find a picking to display.</p>"
-msgstr "<p>No se ha encontrado ningún albarán que mostrar.</p>"
+msgstr "<p>No se ha encontrado ningún comprobante que mostrar.</p>"
 
 #. module: stock
 #: code:addons/stock/stock.py:2495
@@ -3071,7 +3071,7 @@ msgstr "Sin inventario aún"
 #: code:addons/stock/static/src/js/widgets.js:647
 #, python-format
 msgid "No Picking Available"
-msgstr "No hay albarán disponible"
+msgstr "No hay comprobantes disponibles"
 
 #. module: stock
 #: view:report.stock.lines.date:stock.report_stock_lines_date_search
@@ -4006,7 +4006,7 @@ msgstr "Estrategia de deshecho"
 #: code:addons/stock/static/src/xml/picking.xml:111
 #, python-format
 msgid "Put in Cart"
-msgstr "Poner en el carro"
+msgstr "Procesar Operación"
 
 #. module: stock
 #. openerp-web
@@ -6144,7 +6144,7 @@ msgstr "movimiento que creó la devolución"
 #: code:addons/stock/static/src/xml/picking.xml:243
 #, python-format
 msgid "picking(s)"
-msgstr "albarán(es)"
+msgstr "comprobante/s"
 
 #. module: stock
 #: view:stock.return.picking:stock.view_stock_return_picking_form
