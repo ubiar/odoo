@@ -198,26 +198,28 @@ class sale_order(osv.osv):
         'invoice_exists': fields.function(_invoice_exists, string='Invoiced',
             fnct_search=_invoiced_search, type='boolean', help="It indicates that sales order has at least one invoice."),
         'note': fields.text('Terms and conditions'),
-
-        'amount_untaxed': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Untaxed Amount',
-            store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
-                'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
-            },
-            multi='sums', help="The amount without tax.", track_visibility='always'),
-        'amount_tax': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Taxes',
-            store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
-                'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
-            },
-            multi='sums', help="The tax amount."),
-        'amount_total': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Total',
-            store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
-                'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
-            },
-            multi='sums', help="The total amount."),
-
+        # Como se pisan con los metodos de la version 8 de la api genera un bug al tener los dos function en distintas versiones
+        'amount_untaxed': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
+        'amount_tax': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
+        'amount_total': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
+        # 'amount_untaxed': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Untaxed Amount',
+        #     store={
+        #         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
+        #         'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
+        #     },
+        #     multi='sums', help="The amount without tax.", track_visibility='always'),
+        # 'amount_tax': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Taxes',
+        #     store={
+        #         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
+        #         'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
+        #     },
+        #     multi='sums', help="The tax amount."),
+        # 'amount_total': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Total',
+        #     store={
+        #         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
+        #         'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
+        #     },
+        #     multi='sums', help="The total amount."),
         'payment_term': fields.many2one('account.payment.term', 'Payment Term'),
         'fiscal_position': fields.many2one('account.fiscal.position', 'Fiscal Position'),
         'company_id': fields.many2one('res.company', 'Company'),
