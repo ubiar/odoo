@@ -278,6 +278,8 @@ class ir_model_fields(osv.osv):
                                                                            "structure of the serialization field, instead "
                                                                            "of having its own database column. This cannot be "
                                                                            "changed after creation."),
+        'form_view_ids': fields.many2many('ir.ui.view', 'ir_ui_view_x_ir_model_fields_rel', 'field_id', 'view_id', 'Automatic Views'),
+        'ubiar_xml_attrs': fields.char('View Properties'),
     }
     _rec_name='field_description'
     _defaults = {

@@ -182,6 +182,16 @@ class view(osv.osv):
 
         return True
 
+    def _get_ubiar_model_id(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        model_pool = self.pool.get('ir.model')
+        for obj in self.browse(cr, uid, ids, context=context):
+            res[obj.id] = False
+            model_id = model_pool.search(cr, uid, [('model', '=', obj.model)])
+            if model_id:
+                res[obj.id] = model_id[0]
+        return res
+
     _columns = {
         'name': fields.char('View Name', required=True),
         'model': fields.char('Object', select=True),
@@ -235,6 +245,8 @@ class view(osv.osv):
 * if True, the view always extends its parent
 * if False, the view currently does not extend its parent but can be enabled
              """),
+        'form_field_ids': fields.many2many('ir.model.fields', 'ir_ui_view_x_ir_model_fields_rel', 'view_id', 'field_id', 'Automatic Form Fields'),
+        'ubiar_model_id': fields.function(_get_ubiar_model_id, type='many2one', relation='ir.model', string="Model"), #Le agrego ubiar por si crean model_id en un futuro
     }
     _defaults = {
         'mode': 'primary',
@@ -620,7 +632,20 @@ class view(osv.osv):
         arch = self.apply_view_inheritance(
             cr, uid, arch_tree, root_id, base.model, context=context)
 
-        return dict(view, arch=etree.tostring(arch, encoding='utf-8'))
+        arch = etree.tostring(arch, encoding='utf-8')
+        if view and view.get('type') == 'form' and base.form_field_ids:
+            x_fields_view = "<group col='4' string='Extras'>"
+            for field in base.form_field_ids:
+                x_fields_view += "<field name='" + field.name + "' " + (field.ubiar_xml_attrs or '') + "/>" 
+            x_fields_view += "</group>"
+            replace = '</sheet>' if '</sheet>' in arch else '</form>'
+            replace = '</notebook>' if '</notebook>' in arch else replace
+            if replace == '</notebook>':
+                x_fields_view = "<page string='Extras'>" + x_fields_view.replace(" string='Extras'", '') + "</page>"
+            x_fields_view += replace
+            arch = arch.replace(replace, x_fields_view)
+
+        return dict(view, arch=arch)
 
     #------------------------------------------------------
     # Postprocessing: translation, groups and modifiers

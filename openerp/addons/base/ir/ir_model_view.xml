@@ -56,6 +56,7 @@
                                         <field name="name"/>
                                         <field name="state"/>
                                         <field name="field_description"/>
+                                        <field name="ubiar_xml_attrs" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
                                     </group>
                                     <group string="Properties">
                                         <group>
@@ -157,6 +158,7 @@
                         <group>
                             <field name="name" string="Field Name"/>
                             <field name="field_description"/>
+                            <field name="ubiar_xml_attrs" attrs="{'invisible':[('state', '!=', 'manual')]}"/>
                         </group>
                         <group>
                             <field name="state"/>
@@ -183,7 +185,8 @@
                             <field name="translate"/>
                         </group>
                     </group>
-                    <field name="groups" invisible="1"/>
+                    <separator string="Groups"/>
+                    <field name="groups"/>
                   </sheet>
                 </form>
             </field>

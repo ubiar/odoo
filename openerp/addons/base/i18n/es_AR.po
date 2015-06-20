@@ -7274,6 +7274,11 @@ msgid "Complete Name"
 msgstr "Nombre completo"
 
 #. module: base
+#: field:ir.model.fields,ubiar_xml_attrs:0
+msgid "View Properties"
+msgstr "Propiedades de la Vista (XML)"
+
+#. module: base
 #: model:res.partner.category,name:base.res_partner_category_9
 msgid "Components Buyer"
 msgstr ""
@@ -10370,6 +10375,11 @@ msgstr "Vista heredada"
 #: view:ir.ui.view:base.view_view_form
 msgid "Inherited Views"
 msgstr ""
+
+#. module: base
+#: view:ir.ui.view:base.view_view_form
+msgid "User Fields"
+msgstr "Campos de usuario"
 
 #. module: base
 #: field:ir.model,inherited_model_ids:0
