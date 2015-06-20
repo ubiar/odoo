@@ -353,7 +353,8 @@ class procurement_order(osv.osv):
             if procurement.state == "running" and procurement.rule_id and procurement.rule_id.action == "move":
                 move_to_confirm_ids += [m.id for m in procurement.move_ids if m.state == 'draft']
         if move_to_confirm_ids:
-            self.pool.get('stock.move').action_confirm(cr, uid, move_to_confirm_ids, context=context)
+            # Se establece el id del admin para que se puedan crear OE a otras sucursales dependiendo del deposito seleccionado
+            self.pool.get('stock.move').action_confirm(cr, SUPERUSER_ID, move_to_confirm_ids, context=context)
         return res
 
     def _check(self, cr, uid, procurement, context=None):
