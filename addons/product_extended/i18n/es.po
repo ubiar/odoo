@@ -112,4 +112,34 @@ msgstr "Establecer precio en la LdM"
 #. module: product_extended
 #: field:mrp.bom,standard_price:0
 msgid "Standard Price"
-msgstr "Precio de coste"
+msgstr "Precio de costo"
+
+#. module: product_extended
+#: view:wizard.price:product_extended.view_compute_price_wizard
+msgid ""
+"The price is computed from the bill of material lines which are not variant "
+"specific"
+msgstr ""
+"El precio se calcula desde las líneas de lista de materiales que no son "
+"específicos de una variante"
+
+#. module: product_extended
+#: code:addons/product_extended/wizard/wizard_price.py:54
+#, python-format
+msgid ""
+"This wizard is build for product templates, while you are currently running "
+"it from a product variant."
+msgstr ""
+"Este asistente está construido para las plantillas de producto, mientras que "
+"está ejecutándolo ahora mismo desde una variante de producto."
+
+#. module: product_extended
+#: code:addons/product_extended/wizard/wizard_price.py:54
+#, python-format
+msgid "Wrong model!"
+msgstr "¡Modelo erróneo!"
+
+#. module: product_extended
+#: view:wizard.price:product_extended.view_compute_price_wizard
+msgid "or"
+msgstr "o"

@@ -7700,7 +7700,7 @@ msgstr ""
 #: view:account.invoice:account.invoice_supplier_form
 #: selection:account.vat.declaration,based_on:0
 msgid "Payments"
-msgstr "Pagos"
+msgstr "Conciliaciones"
 
 #. module: account
 #: field:res.company,paypal_account:0
@@ -8375,7 +8375,7 @@ msgstr "Proceso de Conciliación empresa por empresa"
 #: code:addons/account/static/src/xml/account_move_reconciliation.xml:30
 #, python-format
 msgid "Reconcile"
-msgstr "Conciliar"
+msgstr "Conciliación"
 
 #. module: account
 #: view:account.move.reconcile:account.view_move_reconcile_form

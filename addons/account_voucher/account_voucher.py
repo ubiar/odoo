@@ -737,7 +737,7 @@ class account_voucher(osv.osv):
         move_lines_found = []
 
         #order the lines by most old first
-        ids.reverse()
+        #ids.reverse() -> Modificado por Ubiar, no se necesitan revertir
         account_move_lines = move_line_pool.browse(cr, uid, ids, context=context)
 
         #compute the total debit/credit and look for a matching open amount or invoice
