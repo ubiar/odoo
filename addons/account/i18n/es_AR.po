@@ -3636,13 +3636,13 @@ msgstr ""
 #: selection:account.invoice.report,type:0
 #: selection:report.invoice.created,type:0
 msgid "Customer Refund"
-msgstr "Reembolso al Cliente"
+msgstr "Nota de Credito"
 
 #. module: account
 #: model:ir.actions.act_window,name:account.action_invoice_tree3
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree3
 msgid "Customer Refunds"
-msgstr "Reembolsos al cliente"
+msgstr "Nota de Credito"
 
 #. module: account
 #: field:product.template,taxes_id:0
@@ -5788,7 +5788,7 @@ msgstr "Referencia de Factura"
 #. module: account
 #: model:ir.model,name:account.model_account_invoice_refund
 msgid "Invoice Refund"
-msgstr "Factura Reembolso"
+msgstr "Nota de Credito"
 
 #. module: account
 #: field:account.invoice.report,state:0
