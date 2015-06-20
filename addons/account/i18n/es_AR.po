@@ -3642,7 +3642,7 @@ msgstr "Nota de Credito"
 #: model:ir.actions.act_window,name:account.action_invoice_tree3
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree3
 msgid "Customer Refunds"
-msgstr "Nota de Credito"
+msgstr "Por Producto"
 
 #. module: account
 #: field:product.template,taxes_id:0
