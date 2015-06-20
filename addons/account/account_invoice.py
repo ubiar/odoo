@@ -721,9 +721,9 @@ class account_invoice(models.Model):
                     continue
                 key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
                 tax_key.append(key)
-                if key not in compute_taxes:
-                    raise UserError(_('Global taxes defined, but they are not in invoice lines !'))
-                base = compute_taxes[key]['base']
+                base = 0
+                if key in compute_taxes:
+                    base = compute_taxes[key]['base']
                 if self.recargo_financiero_val:
                     base += self.recargo_financiero_val
                 if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
