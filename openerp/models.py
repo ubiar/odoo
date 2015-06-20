@@ -4490,7 +4490,6 @@ class BaseModel(object):
         """
         if uid == SUPERUSER_ID:
             return
-
         def apply_rule(added_clause, added_params, added_tables, parent_model=None):
             """ :param parent_model: name of the parent model, if the added
                     clause comes from a parent model

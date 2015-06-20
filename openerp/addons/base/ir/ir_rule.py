@@ -82,7 +82,8 @@ class ir_rule(osv.osv):
         'perm_read': fields.boolean('Apply for Read'),
         'perm_write': fields.boolean('Apply for Write'),
         'perm_create': fields.boolean('Apply for Create'),
-        'perm_unlink': fields.boolean('Apply for Delete')
+        'perm_unlink': fields.boolean('Apply for Delete'),
+        'code': fields.char('Code'),
     }
 
     _order = 'model_id DESC'
@@ -97,6 +98,7 @@ class ir_rule(osv.osv):
     }
     _sql_constraints = [
         ('no_access_rights', 'CHECK (perm_read!=False or perm_write!=False or perm_create!=False or perm_unlink!=False)', 'Rule must have at least one checked access right !'),
+        ('code_uniq', 'unique(code)', 'Code must be unique.'),
     ]
     _constraints = [
         (_check_model_obj, 'Rules can not be applied on Transient models.', ['model_id']),
@@ -104,7 +106,7 @@ class ir_rule(osv.osv):
     ]
 
     @tools.ormcache()
-    def _compute_domain(self, cr, uid, model_name, mode="read"):
+    def _compute_domain(self, cr, uid, model_name, mode="read", context=None):
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
@@ -126,6 +128,8 @@ class ir_rule(osv.osv):
             global_domains = []                 # list of domains
             group_domains = {}                  # map: group -> list of domains
             for rule in self.browse(cr, SUPERUSER_ID, rule_ids):
+                if context and context.get('disable_rules') and rule.code in context.get('disable_rules'):
+                    continue
                 # read 'domain' as UID to have the correct eval context for the rule.
                 rule_domain = self.read(cr, uid, [rule.id], ['domain'])[0]['domain']
                 dom = expression.normalize_domain(rule_domain)
@@ -147,7 +151,7 @@ class ir_rule(osv.osv):
         self._compute_domain.clear_cache(self)
 
     def domain_get(self, cr, uid, model_name, mode='read', context=None):
-        dom = self._compute_domain(cr, uid, model_name, mode)
+        dom = self._compute_domain(cr, uid, model_name, mode, context)
         if dom:
             # _where_calc is called as superuser. This means that rules can
             # involve objects on which the real uid has no acces rights.
