@@ -231,7 +231,7 @@
     <record id="view_product_template_form_inherit" model="ir.ui.view">
         <field name="name">Product Template (form)</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="inherit_id" ref="account.product_template_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='properties']" position="before">
                 <group name="asset types">

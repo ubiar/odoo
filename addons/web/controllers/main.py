@@ -753,7 +753,7 @@ class Database(http.Controller):
             return {'error': _('Could not drop database !'), 'title': _('Drop Database')}
 
     @http.route('/web/database/backup', type='http', auth="none")
-    def backup(self, backup_db, backup_pwd, token, backup_format='zip'):
+    def backup(self, backup_db, backup_pwd, token, backup_format='zip', format='zip'):
         try:
             openerp.service.security.check_super(backup_pwd)
             ts = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")

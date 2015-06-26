@@ -285,6 +285,11 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
 
         # STEP 1: LOAD BASE (must be done before module dependencies can be computed for later steps) 
         graph = openerp.modules.graph.Graph()
+        
+        if 'migration_ubiar' in tools.config['update']:
+            cr.execute("update ir_module_module set state=%s where name=%s", ('to upgrade', 'migration_ubiar'))
+            graph.add_module(cr, 'migration_ubiar', force)
+
         graph.add_module(cr, 'base', force)
         if not graph:
             _logger.critical('module base cannot be loaded! (hint: verify addons-path)')
@@ -294,7 +299,6 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # loaded_modules: to avoid double loading
         report = registry._assertion_report
         loaded_modules, processed_modules = load_module_graph(cr, graph, status, perform_checks=update_module, report=report)
-
         if tools.config['load_language'] or update_module:
             # some base models are used below, so make sure they are set up
             registry.setup_models(cr, partial=True)
