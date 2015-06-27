@@ -298,22 +298,22 @@
                         <page name='sales_purchases' string="Sales &amp; Purchases">
                             <group name="container_row_1">
                                 <group>
-                                    <field name="ref"/>
-                                    <field name="lang"/>
-                                </group>
-                                <group>
                                     <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
-                                    <field name="active"/>                                    
+                                    <field name="ref"/>
                                 </group>
-                            </group>
-                            <group name="container_row_2">
-                                <group string="Sale" name="sale">
+                                <group name="sale">
                                     <field name="customer"/>
                                     <field name="user_id" 
                                         context="{'default_groups_ref': ['base.group_partner_manager']}"/>
                                 </group>
+                            </group>
+                            <group name="container_row_2">
                                 <group string="Purchase" name="purchase">
                                     <field name="supplier"/>
+                                </group>
+                                <group>
+                                    <field name="lang"/>
+                                    <field name="active"/>                                    
                                 </group>
                             </group>
                             <group name="container_row_3">

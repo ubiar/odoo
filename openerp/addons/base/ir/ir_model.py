@@ -573,6 +573,8 @@ class ir_model_constraint(Model):
         ids.reverse()
         for data in self.browse(cr, uid, ids, context):
             model = data.model.model
+            if not self.pool.get('model'):
+                continue
             model_obj = self.pool[model]
             name = openerp.tools.ustr(data.name)
             typ = data.type
@@ -1190,6 +1192,8 @@ class ir_model_data(osv.osv):
                     if not field.exists():
                         _logger.info('Deleting orphan external_ids %s', external_ids)
                         self.unlink(cr, uid, external_ids)
+                        continue
+                    if not self.pool.get(field.model):
                         continue
                     if field.name in openerp.models.LOG_ACCESS_COLUMNS and self.pool[field.model]._log_access:
                         continue

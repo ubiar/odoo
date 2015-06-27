@@ -1476,6 +1476,9 @@ class BaseModel(object):
 
         return view
 
+    def fields_view_get_before_processing(self, cr, uid, view, context=None):
+        return view
+
     def fields_view_get(self, cr, uid, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
         """ fields_view_get([view_id | view_type='form'])
 
@@ -1526,6 +1529,7 @@ class BaseModel(object):
         if view_id:
             # read the view with inherited views applied
             root_view = View.read_combined(cr, uid, view_id, fields=['id', 'name', 'field_parent', 'type', 'model', 'arch'], context=context)
+            root_view = self.fields_view_get_before_processing(cr, uid, root_view, context=context)
             result['arch'] = root_view['arch']
             result['name'] = root_view['name']
             result['type'] = root_view['type']
