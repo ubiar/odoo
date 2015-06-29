@@ -445,9 +445,9 @@ class BaseModel(object):
                     )
             else:
                 for key, val in vals.items():
-                    if type(cols[k][key]) == unicode and type(vals[key]) != unicode:
+                    if vals[key] and type(cols[k][key]) == unicode and type(vals[key]) != unicode:
                         vals[key] = vals[key].decode('utf-8')
-                    if type(vals[key]) == unicode and type(cols[k][key]) != unicode:
+                    if cols[k][key] and type(vals[key]) == unicode and type(cols[k][key]) != unicode:
                         cols[k][key] = cols[k][key].decode('utf-8')
                     if cols[k][key] != vals[key]:
                         vals = cols[k] # Bugs Fixed para que escriba los valores nuevos Ubiar
