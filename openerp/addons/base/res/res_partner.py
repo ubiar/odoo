@@ -595,7 +595,10 @@ class res_partner(osv.Model, format_address):
             name = name.replace('\n\n','\n')
             name = name.replace('\n\n','\n')
             if context.get('show_email') and record.email:
-                name = "%s <%s>" % (name, record.email)
+                email = record.email
+                if record.notify_email == 'none':
+                    email = _('Email notification disabled')
+                name = "%s <%s>" % (name, email)
             res.append((record.id, name))
         return res
 
