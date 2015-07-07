@@ -932,7 +932,7 @@ class view(osv.osv):
                 fields['id'] = {'readonly': True, 'type': 'integer', 'string': 'ID'}
             elif field in fields:
                 fields[field].update(fields_def[field])
-            else:
+            elif not context.get('no_raise_error_field_exist'):
                 message = _("Field `%(field_name)s` does not exist") % \
                                 dict(field_name=field)
                 self.raise_view_error(cr, user, message, view_id, context)
