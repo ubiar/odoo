@@ -9553,7 +9553,7 @@ msgstr "Proveedor"
 #: view:website:account.report_invoice_document
 #, python-format
 msgid "Supplier Invoice"
-msgstr "Factura de proveedor"
+msgstr "Factura"
 
 #. module: account
 #: field:account.invoice,supplier_invoice_number:0
@@ -9564,7 +9564,7 @@ msgstr ""
 #: model:ir.actions.act_window,name:account.action_invoice_tree2
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree2
 msgid "Supplier Invoices"
-msgstr "Facturas del proveedor"
+msgstr "Facturas"
 
 #. module: account
 #: field:res.partner,property_supplier_payment_term:0
@@ -9579,13 +9579,13 @@ msgstr "Plazo de Pago del Proveedor"
 #: view:website:account.report_invoice_document
 #, python-format
 msgid "Supplier Refund"
-msgstr "Reembolso de proveedor"
+msgstr "Nota de Crédito"
 
 #. module: account
 #: model:ir.actions.act_window,name:account.action_invoice_tree4
 #: model:ir.ui.menu,name:account.menu_action_invoice_tree4
 msgid "Supplier Refunds"
-msgstr "Reembolso del proveedor"
+msgstr "Notas de Crédito"
 
 #. module: account
 #: field:product.template,supplier_taxes_id:0
