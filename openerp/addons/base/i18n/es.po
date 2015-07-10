@@ -20811,3 +20811,9 @@ msgstr "Plan contable chino"
 #~ "forma\n"
 #~ "que se desee.\n"
 #~ "    "
+
+#. module: base
+#: code:addons/base/res/res_partner.py:600
+#, python-format
+msgid "Email notification disabled"
+msgstr "Notif. email desactivada"

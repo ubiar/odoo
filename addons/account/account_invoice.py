@@ -918,6 +918,7 @@ class account_invoice(models.Model):
                     i[2]['period_id'] = period.id
 
             ctx['invoice'] = inv
+            move_vals = inv.finalize_move_vals_ubiar(move_vals)
             move = account_move.with_context(ctx).create(move_vals)
             # make the invoice point to that move
             vals = {
@@ -931,6 +932,11 @@ class account_invoice(models.Model):
             move.post()
         self._log_event()
         return True
+
+    @api.multi
+    def finalize_move_vals_ubiar(self, vals):
+        # Metodo creado para poder realizar ajutes antes de crear el asiento contable
+        return vals
 
     @api.multi
     def invoice_validate(self):

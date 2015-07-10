@@ -445,7 +445,12 @@ class BaseModel(object):
                     )
             else:
                 for key, val in vals.items():
+                    if vals[key] and type(cols[k][key]) == unicode and type(vals[key]) != unicode:
+                        vals[key] = vals[key].decode('utf-8')
+                    if cols[k][key] and type(vals[key]) == unicode and type(cols[k][key]) != unicode:
+                        cols[k][key] = cols[k][key].decode('utf-8')
                     if cols[k][key] != vals[key]:
+                        vals = cols[k] # Bugs Fixed para que escriba los valores nuevos Ubiar
                         cr.execute('update ir_model_fields set field_description=%s where model=%s and name=%s', (vals['field_description'], vals['model'], vals['name']))
                         cr.execute("""UPDATE ir_model_fields SET
                             model_id=%s, field_description=%s, ttype=%s, relation=%s,
