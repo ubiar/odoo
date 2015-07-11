@@ -686,7 +686,7 @@ msgstr ""
 #. module: hr
 #: field:hr.employee,work_location:0
 msgid "Office Location"
-msgstr "Dirección oficina"
+msgstr "Ubicación en la oficina"
 
 #. module: hr
 #: model:ir.actions.client,name:hr.action_client_hr_menu
@@ -766,7 +766,7 @@ msgstr ""
 #. module: hr
 #: view:hr.employee:hr.view_employee_form
 msgid "Related User"
-msgstr "Usuario OpenERP asociado"
+msgstr "Usuario asociado"
 
 #. module: hr
 #: field:res.users,employee_ids:0

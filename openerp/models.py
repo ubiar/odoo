@@ -1260,8 +1260,6 @@ class BaseModel(object):
                         res_msg = template % params
                 else:
                     res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
-                if extra_error:
-                    res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
                 fields_translated = {}
                 for field in names:
                     fields_translated[field] = trans._get_source(self._name + ',' + field, 'field', self.env.lang, self._fields[field].string)
@@ -1273,6 +1271,8 @@ class BaseModel(object):
                             if field and field != 'id' and data and type(data) in [str, unicode]:
                                 reg_data += "%s: %s (%s) " % (fields_translated.get(field), data, data.encode('ascii', 'replace'))
                         res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
+                if extra_error:
+                    res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
                 errors.append(_(res_msg))
         if errors:
             raise ValidationError('\n'.join(errors))
