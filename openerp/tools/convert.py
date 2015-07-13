@@ -65,8 +65,8 @@ class ParseError(Exception):
         self.lineno = lineno
 
     def __str__(self):
-        return '"%s" while parsing %s:%s, near\n%s' \
-            % (self.msg, self.filename, self.lineno, self.text)
+        return '"%s"\nNear\n%s\nWhile parsing %s:%s' \
+            % (self.text, self.msg, self.filename, self.lineno)
 
 def _ref(self, cr):
     return lambda x: self.id_get(cr, x)
