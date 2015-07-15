@@ -806,8 +806,9 @@ instance.web.ViewManager =  instance.web.Widget.extend({
             this.searchview.destroy();
         }
         var view_id = (this.action && this.action.search_view_id && this.action.search_view_id) || false;
-	
-	var search_defaults = {};
+        if (typeof view_id == typeof[])
+            view_id = view_id[0];
+        var search_defaults = {};
 
         var context = this.action ? this.action.context : [];
         _.each(context, function (value, key) {
