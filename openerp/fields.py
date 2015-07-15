@@ -33,6 +33,8 @@ import xmlrpclib
 from openerp.tools import float_round, frozendict, html_sanitize, ustr
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
+from openerp.exceptions import UserError
+from .tools.translate import _
 
 DATE_LENGTH = len(date.today().strftime(DATE_FORMAT))
 DATETIME_LENGTH = len(datetime.now().strftime(DATETIME_FORMAT))
