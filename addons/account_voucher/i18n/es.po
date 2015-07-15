@@ -438,7 +438,7 @@ msgstr "Comprobantes borrador"
 #: field:account.voucher.line,date_due:0
 #: field:sale.receipt.report,date_due:0
 msgid "Due Date"
-msgstr "Fecha vencimiento"
+msgstr "Vencimiento"
 
 #. module: account_voucher
 #: view:sale.receipt.report:account_voucher.view_sale_receipt_report_search
@@ -488,7 +488,7 @@ msgstr "Seguidores"
 #. module: account_voucher
 #: field:account.voucher.line,reconcile:0
 msgid "Full Reconcile"
-msgstr "Conciliación completa"
+msgstr "Total"
 
 #. module: account_voucher
 #: code:addons/account_voucher/account_voucher.py:1068
@@ -663,7 +663,7 @@ msgstr "Sólo para impuestos excluídos del precio"
 #. module: account_voucher
 #: field:account.voucher.line,amount_unreconciled:0
 msgid "Open Balance"
-msgstr "Saldo Inicial"
+msgstr "Saldo"
 
 #. module: account_voucher
 #: view:account.voucher:account_voucher.view_low_priority_payment_form
@@ -683,7 +683,7 @@ msgstr "Abrir asientos de proveedor"
 #. module: account_voucher
 #: field:account.voucher.line,amount_original:0
 msgid "Original Amount"
-msgstr "Importe original"
+msgstr "Importe"
 
 #. module: account_voucher
 #: view:account.voucher:account_voucher.view_low_priority_payment_form
