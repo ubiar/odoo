@@ -31,6 +31,7 @@ If you consider introducing new exceptions, check out the test_exceptions addon.
 from inspect import currentframe
 import logging
 from tools.func import frame_codeinfo
+import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -48,6 +49,8 @@ class except_orm(Exception):
 
 class UserError(except_orm):
     def __init__(self, msg):
+        if _logger.isEnabledFor(logging.DEBUG):
+            traceback.print_stack()
         super(UserError, self).__init__(msg)
 
 
@@ -70,6 +73,8 @@ class AccessDenied(Exception):
     """ Login/password error. No message, no traceback.
     Example: When you try to log with a wrong password."""
     def __init__(self):
+        if _logger.isEnabledFor(logging.DEBUG):
+            traceback.print_stack()
         super(AccessDenied, self).__init__('Acceso denegado.')
         self.traceback = ('', '', '')
 
@@ -78,6 +83,8 @@ class AccessError(except_orm):
     """ Access rights error.
     Example: When you try to read a record that you are not allowed to."""
     def __init__(self, msg):
+        if _logger.isEnabledFor(logging.DEBUG):
+            traceback.print_stack()
         super(AccessError, self).__init__(msg)
 
 
@@ -85,12 +92,16 @@ class MissingError(except_orm):
     """ Missing record(s).
     Example: When you try to write on a deleted record."""
     def __init__(self, msg):
+        if _logger.isEnabledFor(logging.DEBUG):
+            traceback.print_stack()
         super(MissingError, self).__init__(msg)
 
 class ValidationError(except_orm):
     """ Violation of python constraints
     Example: When you try to create a new user with a login which already exist in the db."""
     def __init__(self, msg):
+        if _logger.isEnabledFor(logging.DEBUG):
+            traceback.print_stack()
         super(ValidationError, self).__init__(msg)
 
 class DeferredException(Exception):

@@ -218,11 +218,13 @@ DEFAULT_LOG_CONFIGURATION = [
     'openerp.http.rpc.response:INFO',
     'openerp.addons.web.http:INFO',
     'openerp.sql_db:INFO',
+    'openerp.exceptions:INFO',
     ':INFO',
 ]
 PSEUDOCONFIG_MAPPER = {
     'debug_rpc_answer': ['openerp:DEBUG','openerp.http.rpc.request:DEBUG', 'openerp.http.rpc.response:DEBUG'],
     'debug_rpc': ['openerp:DEBUG','openerp.http.rpc.request:DEBUG'],
+    'debug_exceptions': ['openerp:DEBUG','openerp.exceptions:DEBUG'],
     'debug': ['openerp:DEBUG'],
     'debug_sql': ['openerp.sql_db:DEBUG'],
     'info': [],

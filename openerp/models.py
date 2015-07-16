@@ -1285,6 +1285,7 @@ class BaseModel(object):
                 except ValidationError, e:
                     raise
                 except Exception, e:
+                    _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
                     raise ValidationError("Error al validar\n\n%s" % tools.ustr(e))
 
     @api.model
