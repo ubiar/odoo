@@ -240,7 +240,9 @@
                                 selectorText.indexOf(":after") === -1 &&
                                 selectorText.indexOf(":active") === -1 &&
                                 selectorText.indexOf(":link") === -1 &&
-                                selectorText.indexOf("::") === -1) {
+                                selectorText.indexOf("::") === -1 &&
+                                selectorText.indexOf("\"") === -1 &&
+                                selectorText.indexOf("'") === -1) {
                             var st = selectorText.split(/\s*,\s*/);
                             for (var k=0; k<st.length; k++) {
                                 rulesCache.push({
@@ -324,7 +326,7 @@
                 var content;
                 _.find(website.editor.fontIcons, function (font) {
                     return _.find(website.editor.getCssSelectors(font.parser), function (css) {
-                        if ($font.is(css[0].replace(/::?before$/, ''))) {
+                        if ($font.is(css[2])) {
                             content = css[1].match(/content:\s*['"](.)['"]/)[1];
                             return true;
                         }

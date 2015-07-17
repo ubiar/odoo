@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* ---- SNIPPET EDITOR ---- {{{ */
 #oe_snippets #o_left_bar, #oe_snippets #o_arrow {
   position: fixed;
@@ -104,7 +105,7 @@
 .oe_snippet {
   display: inline-block;
   vertical-align: top;
-  width: 93px;
+  width: 92px;
   margin-left: 3px;
   margin-right: 3px;
   margin-top: 1px;
@@ -869,4 +870,13 @@ table.table_desc tr td:last-child {
 
 .s_features_grid {
   margin-bottom: 16px;
+}
+
+/* other snippet styles */
+.s_comparisons .panel .list-group-item:not(.active) {
+  color: #666;
+}
+
+.s_references .img-thumbnail {
+  border: none;
 }

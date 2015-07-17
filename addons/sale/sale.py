@@ -40,7 +40,7 @@ class sale_order(osv.osv):
     _description = "Sales Order"
     _track = {
         'state': {
-            'sale.mt_order_confirmed': lambda self, cr, uid, obj, ctx=None: obj.state in ['manual'],
+            'sale.mt_order_confirmed': lambda self, cr, uid, obj, ctx=None: obj.state in ['manual', 'progress'],
             'sale.mt_order_sent': lambda self, cr, uid, obj, ctx=None: obj.state in ['sent']
         },
     }
@@ -334,7 +334,7 @@ class sale_order(osv.osv):
         if context is None:
             context = {}
         if vals.get('name', '/') == '/':
-            vals['name'] = self.pool.get('ir.sequence').next_by_code(cr, uid, 'sale.order') or '/'
+            vals['name'] = self.pool.get('ir.sequence').next_by_code(cr, uid, 'sale.order', context=context) or '/'
         if vals.get('partner_id') and any(f not in vals for f in ['partner_invoice_id', 'partner_shipping_id', 'pricelist_id', 'fiscal_position']):
             defaults = self.onchange_partner_id(cr, uid, [], vals['partner_id'], context=context)['value']
             if not vals.get('fiscal_position') and vals.get('partner_shipping_id'):
@@ -575,8 +575,12 @@ class sale_order(osv.osv):
         return True
 
     def action_button_confirm(self, cr, uid, ids, context=None):
+        if not context:
+            context = {}
         assert len(ids) == 1, 'This option should only be used for a single id at a time.'
         self.signal_workflow(cr, uid, ids, 'order_confirm')
+        if context.get('send_email'):
+            self.force_quotation_send(cr, uid, ids, context=context)
         return True
         
     def action_wait(self, cr, uid, ids, context=None):
@@ -625,6 +629,29 @@ class sale_order(osv.osv):
             'target': 'new',
             'context': ctx,
         }
+
+    def force_quotation_send(self, cr, uid, ids, context=None):
+        for order_id in ids:
+            email_act = self.action_quotation_send(cr, uid, [order_id], context=context)
+            if email_act and email_act.get('context'):
+                composer_obj = self.pool['mail.compose.message']
+                composer_values = {}
+                email_ctx = email_act['context']
+                template_values = [
+                    email_ctx.get('default_template_id'),
+                    email_ctx.get('default_composition_mode'),
+                    email_ctx.get('default_model'),
+                    email_ctx.get('default_res_id'),
+                ]
+                composer_values.update(composer_obj.onchange_template_id(cr, uid, None, *template_values, context=context).get('value', {}))
+                if not composer_values.get('email_from'):
+                    composer_values['email_from'] = self.browse(cr, uid, order_id, context=context).company_id.email
+                for key in ['attachment_ids', 'partner_ids']:
+                    if composer_values.get(key):
+                        composer_values[key] = [(6, 0, composer_values[key])]
+                composer_id = composer_obj.create(cr, uid, composer_values, context=email_ctx)
+                composer_obj.send_mail(cr, uid, [composer_id], context=email_ctx)
+        return True
 
     def action_done(self, cr, uid, ids, context=None):
         for order in self.browse(cr, uid, ids, context=context):

@@ -205,6 +205,14 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
             }
             return node;
         },
+        clear_node: function(key) {
+            var cached = this.cache[key];
+            if (cached) {
+                delete this.cache[key];
+                delete this.access_time[key];
+                this.size --;
+            }
+        },
         get_node: function(key){
             var cached = this.cache[key];
             if(cached){
@@ -653,14 +661,13 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
             this.el = el_node;
 
             var hasimages = false;  //if none of the subcategories have images, we don't display buttons with icons
-            /*
+
             for(var i = 0; i < this.subcategories.length; i++){
                 if(this.subcategories[i].image){
                     hasimages = true;
                     break;
                 }
             }
-            */
 
             var list_container = el_node.querySelector('.category-list');
             if (list_container) { 
@@ -1469,7 +1476,9 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
                 var key = '';
                 if ( event.keyCode === 13 ) {         // Enter
                     self.validate_order();
-                } else if ( event.keyCode === 190 ) { // Dot
+                } else if ( event.keyCode === 190 || // Dot
+                            event.keyCode === 110 ||  // Decimal point (numpad)
+                            event.keyCode === 188 ) { // Comma
                     key = '.';
                 } else if ( event.keyCode === 46 ) {  // Delete
                     key = 'CLEAR';

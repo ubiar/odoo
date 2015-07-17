@@ -23,3 +23,4 @@ import delivery
 import partner
 import sale
 import stock
+import models

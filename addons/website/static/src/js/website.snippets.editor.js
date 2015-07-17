@@ -1060,12 +1060,16 @@
         },
         background: function(type, value, $li) {
             if (value && value.length) {
-                this.$bg.attr("style", 'background-image: url(' + value + ')' + (this.$bg.attr("style") || '').replace(/background-image:[^;]+/, '') );
+                this.$bg.attr("style", 'background-image: url(' + value + '); ' + (this.$bg.attr("style") || '').replace(/background-image:[^;]+;/, ''));
                 this.$bg.addClass("oe_img_bg");
             } else {
                 this.$bg.css("background-image", "");
                 this.$bg.removeClass("oe_img_bg").removeClass("oe_custom_bg");
             }
+        },
+        select_class : function(type, value, $li) {
+            this.background(type, '', $li);
+            this._super(type, value, $li);
         },
         choose_image: function(type, value, $li) {
             if(type !== "click") return;
@@ -1158,6 +1162,7 @@
                 .click(function () {
                     $td.removeClass("selected");
                     $(this).parent().addClass("selected");
+                    self.$target.closest(".o_editable").trigger("content_changed");
                 });
         }
     });
