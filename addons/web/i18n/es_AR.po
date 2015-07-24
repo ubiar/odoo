@@ -1307,8 +1307,37 @@ msgstr "Agrupar por: %s"
 #. openerp-web
 #: code:addons/web/static/src/js/search.js:1284
 #, python-format
-msgid "GroupBy"
-msgstr "Agrupar Por"
+msgid "Group By"
+msgstr "Agrupar"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/search.js:1286
+#, python-format
+msgid "Add custom group"
+msgstr "Otro campo"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/search.js:1285
+#, python-format
+msgid "Add Custom Filter"
+msgstr "Otro campo"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/search.js:1285
+#, python-format
+msgid "Save current search"
+msgstr "Guardar filtro actual"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/search.js:1285
+#, python-format
+msgid "Add to my Dashboard"
+msgstr "Añadir a mi Tablero"
+
 
 #. module: web
 #. openerp-web
