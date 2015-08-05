@@ -261,12 +261,12 @@ class mail_thread(osv.AbstractModel):
             if isinstance(command, (int, long)):
                 new.add(command)
             elif command[0] == 0:
-                new.add(partner_obj.create(cr, uid, command[2], context=context))
+                new.add(partner_obj.create(cr, SUPERUSER_ID, command[2], context=context))
             elif command[0] == 1:
-                partner_obj.write(cr, uid, [command[1]], command[2], context=context)
+                partner_obj.write(cr, SUPERUSER_ID, [command[1]], command[2], context=context)
                 new.add(command[1])
             elif command[0] == 2:
-                partner_obj.unlink(cr, uid, [command[1]], context=context)
+                partner_obj.unlink(cr, SUPERUSER_ID, [command[1]], context=context)
                 new.discard(command[1])
             elif command[0] == 3:
                 new.discard(command[1])
@@ -278,9 +278,9 @@ class mail_thread(osv.AbstractModel):
                 new = set(command[2])
 
         # remove partners that are no longer followers
-        self.message_unsubscribe(cr, uid, [id], list(old-new), context=context)
+        self.message_unsubscribe(cr, SUPERUSER_ID, [id], list(old-new), context=context)
         # add new followers
-        self.message_subscribe(cr, uid, [id], list(new-old), context=context)
+        self.message_subscribe(cr, SUPERUSER_ID, [id], list(new-old), context=context)
 
     def _search_followers(self, cr, uid, obj, name, args, context):
         """Search function for message_follower_ids
