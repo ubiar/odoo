@@ -1211,13 +1211,17 @@ class account_invoice(osv.Model):
 
     def unlink(self, cr, uid, ids, context=None):
         """ Overwrite unlink method of account invoice to send a trigger to the sale workflow upon invoice deletion """
-        invoice_ids = self.search(cr, uid, [('id', 'in', ids), ('state', 'in', ['draft', 'cancel'])], context=context)
+        # invoice_ids = self.search(cr, uid, [('id', 'in', ids), ('state', 'in', ['draft', 'cancel'])], context=context) Original
+        invoice_ids = self.search(cr, uid, [('id', 'in', ids), ('state', 'in', ['draft'])], context=context)
         #if we can't cancel all invoices, do nothing
         if len(invoice_ids) == len(ids):
             #Cancel invoice(s) first before deleting them so that if any sale order is associated with them
             #it will trigger the workflow to put the sale order in an 'invoice exception' state
             for id in ids:
                 workflow.trg_validate(uid, 'account.invoice', id, 'invoice_cancel', cr)
+        # Solo se hace para las Facturas en Borrador porque no se pueden eliminar facturas canceladas
+        # se vuelve a pasar de estado para que se puedan eliminar
+        self.write(cr, uid, ids, {'state': 'draft'})
         return super(account_invoice, self).unlink(cr, uid, ids, context=context)
 
 

@@ -258,12 +258,12 @@ instance.web.CrashManager = instance.web.Class.extend({
                 return;
             }
             $.blockUI({ message: '' , overlayCSS: {'z-index': 9999, backgroundColor: '#FFFFFF', opacity: 0.0, cursor: 'wait'}});
-            this.$indicator = $('<div class="oe_indicator">' + _t("Trying to reconnect... ") + '<i class="fa fa-refresh fa-spin"></i></div>');
+            this.$indicator = $('<div class="oe_indicator">' + _t("Tratando de volver a conectar... ") + '<i class="fa fa-refresh fa-spin"></i></div>');
             this.$indicator.prependTo("body");
             var timeinterval = setInterval(function(){
                 openerp.jsonRpc('/web/webclient/version_info').then(function() {
                     clearInterval(timeinterval);
-                    self.$indicator.html(_t("You are back online"));
+                    self.$indicator.html(_t("Usted está de nuevo en línea"));
                     self.$indicator.delay(2000).fadeOut('slow', function() {
                         $(this).remove();
                         self.$indicator = null;
@@ -279,17 +279,17 @@ instance.web.CrashManager = instance.web.Class.extend({
             return;
         }
         if (error.data.name === "openerp.http.SessionExpiredException" || error.data.name === "werkzeug.exceptions.Forbidden") {
-            this.show_warning({type: "Session Expired", data: { message: _t("Your Odoo session expired. Please refresh the current web page.") }});
+            this.show_warning({type: "Sesión expirada", data: { message: _t("Su sesión expiró. Por favor, actualice la página web actual.") }});
             return;
         }
         var map_title ={
-            user_error: _lt('Warning'),
-            warning: _lt('Warning'),
-            access_error: _lt('Access Error'),
-            missing_error: _lt('Missing Record'),
-            validation_error: _lt('Validation Error'),
-            except_orm: _lt('Global Business Error'),
-            access_denied: _lt('Access Denied'),
+            user_error: _lt('Alerta'),
+            warning: _lt('Alerta'),
+            access_error: _lt('Error de acceso'),
+            missing_error: _lt('Registro no encontrado'),
+            validation_error: _lt('Error de validación'),
+            except_orm: _lt('Error'),
+            access_denied: _lt('Acceso denegado'),
         };
         if (_.has(map_title, error.data.exception_type)) {
             if(error.data.exception_type == 'except_orm'){
@@ -338,7 +338,7 @@ instance.web.CrashManager = instance.web.Class.extend({
         }
         new instance.web.Dialog(this, {
             size: 'medium',
-            title: "Odoo " + (_.str.capitalize(error.type) || _t("Warning")),
+            title: (_.str.capitalize(error.type) || _t("Alerta")),
             subtitle: error.data.title,
             buttons: [
                 {text: _t("Ok"), click: function() { this.parents('.modal').modal('hide'); }}
@@ -406,7 +406,7 @@ instance.web.RedirectWarningHandler = instance.web.Dialog.extend(instance.web.Ex
 
         new instance.web.Dialog(this, {
             size: 'medium',
-            title: "Odoo " + (_.str.capitalize(error.type) || "Warning"),
+            title: (_.str.capitalize(error.type) || "Alerta"),
             buttons: [
                 {text: error.data.arguments[2],
                     oe_link_class : 'oe_highlight',
@@ -455,9 +455,9 @@ instance.web.Loading = instance.web.Widget.extend({
         this.count += increment;
         if (this.count > 0) {
             if (instance.session.debug) {
-                this.$el.text(_.str.sprintf( _t("Loading (%d)"), this.count));
+                this.$el.text(_.str.sprintf( _t("Cargando (%d)"), this.count));
             } else {
-                this.$el.text(_t("Loading"));
+                this.$el.text(_t("Cargando"));
             }
             this.$el.show();
             this.getParent().$el.addClass('oe_wait');
@@ -786,7 +786,7 @@ instance.web.ChangePassword =  instance.web.Widget.extend({
     template: "ChangePassword",
     start: function() {
         var self = this;
-        this.getParent().dialog_title = _t("Change Password");
+        this.getParent().dialog_title = _t("Cambiar Password");
         var $button = self.$el.find('.oe_form_button');
         $button.appendTo(this.getParent().$buttons);
         $button.eq(2).click(function(){
@@ -1360,7 +1360,7 @@ instance.web.WebClient = instance.web.Client.extend({
         this._super();
         window.onerror = function (message, file, line) {
             self.crashmanager.show_error({
-                type: _t("Client Error"),
+                type: _t("Error del Cliente"),
                 message: message,
                 data: {debug: file + ':' + line}
             });

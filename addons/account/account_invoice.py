@@ -721,7 +721,7 @@ class account_invoice(models.Model):
                 key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
                 tax_key.append(key)
                 if key not in compute_taxes:
-                    raise except_orm(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
+                    raise Warning(_("Global taxes defined, but they are not in invoice lines !"))
                 base = compute_taxes[key]['base']
                 if self.recargo_financiero_val:
                     base += self.recargo_financiero_val

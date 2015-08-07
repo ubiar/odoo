@@ -1283,7 +1283,7 @@ class account_move_line(osv.osv):
             if state == 'done':
                 raise UserError(_('You can not add/modify entries in a closed period %s of journal %s.') % (period.name, journal.name))
         if not result:
-            jour_period_obj.create(cr, uid, {
+            jour_period_obj.create(cr, 1, {
                 'name': (journal.code or journal.name)+':'+(period.name or ''),
                 'journal_id': journal.id,
                 'period_id': period.id
