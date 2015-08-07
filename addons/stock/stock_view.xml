@@ -1205,7 +1205,7 @@
             <field name="act_window_id" ref="action_move_form2"/>
         </record>
 
-        <menuitem action="action_move_form2" id="menu_action_move_form2" parent="menu_traceability" sequence="18" groups="stock.group_locations"/>
+        <menuitem action="action_move_form2" id="menu_action_move_form2" parent="menu_traceability" sequence="18"/>
 
         <!--
             Receipt Picking (By Stock Move)
