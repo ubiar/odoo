@@ -47,7 +47,7 @@ class SaleOrder(orm.Model):
                 'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
                 'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
             },
-            multi='sums', help="The amount without tax.", track_visibility='always'
+            multi='sums', help="The amount without tax."
         ),
         'website_order_line': fields.one2many(
             'sale.order.line', 'order_id',

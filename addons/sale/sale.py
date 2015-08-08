@@ -178,8 +178,8 @@ class sale_order(osv.osv):
         'validity_date': fields.date('Expiration Date', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'create_date': fields.datetime('Creation Date', readonly=True, select=True, help="Date on which sales order is created."),
         'date_confirm': fields.date('Confirmation Date', readonly=True, select=True, help="Date on which sales order is confirmed.", copy=False),
-        'user_id': fields.many2one('res.users', 'Salesperson', states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, select=True, track_visibility='onchange'),
-        'partner_id': fields.many2one('res.partner', 'Customer', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, required=True, change_default=True, select=True, track_visibility='always'),
+        'user_id': fields.many2one('res.users', 'Salesperson', states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, select=True),
+        'partner_id': fields.many2one('res.partner', 'Customer', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, required=True, change_default=True, select=True),
         'partner_invoice_id': fields.many2one('res.partner', 'Invoice Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Invoice address for current sales order."),
         'partner_shipping_id': fields.many2one('res.partner', 'Delivery Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Delivery address for current sales order."),
         'order_policy': fields.selection([
@@ -199,9 +199,9 @@ class sale_order(osv.osv):
             fnct_search=_invoiced_search, type='boolean', help="It indicates that sales order has at least one invoice."),
         'note': fields.text('Terms and conditions'),
         # Como se pisan con los metodos de la version 8 de la api genera un bug al tener los dos function en distintas versiones
-        'amount_untaxed': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
-        'amount_tax': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
-        'amount_total': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", track_visibility='always', readonly=True),
+        'amount_untaxed': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", readonly=True),
+        'amount_tax': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", readonly=True),
+        'amount_total': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax.", readonly=True),
         # 'amount_untaxed': fields.function(_amount_all_wrapper, digits_compute=dp.get_precision('Account'), string='Untaxed Amount',
         #     store={
         #         'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
@@ -343,7 +343,7 @@ class sale_order(osv.osv):
             vals = dict(defaults, **vals)
         ctx = dict(context or {}, mail_create_nolog=True)
         new_id = super(sale_order, self).create(cr, uid, vals, context=ctx)
-        self.message_post(cr, uid, [new_id], body=_("Quotation created"), context=ctx)
+        #self.message_post(cr, uid, [new_id], body=_("Quotation created"), context=ctx)
         return new_id
 
     def button_dummy(self, cr, uid, ids, context=None):

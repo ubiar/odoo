@@ -201,8 +201,7 @@ class account_invoice(models.Model):
             ('out_refund','Customer Refund'),
             ('in_refund','Supplier Refund'),
         ], string='Type', readonly=True, index=True, change_default=True,
-        default=lambda self: self._context.get('type', 'out_invoice'),
-        track_visibility='always')
+        default=lambda self: self._context.get('type', 'out_invoice'))
 
     number = fields.Char(related='move_id.name', store=True, readonly=True, copy=False)
     internal_number = fields.Char(string='Invoice Number', readonly=True,
@@ -242,8 +241,7 @@ class account_invoice(models.Model):
              "term is not set on the invoice. If you keep the payment term and the due date empty, it "
              "means direct payment.")
     partner_id = fields.Many2one('res.partner', string='Partner', change_default=True,
-        required=True, readonly=True, states={'draft': [('readonly', False)]},
-        track_visibility='always')
+        required=True, readonly=True, states={'draft': [('readonly', False)]})
     payment_term = fields.Many2one('account.payment.term', string='Payment Terms',
         readonly=True, states={'draft': [('readonly', False)]},
         help="If you use payment terms, the due date will be computed automatically at the generation "
@@ -266,14 +264,14 @@ class account_invoice(models.Model):
         help="Link to the automatically generated Journal Items.")
 
     amount_untaxed = fields.Float(string='Subtotal', digits=dp.get_precision('Account'),
-        store=True, readonly=True, compute='_compute_amount', track_visibility='always')
+        store=True, readonly=True, compute='_compute_amount')
     amount_tax = fields.Float(string='Tax', digits=dp.get_precision('Account'),
         store=True, readonly=True, compute='_compute_amount')
     amount_total = fields.Float(string='Total', digits=dp.get_precision('Account'),
         store=True, readonly=True, compute='_compute_amount')
     currency_id = fields.Many2one('res.currency', string='Currency',
         required=True, readonly=True, states={'draft': [('readonly', False)]},
-        default=_default_currency, track_visibility='always')
+        default=_default_currency)
     journal_id = fields.Many2one('account.journal', string='Journal',
         required=True, readonly=True, states={'draft': [('readonly', False)]},
         default=_default_journal,
@@ -300,7 +298,7 @@ class account_invoice(models.Model):
         compute='_compute_payments')
     move_name = fields.Char(string='Journal Entry', readonly=True,
         states={'draft': [('readonly', False)]}, copy=False)
-    user_id = fields.Many2one('res.users', string='Salesperson', track_visibility='onchange',
+    user_id = fields.Many2one('res.users', string='Salesperson',
         readonly=True, states={'draft': [('readonly', False)]},
         default=lambda self: self.env.user)
     fiscal_position = fields.Many2one('account.fiscal.position', string='Fiscal Position',

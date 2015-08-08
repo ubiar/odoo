@@ -16,6 +16,14 @@
                                     <field name="acquirer_id" readonly="1"/>
                                     <field name="acquirer_ref" readonly="1"/>
                                 </tree>
+                                <form>
+                                    <field name="name"/>
+                                    <field name="acquirer_id" readonly="1"/>
+                                    <field name="acquirer_ref" readonly="1"/>
+                                </form>
+                                <search>
+                                    <field name="name"/>
+                                </search>
                             </field>
                         </group>
                     </xpath>

@@ -561,7 +561,8 @@ class mail_thread(osv.AbstractModel):
                 posted = True
             if not posted:
                 message = format_message('', tracked_values)
-                self.message_post(cr, uid, browse_record.id, body=message, context=context)
+                if message != '':
+                    self.message_post(cr, uid, browse_record.id, body=message, context=context)
         return True
 
     #------------------------------------------------------

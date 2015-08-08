@@ -111,7 +111,7 @@
                     <group>
                         <field name="category_id" widget="many2many_tags" placeholder="Tags..."/>
                         <field name="function" placeholder="e.g. Sales Director"/>
-                        <field name="user_ids" invisible="1"/>
+                        <field name="user_ids" invisible="1" widget="many2many_tags"/>
                         <field name="email" widget="email" required="context.get('force_email', False)" attrs="{'required': [('user_ids','!=', [])]}"/>
                         <field name="phone"/>
                         <field name="mobile"/>
@@ -180,7 +180,7 @@
                             <field name="phone"/>
                             <field name="mobile"/>
                             <field name="fax"/>
-                            <field name="user_ids" invisible="1"/>
+                            <field name="user_ids" invisible="1" widget="many2many_tags"/>
                             <field name="email" widget="email" attrs="{'required': [('user_ids','!=', [])]}"/>
                             <field name="title" options='{"no_open": True}'/>
                         </group>

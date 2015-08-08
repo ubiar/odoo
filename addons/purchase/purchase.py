@@ -241,7 +241,7 @@ class purchase_order(osv.osv):
         'date_approve':fields.date('Date Approved', readonly=1, select=True, copy=False,
                                    help="Date on which purchase order has been approved"),
         'partner_id':fields.many2one('res.partner', 'Supplier', required=True, states=READONLY_STATES,
-            change_default=True, track_visibility='always'),
+            change_default=True),
         'dest_address_id':fields.many2one('res.partner', 'Customer Address (Direct Delivery)',
             states=READONLY_STATES,
             help="Put an address if you want to deliver directly from the supplier to the customer. " \

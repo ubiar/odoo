@@ -440,7 +440,7 @@ class res_partner(osv.osv):
         'payment_responsible_id':fields.many2one('res.users', ondelete='set null', string='Follow-up Responsible', 
                                                  help="Optionally you can assign a user to this field, which will make him responsible for the action.", 
                                                  track_visibility="onchange", copy=False), 
-        'payment_note':fields.text('Customer Payment Promise', help="Payment Note", track_visibility="onchange", copy=False),
+        'payment_note':fields.text('Customer Payment Promise', help="Payment Note", copy=False),
         'payment_next_action':fields.text('Next Action', copy=False,
                                     help="This is the next action to be taken.  It will automatically be set when the partner gets a follow-up level that requires a manual action. ", 
                                     track_visibility="onchange"), 
