@@ -17715,4 +17715,10 @@ msgstr "Alerta"
 msgid "No value found for %s.%s\n\n%s"
 msgstr "Valor no encontrado %s.%s\n\n%s"
 
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "\nThis model has active rules, ensure access"
+msgstr "\nEste modelo posee reglas activas, compruebe al acceso"
+
 
