@@ -43,8 +43,8 @@ class except_orm(Exception):
             caller = frame_codeinfo(currentframe(), 1)
             _logger.warn('except_orm is deprecated. Please use specific exceptions like UserError or AccessError. Caller: %s:%s', *caller)
         self.name = name
-        self.value = value
-        self.args = (name, value)
+        self.value = value or ''
+        self.args = (name, value or '')
 
 
 class UserError(except_orm):

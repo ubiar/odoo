@@ -17678,3 +17678,41 @@ msgstr ""
 
 #~ msgid "Installed Modules"
 #~ msgstr "Módulos instalados"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "read"
+msgstr "lectura"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "write"
+msgstr "escritura"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "create"
+msgstr "creación"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "unlink"
+msgstr "eliminación"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "Warning"
+msgstr "Alerta"
+
+#. module: base
+#: code:addons/osv/orm.py:0
+#, python-format
+msgid "No value found for %s.%s\n\n%s"
+msgstr "Valor no encontrado %s.%s\n\n%s"
+
+

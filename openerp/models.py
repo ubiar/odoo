@@ -3161,7 +3161,7 @@ class BaseModel(object):
                     operation, user, self._name, ', '.join(invalid_fields))
                 raise AccessError(_('The requested operation cannot be completed due to security restrictions. '
                                         'Please contact your system administrator.\n\n(Document type: %s, Operation: %s)') % \
-                                        (self._description, operation))
+                                        (self._description, _(operation)))
 
         return fields
 
@@ -3258,10 +3258,11 @@ class BaseModel(object):
         # fetch records with read()
         assert self in records and field.name in fnames
         result = []
+        access_error = ''
         try:
             result = records.read(list(fnames), load='_classic_write')
-        except AccessError:
-            pass
+        except AccessError, e:
+            access_error = e.name
 
         # check the cache, and update it if necessary
         if not self._cache.contains(field):
@@ -3269,7 +3270,7 @@ class BaseModel(object):
                 record = self.browse(values.pop('id'))
                 record._cache.update(record._convert_to_cache(values, validate=False))
             if not self._cache.contains(field):
-                e = AccessError("No value found for %s.%s" % (self, field.name))
+                e = AccessError(_("No value found for %s.%s\n\n%s") % (self, field.name, access_error))
                 self._cache[field] = FailedValue(e)
 
     @api.multi
@@ -3414,7 +3415,7 @@ class BaseModel(object):
             # store an access error exception in existing records
             exc = AccessError(
                 _('The requested operation cannot be completed due to security restrictions. Please contact your system administrator.\n\n(Document type: %s, Operation: %s)') % \
-                (self._name, 'read')
+                (self._name, _('read'))
             )
             forbidden = missing.exists()
             forbidden._cache.update(FailedValue(exc))
