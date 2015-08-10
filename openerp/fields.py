@@ -1247,6 +1247,8 @@ class Datetime(Field):
            :return: timestamp converted to timezone-aware datetime in context
                     timezone
         """
+        if type(timestamp) == str:
+            timestamp = Datetime.from_string(timestamp)
         assert isinstance(timestamp, datetime), 'Datetime instance expected'
         tz_name = record._context.get('tz') or record.env.user.tz
         utc_timestamp = pytz.utc.localize(timestamp, is_dst=False)  # UTC = no DST

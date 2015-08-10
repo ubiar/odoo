@@ -963,7 +963,6 @@ class account_voucher(osv.osv):
                 move_pool.unlink(cr, uid, [voucher.move_id.id])
         res = {
             'state':'cancel',
-            'move_id':False,
         }
         self.write(cr, uid, ids, res)
         return True

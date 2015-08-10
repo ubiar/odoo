@@ -1006,7 +1006,7 @@ class account_invoice(models.Model):
                         raise UserError(_('You cannot cancel an invoice which is partially paid. You need to unreconcile related payment entries first.'))
 
         # First, set the invoices as cancelled and detach the move ids
-        self.write({'state': 'cancel', 'move_id': False})
+        self.write({'state': 'cancel'})
         if moves:
             # second, invalidate the move(s)
             moves.button_cancel()
