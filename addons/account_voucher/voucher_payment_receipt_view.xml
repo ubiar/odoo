@@ -208,7 +208,7 @@
                                         <field name="currency_help_label" colspan="2" nolabel="1" class="oe_grey"/>
                                         <field name="paid_amount_in_company_currency" colspan="2" invisible="1"/>
                                     </group>
-                                    <group col="2">
+                                    <group col="2" name='payment_options'>
                                         <separator string="Payment Options" colspan="2"/>
                                         <field name="writeoff_amount" widget='monetary' options='{"currency_field": "currency_id"}'/>
                                         <label for="payment_option" string="Difference of payment amount" class="oe_inline" groups="account.group_account_user"/>
