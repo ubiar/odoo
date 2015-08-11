@@ -32,10 +32,12 @@ from openerp.osv.orm import browse_record_list, browse_record, browse_null
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, DATETIME_FORMATS_MAP
 from openerp.tools.float_utils import float_compare
 from openerp.exceptions import UserError
+from openerp.http import request
 
 class purchase_order(osv.osv):
 
     def _amount_all(self, cr, uid, ids, field_name, arg, context=None):
+        uid = request.uid # Todo agregado porque trae el uid del admin en los functions - Ubiar
         res = {}
         cur_obj=self.pool.get('res.currency')
         for order in self.browse(cr, uid, ids, context=context):
