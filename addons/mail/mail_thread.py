@@ -511,7 +511,7 @@ class mail_thread(osv.AbstractModel):
         if not tracked_fields:
             return True
 
-        for browse_record in self.browse(cr, uid, ids, context=context):
+        for browse_record in self.browse(cr, SUPERUSER_ID, ids, context=context): # Ubiar Dejar ese sudo porque si no genera errores de permisos sin senttido
             initial = initial_values[browse_record.id]
             changes = set()
             tracked_values = {}

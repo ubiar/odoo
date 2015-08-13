@@ -722,7 +722,7 @@ class account_invoice(models.Model):
                     raise Warning(_("Global taxes defined, but they are not in invoice lines !"))
                 base = compute_taxes[key]['base']
                 if self.recargo_financiero_val:
-                    base += self.recargo_financiero_val
+                    continue
                 if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
                     raise UserError(_('Tax base different!\nClick on compute to update the tax base.'))
             for key in compute_taxes:
