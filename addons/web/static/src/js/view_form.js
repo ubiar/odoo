@@ -2044,8 +2044,8 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
     },
     on_confirmed: function() {
         var self = this;
-
         var context = this.build_context();
+        self.view.recursive_reload();
         return this.view.do_execute_action(
             _.extend({}, this.node.attrs, {context: context}),
             this.view.dataset, this.view.datarecord.id, function (reason) {
