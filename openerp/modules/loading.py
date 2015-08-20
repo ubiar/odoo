@@ -453,6 +453,10 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # STEP 9: Run the post-install tests
         cr.commit()
 
+        # Paso 10: se revisan los querys por si se elimino alguna vista en el update
+        if 'ir.query' in registry:
+            registry['ir.query'].actualizar_vistas(cr, SUPERUSER_ID)
+
         t0 = time.time()
         t0_sql = openerp.sql_db.sql_counter
         if openerp.tools.config['test_enable']:
