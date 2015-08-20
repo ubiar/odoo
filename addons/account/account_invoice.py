@@ -979,6 +979,8 @@ class account_invoice(models.Model):
             else:
                 ref = inv.number
 
+            if not inv.move_id.id:
+                return True
             self._cr.execute(""" UPDATE account_move SET ref=%s
                            WHERE id=%s AND (ref IS NULL OR ref = '')""",
                         (ref, inv.move_id.id))
