@@ -631,15 +631,16 @@ class res_partner(osv.Model, format_address):
         rec_id = self.create(cr, uid, {self._rec_name: name or email, 'email': email or False}, context=context)
         return self.name_get(cr, uid, [rec_id], context)[0]
 
-    def _search(self, cr, user, args, offset=0, limit=None, order=None, context=None, count=False, access_rights_uid=None):
-        """ Override search() to always show inactive children when searching via ``child_of`` operator. The ORM will
-        always call search() with a simple domain of the form [('parent_id', 'in', [ids])]. """
-        # a special ``domain`` is set on the ``child_ids`` o2m to bypass this logic, as it uses similar domain expressions
-        if len(args) == 1 and len(args[0]) == 3 and args[0][:2] == ('parent_id','in') \
-                and args[0][2] != [False]:
-            context = dict(context or {}, active_test=False)
-        return super(res_partner, self)._search(cr, user, args, offset=offset, limit=limit, order=order, context=context,
-                                                count=count, access_rights_uid=access_rights_uid)
+    # Comentado por ubiar porque consume recursos exsesivos - [Ubiar Rendimiento]
+    # def _search(self, cr, user, args, offset=0, limit=None, order=None, context=None, count=False, access_rights_uid=None):
+    #     """ Override search() to always show inactive children when searching via ``child_of`` operator. The ORM will
+    #     always call search() with a simple domain of the form [('parent_id', 'in', [ids])]. """
+    #     # a special ``domain`` is set on the ``child_ids`` o2m to bypass this logic, as it uses similar domain expressions
+    #     if len(args) == 1 and len(args[0]) == 3 and args[0][:2] == ('parent_id','in') \
+    #             and args[0][2] != [False]:
+    #         context = dict(context or {}, active_test=False)
+    #     return super(res_partner, self)._search(cr, user, args, offset=offset, limit=limit, order=order, context=context,
+    #                                             count=count, access_rights_uid=access_rights_uid)
 
     def name_search(self, cr, uid, name, args=None, operator='ilike', context=None, limit=100):
         if not args:
