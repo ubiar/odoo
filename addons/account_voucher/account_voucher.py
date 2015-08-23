@@ -1200,7 +1200,9 @@ class account_voucher(osv.osv):
             'voucher_special_currency_rate': voucher_currency.rate * voucher.payment_rate ,
             'voucher_special_currency': voucher.payment_rate_currency_id and voucher.payment_rate_currency_id.id or False,})
         prec = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
+        rec_full_ids = [] # Se creo para conciliar todos los movimientos que se paguen completos en la misma conciliación para que sea mucho mas rapida la conciliación
         for line in voucher.line_ids:
+            rec_ids = []
             #create one move line per voucher line where amount is not 0.0
             # AND (second part of the clause) only if the original move line was not having debit = credit = 0 (which is a legal value)
             if not line.amount and not (line.move_line_id and not float_compare(line.move_line_id.debit, line.move_line_id.credit, precision_digits=prec) and not float_compare(line.move_line_id.debit, 0.0, precision_digits=prec)):
@@ -1270,15 +1272,21 @@ class account_voucher(osv.osv):
 
             move_line['amount_currency'] = amount_currency
             voucher_line = move_line_obj.create(cr, uid, move_line)
-            rec_ids = [voucher_line, line.move_line_id.id]
+            if line.amount != line.amount_unreconciled:
+                rec_ids = [voucher_line, line.move_line_id.id]
+            else:
+                rec_full_ids += [voucher_line, line.move_line_id.id]
 
             if not currency_obj.is_zero(cr, uid, voucher.company_id.currency_id, currency_rate_difference):
                 # Change difference entry in company currency
                 exch_lines = self._get_exchange_lines(cr, uid, line, move_id, currency_rate_difference, company_currency, current_currency, context=context)
                 new_id = move_line_obj.create(cr, uid, exch_lines[0],context)
                 move_line_obj.create(cr, uid, exch_lines[1], context)
-                rec_ids.append(new_id)
-
+                if line.amount != line.amount_unreconciled:
+                    rec_ids.append(new_id)
+                else:
+                    rec_full_ids.append(new_id)
+            
             if line.move_line_id and line.move_line_id.currency_id and not currency_obj.is_zero(cr, uid, line.move_line_id.currency_id, foreign_currency_diff):
                 # Change difference entry in voucher currency
                 move_line_foreign_currency = {
@@ -1296,9 +1304,14 @@ class account_voucher(osv.osv):
                     'date': line.voucher_id.date,
                 }
                 new_id = move_line_obj.create(cr, uid, move_line_foreign_currency, context=context)
-                rec_ids.append(new_id)
-            if line.move_line_id.id:
+                if line.amount != line.amount_unreconciled:
+                    rec_ids.append(new_id)
+                else:
+                    rec_full_ids.append(new_id)
+            if rec_ids and line.move_line_id.id:
                 rec_lst_ids.append(rec_ids)
+        if rec_full_ids:
+            rec_lst_ids.append(rec_full_ids)
         return (tot_line, rec_lst_ids)
 
     def writeoff_move_line_get(self, cr, uid, voucher_id, line_total, move_id, name, company_currency, current_currency, context=None):
@@ -1423,7 +1436,28 @@ class account_voucher(osv.osv):
             reconcile = False
             for rec_ids in rec_list_ids:
                 if len(rec_ids) >= 2:
-                    reconcile = move_line_pool.reconcile_partial(cr, uid, rec_ids, writeoff_acc_id=voucher.writeoff_acc_id.id, writeoff_period_id=voucher.period_id.id, writeoff_journal_id=voucher.journal_id.id)
+                    # Si es una conciliacion normal que no tiene nada parcial o especial se realiza a mano ya que este metodo es muy lento
+                    conciliacion_rapida = True
+                    l_account_id = l_partner_id = False
+                    l_debit = l_credit = 0
+                    for l in move_line_pool.browse(cr, uid, rec_ids):
+                        if not l_account_id:
+                            l_account_id = l.account_id.id
+                        if not l_partner_id:
+                            l_partner_id = l.partner_id.id
+                        if l.reconcile_id or l.reconcile_partial_id or l_account_id != l.account_id.id or (l_partner_id and l.partner_id.id and l_partner_id != l.partner_id.id):
+                            conciliacion_rapida = False
+                        l_debit += l.debit
+                        l_credit += l.credit
+                    if round(l_debit - l_credit, 2) != 0.0:
+                        conciliacion_rapida = False
+                    if conciliacion_rapida:
+                        reconcile = self.pool.get('account.move.reconcile').create(cr, uid, {
+                            'type': 'auto',
+                        })
+                        move_line_pool.write(cr, uid, rec_ids, {'reconcile_id': reconcile})
+                    else:
+                        reconcile = move_line_pool.reconcile_partial(cr, uid, rec_ids, writeoff_acc_id=voucher.writeoff_acc_id.id, writeoff_period_id=voucher.period_id.id, writeoff_journal_id=voucher.journal_id.id)
         return True
 
 class account_voucher_line(osv.osv):
