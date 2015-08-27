@@ -1690,10 +1690,10 @@ class stock_move(osv.osv):
         res = []
         for line in self.browse(cr, uid, ids, context=context):
             name = line.location_id.name + ' > ' + line.location_dest_id.name
-            if line.product_id.code:
-                name = line.product_id.code + ': ' + name
-            if line.picking_id.origin:
-                name = line.picking_id.origin + '/ ' + name
+            if line.product_id.sudo().code:
+                name = line.product_id.sudo().code + ': ' + name
+            if line.picking_id.sudo().origin:
+                name = line.picking_id.sudo().origin + '/ ' + name
             res.append((line.id, name))
         return res
 
