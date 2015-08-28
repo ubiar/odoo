@@ -1024,7 +1024,7 @@ class account_move_line(osv.osv):
         r = cr.fetchall()
         #TODO: move this check to a constraint in the account_move_reconcile object
         if len(r) != 1:
-            raise UserError(_('Entries are not of the same account or already reconciled ! '))
+            raise UserError(_('Entries are not of the same account or already reconciled ! (Move codes %s)') % str(ids))
         if not unrec_lines:
             raise UserError(_('Entry is already reconciled.'))
         account = account_obj.browse(cr, uid, account_id, context=context)
