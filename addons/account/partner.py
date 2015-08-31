@@ -292,7 +292,7 @@ class res_partner(osv.osv):
             if 'contracts_count' in field_name:
                 results[partner_id]['contracts_count'] = AnalyticAccount.search_count(cr, uid, [('partner_id', '=', partner_id)], context=context)
             if 'journal_item_count' in field_name:
-                results[partner_id]['journal_item_count'] = MoveLine.search_count(cr, uid, [('partner_id', 'child_of', partner_id)], context=context)
+                results[partner_id]['journal_item_count'] = MoveLine.search_count(cr, uid, [('cancelada', '=', False), ('partner_id', 'child_of', partner_id)], context=context)
         return results
 
     def has_something_to_reconcile(self, cr, uid, partner_id, context=None):
