@@ -23,7 +23,7 @@ import time
 import logging
 from datetime import datetime
 
-from openerp import workflow
+from openerp import workflow, SUPERUSER_ID
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
@@ -304,7 +304,7 @@ class account_move_line(osv.osv):
                 if move_id:
                     #if there exist some unbalanced accounting entries that match the journal and the period,
                     #we propose to continue the same move by copying the ref, the name, the partner...
-                    move = move_obj.browse(cr, uid, move_id, context=context)
+                    move = move_obj.browse(cr, SUPERUSER_ID, move_id, context=context)
                     data.setdefault('name', move.line_id[-1].name)
                     for l in move.line_id:
                         data['partner_id'] = data.get('partner_id') or l.partner_id.id
