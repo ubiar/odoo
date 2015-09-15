@@ -1988,10 +1988,11 @@ class BaseModel(object):
             }
             if tz_convert:
                 qualified_field = "timezone('%s', timezone('UTC',%s))" % (context.get('tz', 'UTC'), qualified_field)
-            qualified_field = "date_trunc('%s', %s)" % (gb_function or 'month', qualified_field)
             # Se llama a la funcion sql creada por ubiar para que el inicio de la semana sea el domingo en vez del lunes
             if gb_function == 'week':
                 qualified_field = "pds(%s)" % qualified_field
+            else:
+                qualified_field = "date_trunc('%s', %s)" % (gb_function or 'month', qualified_field)
         if field_type == 'boolean':
             qualified_field = "coalesce(%s,false)" % qualified_field
         return {
