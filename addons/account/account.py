@@ -1296,7 +1296,7 @@ class account_move(osv.osv):
     }
 
     def _check_centralisation(self, cursor, user, ids, context=None):
-        for move in self.browse(cursor, user, ids, context=context):
+        for move in self.browse(cursor, SUPERUSER_ID, ids, context=context):
             if move.journal_id.centralisation:
                 move_ids = self.search(cursor, user, [
                     ('period_id', '=', move.period_id.id),
