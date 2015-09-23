@@ -2357,7 +2357,7 @@
   border-bottom: 1px;
 }
 .openerp .oe_form_field_one2many .oe_list_content > tbody tr:nth-child(odd), .openerp .oe_form_field_many2many .oe_list_content > tbody tr:nth-child(odd) {
-  background: transparent;
+  background: rgb(248, 248, 253);
 }
 .openerp .oe_form_field_one2many .oe_list .oe_list_edit_row_save, .openerp .oe_form_field_many2many .oe_list .oe_list_edit_row_save {
   background: url(/web/static/src/img/iconset-b-remove.png) 50% 50% no-repeat;
