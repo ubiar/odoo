@@ -319,9 +319,9 @@ class account_move_line(osv.osv):
             account = total > 0 and journal_data.default_credit_account_id or journal_data.default_debit_account_id
             #map the account using the fiscal position of the partner, if needed
             if isinstance(data.get('partner_id'), (int, long)):
-                part = partner_obj.browse(cr, uid, data['partner_id'], context=context)
+                part = partner_obj.browse(cr, SUPERUSER_ID, data['partner_id'], context=context)
             elif isinstance(data.get('partner_id'), (tuple, list)):
-                part = partner_obj.browse(cr, uid, data['partner_id'][0], context=context)
+                part = partner_obj.browse(cr, SUPERUSER_ID, data['partner_id'][0], context=context)
             else:
                 part = False
             if account and part:
