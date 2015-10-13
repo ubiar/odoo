@@ -1431,7 +1431,7 @@ class account_voucher(osv.osv):
                 'number': name,
             })
             if voucher.journal_id.entry_posted:
-                move_pool.post(cr, uid, [move_id], context={})
+                move_pool.post(cr, uid, [move_id], context={'no_validar_asiento_vacio': context.get('no_validar_asiento_vacio')})
             # We automatically reconcile the account move lines.
             reconcile = False
             for rec_ids in rec_list_ids:
