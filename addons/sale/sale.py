@@ -517,6 +517,8 @@ class sale_order(osv.osv):
             for line in o.order_line:
                 if line.invoiced:
                     continue
+                if context.get('order_line_ids') and line.id not in context.get('order_line_ids'):
+                    continue
                 elif (line.state in states):
                     lines.append(line.id)
             created_lines = obj_sale_order_line.invoice_line_create(cr, uid, lines)
