@@ -122,7 +122,7 @@ msgstr "Código"
 #. module: mrp_operations
 #: model:ir.actions.act_window,name:mrp_operations.mrp_production_wc_confirm_action
 msgid "Confirmed Work Orders"
-msgstr "Ordenes de producción confirmadas"
+msgstr "Ordenes de Trabajo confirmadas"
 
 #. module: mrp_operations
 #: field:mrp_operations.operation,create_uid:0
@@ -215,7 +215,7 @@ msgstr "Serialización Libre"
 #. module: mrp_operations
 #: model:ir.actions.act_window,name:mrp_operations.mrp_production_wc_draft_action
 msgid "Future Work Orders"
-msgstr "Ordenes de trabajo futuras"
+msgstr "Ordenes de Trabajo futuras"
 
 #. module: mrp_operations
 #: view:mrp.production.workcenter.line:mrp_operations.view_mrp_production_workcenter_form_view_filter
@@ -624,7 +624,7 @@ msgstr ""
 #: view:mrp.production.workcenter.line:mrp_operations.view_mrp_production_workcenter_form_view_filter
 #: view:mrp.workorder:mrp_operations.view_report_mrp_workorder_graph
 msgid "Work Orders"
-msgstr "Órdenes de producción"
+msgstr "Órdenes de Trabajo"
 
 #. module: mrp_operations
 #: model:ir.ui.menu,name:mrp_operations.menu_mrp_production_wc_action_planning
