@@ -1257,6 +1257,8 @@ class Action(http.Controller):
             action_type = base_action[0]['type']
             if action_type == 'ir.actions.report.xml':
                 ctx.update({'bin_size': True})
+            if action_type == 'ir.codigo.python':
+                ctx.update({'ir_codigo_python_read_action': True})
             if additional_context:
                 ctx.update(additional_context)
             action = request.session.model(action_type).read([action_id], False, ctx)

@@ -27,6 +27,7 @@ from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FO
 import openerp.addons.decimal_precision as dp
 from openerp import workflow
 from openerp.exceptions import UserError
+from openerp.tools.safe_eval import safe_eval as eval
 
 class res_company(osv.Model):
     _inherit = "res.company"
@@ -470,6 +471,12 @@ class sale_order(osv.osv):
         inv_ids = []
         for so in self.browse(cr, uid, ids, context=context):
             inv_ids += [invoice.id for invoice in so.invoice_ids]
+        if result['context'] and 'search_default_' in result['context']:
+            ctx = eval(result['context'])
+            for k in ctx.keys():
+                if 'search_default_' in k:
+                    del ctx[k]
+            result['context'] = str(ctx)
         #choose the view_mode accordingly
         if len(inv_ids)>1:
             result['domain'] = "[('id','in',["+','.join(map(str, inv_ids))+"])]"
@@ -509,6 +516,8 @@ class sale_order(osv.osv):
             lines = []
             for line in o.order_line:
                 if line.invoiced:
+                    continue
+                if context.get('order_line_ids') and line.id not in context.get('order_line_ids'):
                     continue
                 elif (line.state in states):
                     lines.append(line.id)

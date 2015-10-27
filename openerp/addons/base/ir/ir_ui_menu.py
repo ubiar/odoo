@@ -93,6 +93,7 @@ class ir_ui_menu(osv.osv):
                     'ir.actions.report.xml': 'model',
                     'ir.actions.wizard': 'model',
                     'ir.actions.server': 'model_id',
+                    'ir.codigo.python': 'modelo_id',
                 }
                 for menu in action_menus:
                     fname = model_fname.get(menu.action._name)
@@ -452,6 +453,7 @@ class ir_ui_menu(osv.osv):
                 ('ir.actions.act_url', 'ir.actions.act_url'),
                 ('ir.actions.server', 'ir.actions.server'),
                 ('ir.actions.client', 'ir.actions.client'),
+                ('ir.codigo.python', 'ir.codigo.python'),
             ]),
     }
 
