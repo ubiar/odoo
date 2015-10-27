@@ -612,7 +612,6 @@ class res_config_settings(osv.osv_memory, res_config_module_installation_mixin):
     def name_get(self, cr, uid, ids, context=None):
         """ Override name_get method to return an appropriate configuration wizard
         name, and not the generated name."""
-
         if not ids:
             return []
         # name_get may receive int id instead of an id list
@@ -623,7 +622,7 @@ class res_config_settings(osv.osv_memory, res_config_module_installation_mixin):
         action_ids = act_window.search(cr, uid, [('res_model', '=', self._name)], context=context)
         name = self._name
         if action_ids:
-            name = act_window.read(cr, uid, action_ids[0], ['name'], context=context)['name']
+            name = act_window.read(cr, uid, action_ids[0], ['name'], context=context)[0]['name']
         return [(record.id, name) for record in self.browse(cr, uid , ids, context=context)]
 
     def get_option_path(self, cr, uid, menu_xml_id, context=None):

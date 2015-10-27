@@ -553,7 +553,7 @@ msgstr "Confirmar"
 #. module: mrp
 #: view:mrp.production:mrp.mrp_production_form_view
 msgid "Confirm Production"
-msgstr "Confirmar producción"
+msgstr "Confirmar Producción"
 
 #. module: mrp
 #: selection:mrp.product.produce,mode:0
@@ -958,7 +958,7 @@ msgstr ""
 "Dejarlo vacío si se produce en el mismo lugar en que los productos acabados "
 "son necesarios. Indique una ubicación si se produce en una ubicación fija. "
 "Puede ser una ubicación de otra empresa si subcontrata las operaciones de "
-"fabricación."
+"producción."
 
 #. module: mrp
 #: field:mrp.bom,message_last_post:0
@@ -1100,7 +1100,7 @@ msgstr ""
 #: field:mrp.production.workcenter.line,production_id:0
 #: field:procurement.order,production_id:0
 msgid "Manufacturing Order"
-msgstr "Órden de producción"
+msgstr "Órden de Producción"
 
 #. module: mrp
 #: code:addons/mrp/procurement.py:124
@@ -1118,7 +1118,7 @@ msgstr ""
 #: view:mrp.production:mrp.view_production_calendar
 #: view:mrp.production:mrp.view_production_graph
 msgid "Manufacturing Orders"
-msgstr "Órdenes de fabricación"
+msgstr "Órdenes de Producción"
 
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.mrp_production_action2
@@ -1128,12 +1128,12 @@ msgstr ""
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.mrp_production_action4
 msgid "Manufacturing Orders Waiting Products"
-msgstr "Órdenes de producción en espera de productos"
+msgstr "Órdenes de Producción en espera de productos"
 
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.mrp_production_action3
 msgid "Manufacturing Orders in Progress"
-msgstr "Órdenes de producción en progreso"
+msgstr "Órdenes de Producción en progreso"
 
 #. module: mrp
 #: view:mrp.production:mrp.view_mrp_production_filter
@@ -1187,7 +1187,7 @@ msgstr "Modo"
 #. module: mrp
 #: view:mrp.workcenter:mrp.view_mrp_workcenter_search
 msgid "Mrp Workcenter"
-msgstr "Centro de producción Mrp"
+msgstr "Centro de Producción Mrp"
 
 #. module: mrp
 #: field:mrp.bom,name:0
@@ -1544,7 +1544,7 @@ msgstr "Orden de Producción"
 #. module: mrp
 #: view:website:mrp.report_mrporder
 msgid "Production Order N° :"
-msgstr "Orden de producción Nº :"
+msgstr "Orden de Producción Nº :"
 
 #. module: mrp
 #: field:stock.move,production_id:0
@@ -1569,7 +1569,7 @@ msgstr ""
 #. module: mrp
 #: view:mrp.production:mrp.mrp_production_form_view
 msgid "Production Work Centers"
-msgstr "Centros de trabajo de fabricación"
+msgstr "Centros de Trabajo de Producción"
 
 #. module: mrp
 #: field:mrp.production,progress:0
@@ -1787,7 +1787,7 @@ msgid ""
 "materials."
 msgstr ""
 "Los procesos productivos le permiten crear y administrar las operaciones de "
-"fabricación que deben seguirse dentro de su centro de trabajo a fin de "
+"producción que deben seguirse dentro de su centro de trabajo a fin de "
 "fabricar un producto.\r\n"
 "Estan relacionados a las listas de materiales que definirán la materia prima "
 "requerida."
@@ -1852,7 +1852,7 @@ msgstr ""
 #. module: mrp
 #: view:mrp.production:mrp.view_mrp_production_filter
 msgid "Search Production"
-msgstr "Buscar producción"
+msgstr "Buscar Producción"
 
 #. module: mrp
 #: view:mrp.workcenter:mrp.view_mrp_workcenter_search
@@ -2292,14 +2292,14 @@ msgstr ""
 #: view:mrp.workcenter:mrp.mrp_workcenter_view
 #: field:report.workcenter.load,workcenter_id:0
 msgid "Work Center"
-msgstr "Centro de trabajo"
+msgstr "Centro de Trabajo"
 
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.action_mrp_workcenter_load_wizard
 #: model:ir.model,name:mrp.model_mrp_workcenter_load
 #: model:ir.model,name:mrp.model_report_workcenter_load
 msgid "Work Center Load"
-msgstr "Carga del centro de producción"
+msgstr "Carga del Centro de Producción"
 
 #. module: mrp
 #: view:report.workcenter.load:mrp.view_workcenter_load_tree
@@ -2309,7 +2309,7 @@ msgstr ""
 #. module: mrp
 #: view:mrp.routing:mrp.mrp_routing_form_view
 msgid "Work Center Operations"
-msgstr "Operaciones del centro de trabajo"
+msgstr "Operaciones del Centro de Trabajo"
 
 #. module: mrp
 #: field:mrp.workcenter,product_id:0
@@ -2331,25 +2331,25 @@ msgstr ""
 #: code:addons/mrp/report/price.py:132
 #, python-format
 msgid "Work Center name"
-msgstr "Nombre del centro de producción"
+msgstr "Nombre del Centro de Producción"
 
 #. module: mrp
 #: model:ir.actions.act_window,name:mrp.mrp_workcenter_action
 #: model:ir.ui.menu,name:mrp.menu_view_resource_search_mrp
 #: field:mrp.routing,workcenter_lines:0
 msgid "Work Centers"
-msgstr "Centros de trabajo"
+msgstr "Centros de Trabajo"
 
 #. module: mrp
 #: field:mrp.production,workcenter_lines:0
 msgid "Work Centers Utilisation"
-msgstr "Utilización del centro de producción"
+msgstr "Utilización del Centro de Producción"
 
 #. module: mrp
 #: code:addons/mrp/report/price.py:132
 #, python-format
 msgid "Work Cost"
-msgstr "Costo del trabajo"
+msgstr "Costo del Trabajo"
 
 #. module: mrp
 #: code:addons/mrp/report/price.py:206
@@ -2361,23 +2361,23 @@ msgstr ""
 #: model:ir.model,name:mrp.model_mrp_production_workcenter_line
 #: field:mrp.production.workcenter.line,name:0
 msgid "Work Order"
-msgstr "Orden de trabajo"
+msgstr "Orden de Trabajo"
 
 #. module: mrp
 #: view:mrp.production:mrp.mrp_production_form_view
 #: view:website:mrp.report_mrporder
 msgid "Work Orders"
-msgstr "Órdenes de trabajo"
+msgstr "Órdenes de Trabajo"
 
 #. module: mrp
 #: view:website:mrp.report_mrporder
 msgid "WorkCenter"
-msgstr "Centro de producción"
+msgstr "Centro de Producción"
 
 #. module: mrp
 #: model:ir.ui.menu,name:mrp.menu_view_resource_calendar_search_mrp
 msgid "Working Time"
-msgstr "Horario de trabajo"
+msgstr "Horario de Trabajo"
 
 #. module: mrp
 #: help:mrp.config.settings,module_mrp_byproduct:0
