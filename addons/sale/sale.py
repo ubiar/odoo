@@ -48,7 +48,7 @@ class sale_order(osv.osv):
 
     def _amount_line_tax(self, cr, uid, line, context=None):
         val = 0.0
-        for c in self.pool.get('account.tax').compute_all(cr, uid, line.tax_id, line.price_unit * (1-(line.discount or 0.0)/100.0), line.product_uom_qty, line.product_id, line.order_id.partner_id)['taxes']:
+        for c in self.pool.get('account.tax').compute_all(cr, uid, line.tax_id, line.price_unit * (1-(line.discount or 0.0)/100.0), line.product_uom_qty, line.product_id, line.order_id.partner_id, context={'precio_unitario_con_iva': line.order_id.precio_unitario_con_iva})['taxes']:
             val += c.get('amount', 0.0)
         return val
 
@@ -227,6 +227,7 @@ class sale_order(osv.osv):
         'team_id': fields.many2one('crm.team', 'Sales Team', oldname='section_id', change_default=True),
         'procurement_group_id': fields.many2one('procurement.group', 'Procurement group', copy=False),
         'product_id': fields.related('order_line', 'product_id', type='many2one', relation='product.product', string='Product'),
+        'precio_unitario_con_iva': fields.boolean('Los precios unitarios son con I.V.A.'),
     }
 
     _defaults = {
@@ -845,7 +846,7 @@ class sale_order_line(osv.osv):
             context = {}
         for line in self.browse(cr, uid, ids, context=context):
             price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
-            taxes = tax_obj.compute_all(cr, uid, line.tax_id, price, line.product_uom_qty, line.product_id, line.order_id.partner_id)
+            taxes = tax_obj.compute_all(cr, uid, line.tax_id, price, line.product_uom_qty, line.product_id, line.order_id.partner_id, context={'precio_unitario_con_iva': line.order_id.precio_unitario_con_iva})
             cur = line.order_id.pricelist_id.currency_id
             res[line.id] = cur_obj.round(cr, uid, cur, taxes['total'])
         return res
@@ -1160,6 +1161,7 @@ class sale_order_line(osv.osv):
                     product, qty or 1.0, partner_id, {
                         'uom': uom or result.get('product_uom'),
                         'date': date_order,
+                        'precio_unitario_con_iva': context.get('precio_unitario_con_iva'),
                         })[pricelist]
         else:
             price = Product.price_get(cr, uid, [product], ptype='list_price', context=ctx_product)[product] or False

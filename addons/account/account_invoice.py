@@ -306,6 +306,7 @@ class account_invoice(models.Model):
     commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity',
         related='partner_id.commercial_partner_id', store=True, readonly=True,
         help="The commercial entity that will be used on Journal Entries for this invoice")
+    precio_unitario_con_iva = fields.Boolean('Los precios unitarios son con I.V.A.')
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type)', 
@@ -1230,7 +1231,8 @@ class account_invoice_line(models.Model):
                  'invoice_id.partner_id', 'invoice_id.currency_id', 'invoice_id.company_id')
     def _compute_price(self):
         price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
-        taxes = self.invoice_line_tax_id.compute_all(price, self.quantity,
+        precio_unitario_con_iva = False
+        taxes = self.invoice_line_tax_id.with_context(precio_unitario_con_iva=self.invoice_id.precio_unitario_con_iva).compute_all(price, self.quantity,
                                                      product=self.product_id,
                                                      partner=self.invoice_id.partner_id)
         self.price_subtotal = price_subtotal_signed = taxes['total']
@@ -1442,7 +1444,7 @@ class account_invoice_line(models.Model):
             mres['invl_id'] = line.id
             res.append(mres)
             tax_code_found = False
-            taxes = line.invoice_line_tax_id.compute_all(
+            taxes = line.invoice_line_tax_id.with_context(precio_unitario_con_iva=inv.precio_unitario_con_iva).compute_all(
                 (line.price_unit * (1.0 - (line.discount or 0.0) / 100.0)),
                 line.quantity, line.product_id, inv.partner_id)['taxes']
             for tax in taxes:
@@ -1585,7 +1587,7 @@ class account_invoice_tax(models.Model):
         res_a = self.compute_a(invoice)
         for line in invoice.invoice_line:
             res_d = self.compute_d(invoice, line)
-            taxes = line.invoice_line_tax_id.compute_all(
+            taxes = line.invoice_line_tax_id.with_context(precio_unitario_con_iva=line.invoice_id.precio_unitario_con_iva).compute_all(
                 ((line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - (res_d or 0.0) / 100.0)),
                 line.quantity, line.product_id, invoice.partner_id)['taxes']
             for tax in taxes:

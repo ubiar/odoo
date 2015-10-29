@@ -2082,7 +2082,7 @@ class account_tax(osv.osv):
         return self.compute_all(cr, uid, [tax], amount, 1) # TOCHECK may use force_exclude parameter
 
     @api.v7
-    def compute_all(self, cr, uid, taxes, price_unit, quantity, product=None, partner=None, force_excluded=False):
+    def compute_all(self, cr, uid, taxes, price_unit, quantity, product=None, partner=None, force_excluded=False, context=None):
         """
         :param force_excluded: boolean used to say that we don't want to consider the value of field price_include of
             tax. It's used in encoding by line where you don't matter if you encoded a tax with that boolean to True or
@@ -2093,7 +2093,8 @@ class account_tax(osv.osv):
                 'taxes': []                  # List of taxes, see compute for the format
             }
         """
-
+        if not context:
+            context = {}
         # By default, for each tax, tax amount will first be computed
         # and rounded at the 'Account' decimal precision for each
         # PO/SO/invoice line and then these rounded amounts will be
@@ -2111,7 +2112,12 @@ class account_tax(osv.osv):
         tin = []
         tex = []
         for tax in taxes:
-            if not tax.price_include or force_excluded:
+            if tax.tipo == 'iva' and tax.type_tax_use == 'sale' and 'precio_unitario_con_iva' in context.keys():
+                if context.get('precio_unitario_con_iva'):
+                    tin.append(tax)
+                else:
+                    tex.append(tax)    
+            elif not tax.price_include or force_excluded:
                 tex.append(tax)
             else:
                 tin.append(tax)
@@ -2136,7 +2142,7 @@ class account_tax(osv.osv):
     def compute_all(self, price_unit, quantity, product=None, partner=None, force_excluded=False):
         return self._model.compute_all(
             self._cr, self._uid, self, price_unit, quantity,
-            product=product, partner=partner, force_excluded=force_excluded)
+            product=product, partner=partner, force_excluded=force_excluded, context=self._context)
 
     def compute(self, cr, uid, taxes, price_unit, quantity,  product=None, partner=None):
         _logger.info("Deprecated, use compute_all(...)['taxes'] instead of compute(...) to manage prices with tax included.")
