@@ -2048,6 +2048,7 @@ class account_tax(osv.osv):
             elif tax.type=='balance':
                 data['amount'] = cur_price_unit - reduce(lambda x,y: y.get('amount',0.0)+x, res, 0.0)
                 data['balance'] = cur_price_unit
+            data['amount'] = round(data['amount'], self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
 
             amount2 = data.get('amount', 0.0)
             if tax.child_ids:
@@ -2206,6 +2207,7 @@ class account_tax(osv.osv):
                 todo = 0
             else:
                 todo = 1
+            amount = round(amount, self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
             res.append({
                 'id': tax.id,
                 'todo': todo,
