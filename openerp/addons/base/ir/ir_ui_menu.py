@@ -97,8 +97,8 @@ class ir_ui_menu(osv.osv):
                 }
                 for menu in action_menus:
                     fname = model_fname.get(menu.action._name)
-                    if not fname or not menu.action[fname] or \
-                            access.check(menu.action[fname], 'read', False):
+                    if not fname or not menu.sudo().action[fname] or \
+                            access.check(menu.sudo().action[fname], 'read', False):
                         # make menu visible, and its folder ancestors, too
                         visible += menu
                         menu = menu.parent_id
@@ -306,6 +306,8 @@ class ir_ui_menu(osv.osv):
         for menu in self.browse(cr, uid, ids, context=context):
             menu_ids.add(menu.id)
             ctx = None
+            if menu.action and menu.sudo().action.type == 'ir.codigo.python':
+                menu = menu.sudo()
             if menu.action and menu.action.type in ('ir.actions.act_window', 'ir.actions.client') and menu.action.context:
                 try:
                     # use magical UnquoteEvalContext to ignore undefined client-side variables such as `active_id`
@@ -334,6 +336,8 @@ class ir_ui_menu(osv.osv):
                 'needaction_enabled': False,
                 'needaction_counter': False,
             }
+            if menu.action and menu.sudo().action.type == 'ir.codigo.python':
+                menu = menu.sudo()
             if menu.action and menu.action.type in ('ir.actions.act_window', 'ir.actions.client') and menu.action.res_model:
                 if menu.action.res_model in self.pool:
                     obj = self.pool[menu.action.res_model]
