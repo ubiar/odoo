@@ -2111,13 +2111,11 @@ class account_tax(osv.osv):
         tin = []
         tex = []
         for tax in taxes:
-            if tax.tipo == 'iva' and tax.type_tax_use == 'sale' and 'precio_unitario_con_iva' in context.keys():
-                if context.get('precio_unitario_con_iva'):
-                    tin.append(tax)
+            if not tax.price_include or force_excluded:
+                if tax.tipo == 'iva' and tax.type_tax_use == 'sale' and context.get('precio_unitario_con_iva'):
+                    tin.append(tax) 
                 else:
-                    tex.append(tax)    
-            elif not tax.price_include or force_excluded:
-                tex.append(tax)
+                    tex.append(tax)
             else:
                 tin.append(tax)
         tin = self.compute_inv(cr, uid, tin, price_unit, quantity, product=product, partner=partner, precision=tax_compute_precision)
