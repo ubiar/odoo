@@ -35,6 +35,7 @@ from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from openerp.exceptions import UserError
 from .tools.translate import _
+from dateutil.relativedelta import relativedelta
 
 DATE_LENGTH = len(date.today().strftime(DATE_FORMAT))
 DATETIME_LENGTH = len(datetime.now().strftime(DATETIME_FORMAT))
@@ -1167,11 +1168,20 @@ class Date(Field):
     type = 'date'
 
     @staticmethod
-    def today(*args):
+    def today(*args, **kwargs):
         """ Return the current day in the format expected by the ORM.
             This function may be used to compute default values.
         """
-        return date.today().strftime(DATE_FORMAT)
+        today = date.today()
+        if kwargs and kwargs.get('days') and type(kwargs.get('days')) == int:
+           today += relativedelta(days=kwargs.get('days'))
+        if kwargs and kwargs.get('dias') and type(kwargs.get('dias')) == int:
+           today += relativedelta(days=kwargs.get('dias'))
+        if kwargs and kwargs.get('months') and type(kwargs.get('months')) == int:
+           today += relativedelta(months=kwargs.get('months'))
+        if kwargs and kwargs.get('meses') and type(kwargs.get('meses')) == int:
+           today += relativedelta(months=kwargs.get('meses'))
+        return today.strftime(DATE_FORMAT)
 
     @staticmethod
     def context_today(record, timestamp=None):
