@@ -167,7 +167,6 @@ def _eval_xml(self, node, pool, cr, uid, idref, context=None):
         if t == 'html':
             return _process("".join([etree.tostring(n, encoding='utf-8')
                                    for n in node]), idref)
-
         data = node.text
         if node.get('file'):
             with openerp.tools.file_open(node.get('file'), 'rb') as f:
@@ -723,7 +722,10 @@ form: module.record_id""" % (xml_id,)
                 if not os.path.isfile(file_path):
                     raise Exception(_('File %s not exists.') % (f_file))
                 fp = misc.file_open(file_path)
-                f_val = fp.read().encode("base64")
+                if model._fields.get(f_name) and model._fields.get(f_name).type == 'text':
+                    f_val = fp.read()
+                else:
+                    f_val = fp.read().encode("base64")
                 fp.close()
             else:
                 f_val = _eval_xml(self,field, self.pool, cr, self.uid, self.idref)
