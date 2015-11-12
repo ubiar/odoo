@@ -5939,6 +5939,23 @@ class BaseModel(object):
 
         return result
 
+    # Agregado por UBIAR
+
+    @api.v7
+    def btn_ir_codigo_python_ubiar(self, cr, uid, ids, context=None):
+        if context and context.get('ubiar_ir_codigo_python_boton_id'):
+            context = context.copy()
+            boton = self.pool.get('ir.codigo.python.boton').browse(cr, uid, context.get('ubiar_ir_codigo_python_boton_id'))
+            context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
+            return boton.codigo_id.with_context(context).btn_ejecutar()
+        else:
+            raise UserError(_("No se encontro el Codigo Python a ejecutar"))
+
+
+    @api.v8
+    def btn_ir_codigo_python_ubiar(self):
+        # Por lo visto nunca se llama este metodo en la V8 en caso de llamarse dejo una alerta para implementarlo
+        raise UserError(_("No esta implementada esta funcionalidad (Boton de codigo python v8) por favor contactese con el administrador."))
 
 class RecordCache(MutableMapping):
     """ Implements a proxy dictionary to read/update the cache of a record.
