@@ -498,6 +498,21 @@ class mail_template(osv.osv):
                     signature = self.pool.get('res.users').browse(cr, uid, uid, context).signature
                     if signature:
                         values['body_html'] = tools.append_content_to_html(values['body_html'], signature, plaintext=False)
+                # add company signature
+                if 'body_html' in fields:
+                    user = self.pool.get('res.users').browse(cr, uid, uid, context)
+                    if user.company_id.website:
+                        website_url = ('http://%s' % user.company_id.website) if not user.company_id.website.lower().startswith(('http:', 'https:')) \
+                            else user.company_id.website
+                        company = "<a target='_blank' style='color:#7C7BAD' href='%s'>%s</a>" % (website_url, user.company_id.name)
+                    else:
+                        company = user.company_id.name
+                    sent_by = _('Enviado por %(company)s mediante %(odoo)s')
+                    signature_company = '<br /><br /><small>%s</small>' % (sent_by % {
+                        'company': company,
+                        'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/'>Advance ERP</a>"
+                    })
+                    values['body_html'] = tools.append_content_to_html(values['body_html'], signature_company, plaintext=False, container_tag='div')
                 if values.get('body_html'):
                     values['body'] = tools.html_sanitize(values['body_html'])
                 # technical settings
