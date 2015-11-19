@@ -6102,8 +6102,8 @@ msgid ""
 "You try to move a product using a UoM that is not compatible with the UoM of "
 "the product moved. Please use an UoM in the same UoM category."
 msgstr ""
-"Está tratando de mover un producto usando una UdM que no es compatible con "
-"la UdM del producto movido. Utilice una UdM de la misma categoría."
+"Esta tratando de mover un producto usando una UdM que no es compatible con "
+"la UdM del producto movido. Utilice una UdM de la misma categoria."
 
 #. module: stock
 #: view:stock.change.product.qty:stock.view_change_product_quantity
