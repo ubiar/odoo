@@ -155,7 +155,7 @@ class mail_notification(osv.Model):
             company = "<a target='_blank' style='color:#7C7BAD' href='%s'>%s</a>" % (website_url, user.company_id.name)
         else:
             company = user.company_id.name
-        sent_by = _('Sent by %(company)s using %(odoo)s')
+        sent_by = _('Enviado por %(company)s mediante %(odoo)s')
 
         signature_company = '<br /><br /><small>%s</small>' % (sent_by % {
             'company': company,
