@@ -300,7 +300,7 @@ class account_voucher(osv.osv):
             ('purchase','Purchase'),
             ('payment','Payment'),
             ('receipt','Receipt'),
-        ],'Default Type', readonly=True, states={'draft':[('readonly',False)]}),
+        ],'Default Type', readonly=True, states={'draft':[('readonly',False)]}, select=True),
         'name':fields.char('Memo', readonly=True, states={'draft':[('readonly',False)]}),
         'date':fields.date('Date', readonly=True, select=True, states={'draft':[('readonly',False)]},
                            help="Effective date for accounting entries", copy=False),
@@ -332,9 +332,9 @@ class account_voucher(osv.osv):
         'reference': fields.char('Reference', readonly=True, states={'draft':[('readonly',False)]},
                                  help="Transaction reference number.", copy=False),
         'number': fields.char('Number', readonly=True, copy=False),
-        'move_id':fields.many2one('account.move', 'Account Entry', copy=False),
+        'move_id':fields.many2one('account.move', 'Account Entry', copy=False, select=True),
         'move_ids': fields.related('move_id','line_id', type='one2many', relation='account.move.line', string='Journal Items', readonly=True),
-        'partner_id':fields.many2one('res.partner', 'Partner', change_default=1, readonly=True, states={'draft':[('readonly',False)]}),
+        'partner_id':fields.many2one('res.partner', 'Partner', change_default=1, readonly=True, states={'draft':[('readonly',False)]}, select=True),
         'audit': fields.related('move_id','to_check', type='boolean', help='Check this box if you are unsure of that journal entry and if you want to note it as \'to be reviewed\' by an accounting expert.', relation='account.move', string='To Review'),
         'paid': fields.function(_check_paid, string='Paid', type='boolean', help="The Voucher has been totally paid."),
         'pay_now':fields.selection([
@@ -1511,7 +1511,7 @@ class account_voucher_line(osv.osv):
         return res
 
     _columns = {
-        'voucher_id':fields.many2one('account.voucher', 'Voucher', required=1, ondelete='cascade'),
+        'voucher_id':fields.many2one('account.voucher', 'Voucher', required=1, ondelete='cascade', select=True),
         'name':fields.char('Description',),
         'account_id':fields.many2one('account.account','Account', required=True),
         'partner_id':fields.related('voucher_id', 'partner_id', type='many2one', relation='res.partner', string='Partner'),

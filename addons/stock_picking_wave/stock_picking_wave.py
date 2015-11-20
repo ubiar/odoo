@@ -11,7 +11,7 @@ class stock_picking_wave(osv.osv):
         'name': fields.char('Picking Wave Name', required=True, help='Name of the picking wave', copy=False),
         'user_id': fields.many2one('res.users', 'Responsible', help='Person responsible for this wave'),
         'picking_ids': fields.one2many('stock.picking', 'wave_id', 'Pickings', help='List of picking associated to this wave'),
-        'state': fields.selection([('draft', 'Draft'), ('in_progress', 'Running'), ('done', 'Done'), ('cancel', 'Cancelled')], string="State", required=True, copy=False),
+        'state': fields.selection([('draft', 'Draft'), ('in_progress', 'Running'), ('done', 'Done'), ('cancel', 'Cancelled')], string="State", required=True, copy=False, select=True),
     }
 
     _defaults = {
@@ -65,5 +65,5 @@ class stock_picking_wave(osv.osv):
 class stock_picking(osv.osv):
     _inherit = "stock.picking"
     _columns = {
-        'wave_id': fields.many2one('stock.picking.wave', 'Picking Wave', states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, help='Picking wave associated to this picking'),
+        'wave_id': fields.many2one('stock.picking.wave', 'Picking Wave', select=True, states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, help='Picking wave associated to this picking'),
     }
