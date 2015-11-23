@@ -1833,7 +1833,7 @@ class stock_move(osv.osv):
         'location_dest_id': fields.many2one('stock.location', 'Destination Location', required=True, states={'done': [('readonly', True)]}, select=True,
                                             auto_join=True, help="Location where the system will stock the finished products."),
 
-        'partner_id': fields.many2one('res.partner', 'Destination Address ', states={'done': [('readonly', True)]}, help="Optional address where goods are to be delivered, specifically used for allotment"),
+        'partner_id': fields.many2one('res.partner', 'Destination Address ', states={'done': [('readonly', True)]}, select=True, help="Optional address where goods are to be delivered, specifically used for allotment"),
 
 
         'move_dest_id': fields.many2one('stock.move', 'Destination Move', help="Optional: next stock move when chaining them", select=True, copy=False),
@@ -1871,13 +1871,13 @@ class stock_move(osv.osv):
         'linked_move_operation_ids': fields.one2many('stock.move.operation.link', 'move_id', string='Linked Operations', readonly=True, help='Operations that impact this move for the computation of the remaining quantities'),
         'remaining_qty': fields.function(_get_remaining_qty, type='float', string='Remaining Quantity', digits=0,
                                          states={'done': [('readonly', True)]}, help="Remaining Quantity in default UoM according to operations matched with this move"),
-        'procurement_id': fields.many2one('procurement.order', 'Procurement'),
+        'procurement_id': fields.many2one('procurement.order', 'Procurement', select=True),
         'group_id': fields.many2one('procurement.group', 'Procurement Group'),
         'rule_id': fields.many2one('procurement.rule', 'Procurement Rule', help='The procurement rule that created this stock move'),
         'push_rule_id': fields.many2one('stock.location.path', 'Push Rule', help='The push rule that created this stock move'),
         'propagate': fields.boolean('Propagate cancel and split', help='If checked, when this move is cancelled, cancel the linked move too'),
-        'picking_type_id': fields.many2one('stock.picking.type', 'Picking Type'),
-        'inventory_id': fields.many2one('stock.inventory', 'Inventory'),
+        'picking_type_id': fields.many2one('stock.picking.type', 'Picking Type', select=True),
+        'inventory_id': fields.many2one('stock.inventory', 'Inventory', select=True),
         'lot_ids': fields.function(_get_lot_ids, type='many2many', relation='stock.production.lot', string='Lots'),
         'origin_returned_move_id': fields.many2one('stock.move', 'Origin return move', help='move that created the return move', copy=False),
         'returned_move_ids': fields.one2many('stock.move', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move'),

@@ -241,9 +241,9 @@ class account_invoice(models.Model):
              "term is not set on the invoice. If you keep the payment term and the due date empty, it "
              "means direct payment.")
     partner_id = fields.Many2one('res.partner', string='Partner', change_default=True,
-        required=True, readonly=True, states={'draft': [('readonly', False)]})
+        required=True, readonly=True, states={'draft': [('readonly', False)]}, index=True)
     payment_term = fields.Many2one('account.payment.term', string='Payment Terms',
-        readonly=True, states={'draft': [('readonly', False)]},
+        readonly=True, states={'draft': [('readonly', False)]}, index=True,
         help="If you use payment terms, the due date will be computed automatically at the generation "
              "of accounting entries. If you keep the payment term and the due date empty, it means direct payment. "
              "The payment term may compute several due dates, for example 50% now, 50% in one month.")

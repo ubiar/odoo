@@ -525,7 +525,7 @@ class product_template(osv.osv):
                  "This description will be copied to every Sale Order, Delivery Order and Customer Invoice/Refund"),
         'type': fields.selection([('consu', 'Consumable'),('service','Service')], 'Product Type', required=True, help="Consumable are product where you don't manage stock, a service is a non-material product provided by a company or an individual."),        
         'rental': fields.boolean('Can be Rent'),
-        'categ_id': fields.many2one('product.category','Internal Category', required=True, change_default=True, domain="[('type','=','normal')]" ,help="Select category for the current product"),
+        'categ_id': fields.many2one('product.category','Internal Category', required=True, change_default=True, domain="[('type','=','normal')]", select=True, help="Select category for the current product"),
         'price': fields.function(_product_template_price, fnct_inv=_set_product_template_price, type='float', string='Price', digits_compute=dp.get_precision('Product Price')),
         'list_price': fields.float('Sale Price', digits_compute=dp.get_precision('Product Price'), help="Base price to compute the customer price. Sometimes called the catalog price."),
         'lst_price' : fields.related('list_price', type="float", string='Public Price', digits_compute=dp.get_precision('Product Price')),
@@ -1272,7 +1272,7 @@ class product_supplierinfo(osv.osv):
     _columns = {
         'name' : fields.many2one('res.partner', 'Supplier', required=True,domain = [('supplier','=',True)], ondelete='cascade', help="Supplier of this product"),
         'product_name': fields.char('Supplier Product Name', help="This supplier's product name will be used when printing a request for quotation. Keep empty to use the internal one."),
-        'product_code': fields.char('Supplier Product Code', help="This supplier's product code will be used when printing a request for quotation. Keep empty to use the internal one."),
+        'product_code': fields.char('Supplier Product Code', select=True, help="This supplier's product code will be used when printing a request for quotation. Keep empty to use the internal one."),
         'sequence' : fields.integer('Sequence', help="Assigns the priority to the list of product supplier."),
         'product_uom': fields.related('product_tmpl_id', 'uom_po_id', type='many2one', relation='product.uom', string="Supplier Unit of Measure", readonly="1", help="This comes from the product form."),
         'min_qty': fields.float('Minimal Quantity', required=True, help="The minimal quantity to purchase to this supplier, expressed in the supplier Product Unit of Measure if not empty, in the default unit of measure of the product otherwise."),
