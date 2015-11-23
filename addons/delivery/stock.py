@@ -188,7 +188,7 @@ class stock_move(osv.osv):
         """
         procs_to_check = []
         for move in self.browse(cr, uid, ids, context=context):
-            if move.procurement_id and move.procurement_id.sale_line_id and move.procurement_id.sale_line_id.order_id.carrier_id:
+            if move.procurement_id and move.procurement_id.sudo().sale_line_id and move.procurement_id.sudo().sale_line_id.order_id.carrier_id:
                 procs_to_check += [move.procurement_id]
         res = super(stock_move, self).action_confirm(cr, uid, ids, context=context)
         pick_obj = self.pool.get("stock.picking")
