@@ -2023,6 +2023,9 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
                         },
                         {text: _t("Ok"), click: function() {
                                 var self2 = this;
+                                var botones = this.parents('.modal').find("button");
+                                botones.prop('disabled', true);
+                                botones.css('color', 'grey');
                                 self.on_confirmed().always(function() {
                                     self2.parents('.modal').modal('hide');
                                 });
