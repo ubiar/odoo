@@ -1049,7 +1049,7 @@ class Binary(http.Controller):
                 image_base64 = res.get(field)
 
             if kw.get('resize'):
-                resize = kw.get('resize').split(',')
+                resize = kw.get('resize').replace('%2C', ',').split(',')
                 if len(resize) == 2 and int(resize[0]) and int(resize[1]):
                     width = int(resize[0])
                     height = int(resize[1])
