@@ -848,7 +848,7 @@ instance.web.DataSetSearch =  instance.web.DataSet.extend({
 
 instance.web.BufferedDataSet = instance.web.DataSetStatic.extend({
     virtual_id_prefix: "one2many_v_id_",
-    debug_mode: true,
+    debug_mode: false,
     init: function() {
         this._super.apply(this, arguments);
         this.reset_ids([]);
