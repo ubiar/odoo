@@ -1261,7 +1261,7 @@ class Action(http.Controller):
                 ctx.update({'ir_codigo_python_read_action': True})
             if additional_context:
                 ctx.update(additional_context)
-            action = request.session.model(action_type).read([action_id], False, ctx)
+            action = request.session.model(action_type).read([action_id], fields=False, context=ctx)
             if action:
                 value = clean_action(action[0])
         return value
