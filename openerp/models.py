@@ -5945,9 +5945,9 @@ class BaseModel(object):
     def btn_ir_codigo_python_ubiar(self, cr, uid, ids, context=None):
         if context and context.get('ubiar_ir_codigo_python_boton_id'):
             context = context.copy()
-            boton = self.pool.get('ir.codigo.python.boton').browse(cr, uid, context.get('ubiar_ir_codigo_python_boton_id'))
+            boton = self.pool.get('ir.codigo.python.boton').browse(cr, SUPERUSER_ID, context.get('ubiar_ir_codigo_python_boton_id'))
             context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
-            return boton.codigo_id.with_context(context).btn_ejecutar()
+            return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
         else:
             raise UserError(_("No se encontro el Codigo Python a ejecutar"))
 
