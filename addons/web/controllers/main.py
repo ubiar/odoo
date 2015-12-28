@@ -1049,7 +1049,7 @@ class Binary(http.Controller):
                 image_base64 = res.get(field)
 
             if kw.get('resize'):
-                resize = kw.get('resize').split(',')
+                resize = kw.get('resize').replace('%2C', ',').split(',')
                 if len(resize) == 2 and int(resize[0]) and int(resize[1]):
                     width = int(resize[0])
                     height = int(resize[1])
@@ -1261,7 +1261,7 @@ class Action(http.Controller):
                 ctx.update({'ir_codigo_python_read_action': True})
             if additional_context:
                 ctx.update(additional_context)
-            action = request.session.model(action_type).read([action_id], False, ctx)
+            action = request.session.model(action_type).read([action_id], fields=False, context=ctx)
             if action:
                 value = clean_action(action[0])
         return value
