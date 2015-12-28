@@ -659,6 +659,7 @@
                         <rng:value>pie</rng:value>
                         <rng:value>line</rng:value>
                         <rng:value>pivot</rng:value>
+                        <rng:value>cubo</rng:value>
                     </rng:choice>
                 </rng:attribute>
             </rng:optional>
@@ -680,6 +681,15 @@
             <rng:optional>
                 <rng:attribute name="disable_linking"><rng:value>False</rng:value></rng:attribute>
             </rng:optional>
+            <rng:zeroOrMore>
+                <rng:ref name="field"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+
+    <rng:define name="cubo">
+        <rng:element name="cubo">
+            <rng:optional><rng:attribute name="string" /></rng:optional>
             <rng:zeroOrMore>
                 <rng:ref name="field"/>
             </rng:zeroOrMore>
@@ -758,6 +768,7 @@
                     <rng:ref name="notebook" />
                     <rng:ref name="graph" />
                     <rng:ref name="pivot" />
+                    <rng:ref name="cubo" />
                     <rng:ref name="calendar" />
                     <rng:ref name="gantt" />
                     <rng:ref name="xpath" />
@@ -786,6 +797,7 @@
             <rng:ref name="notebook" />
             <rng:ref name="graph" />
             <rng:ref name="pivot" />
+            <rng:ref name="cubo" />
             <rng:ref name="calendar" />
             <rng:ref name="data" />
             <rng:ref name="gantt" />

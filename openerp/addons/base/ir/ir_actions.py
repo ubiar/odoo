@@ -410,6 +410,7 @@ VIEW_TYPES = [
     ('form', 'Form'),
     ('graph', 'Graph'),
     ('pivot', 'Pivot'),
+    ('cubo', 'Cubo'),
     ('calendar', 'Calendar'),
     ('gantt', 'Gantt'),
     ('kanban', 'Kanban')]

@@ -1058,6 +1058,9 @@
 .openerp .oe-view-manager-header .oe-view-manager-switch .oe-vm-switch-form:before {
   content: "";
 }
+.openerp .oe-view-manager-header .oe-view-manager-switch .oe-vm-switch-cubo:before {
+  content: "";
+}
 .openerp .oe-view-manager-header .oe-view-manager-switch .oe-vm-switch-graph:before {
   content: "";
 }
