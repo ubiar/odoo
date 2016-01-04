@@ -2743,7 +2743,8 @@ class BaseModel(object):
             self._save_constraint(cr, "%s_%s_fkey" % (t, k), 'f', False)
         cr.commit()
         del self._foreign_keys
-
+        if 'create_triggers_sql' in dir(self):
+            self.create_triggers_sql(cr, context=context)
 
     def _table_exist(self, cr):
         cr.execute("SELECT relname FROM pg_class WHERE relkind IN ('r','v') AND relname=%s", (self._table,))
