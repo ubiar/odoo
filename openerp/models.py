@@ -1437,6 +1437,10 @@ class BaseModel(object):
     def _get_default_cubo_view(self, cr, user, context=None):
         view = etree.Element('cubo', string=self._description)
         return view
+
+    def _get_default_orga_view(self, cr, user, context=None):
+        view = etree.Element('orga', string=self._description)
+        return view
         
     def _get_default_calendar_view(self, cr, user, context=None):
         """ Generates a default calendar view by trying to infer
