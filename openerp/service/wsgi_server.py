@@ -224,6 +224,6 @@ def application(environ, start_response):
     if config['proxy_mode'] and 'HTTP_X_FORWARDED_HOST' in environ:
         return werkzeug.contrib.fixers.ProxyFix(application_unproxied)(environ, start_response)
     else:
-        if config.get('newrelic_config_file', False):
+        if config.get('newrelic_config_file', False) not in [False, '0']:
             return newrelic_agent.WSGIApplicationWrapper(application_unproxied)(environ, start_response)
         return application_unproxied(environ, start_response)

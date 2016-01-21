@@ -188,7 +188,7 @@ class Controller(openerp.http.Controller):
 
     @openerp.http.route('/longpolling/poll', type="json", auth="public")
     def poll(self, channels, last, options=None):
-        if config.get('newrelic_config_file', False):
+        if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.ignore_transaction() 
         if options is None:
             options = {}

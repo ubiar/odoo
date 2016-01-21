@@ -200,7 +200,7 @@ class ThreadedServer(CommonServer):
 
         #self.socket = None
         self.httpd = None
-        if config.get('newrelic_config_file', False):
+        if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
             _logger.info("Newrelic agent initialized")
 
@@ -343,7 +343,7 @@ class GeventServer(CommonServer):
         super(GeventServer, self).__init__(app)
         self.port = config['longpolling_port']
         self.httpd = None
-        if config.get('newrelic_config_file', False):
+        if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
             _logger.info("Newrelic agent initialized")
 
@@ -408,7 +408,7 @@ class PreforkServer(CommonServer):
         self.generation = 0
         self.queue = []
         self.long_polling_pid = None
-        if config.get('newrelic_config_file', False):
+        if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
             _logger.info("Newrelic agent initialized")
 
