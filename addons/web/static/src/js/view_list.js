@@ -207,8 +207,12 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
             pair = this.colors[i];
             var color = pair[0];
             expression = pair[1];
-            if (py.PY_isTrue(py.evaluate(expression, context))) {
-                return style += 'color: ' + color + ';';
+            try {
+                if (py.PY_isTrue(py.evaluate(expression, context))) {
+                    return style += 'color: ' + color + ';';
+                }
+            } catch (err) {
+                
             }
             // TODO: handle evaluation errors
         }

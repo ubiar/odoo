@@ -272,6 +272,7 @@ class configmanager(object):
                          help="Use the unaccent function provided by the database when available.")
         group.add_option("--geoip-db", dest="geoip_database", my_default='/usr/share/GeoIP/GeoLiteCity.dat',
                          help="Absolute path to the GeoIP database file.")
+        group.add_option("--newrelic-config-file", dest="newrelic_config_file", my_default=False, help="New Relic Config File")
         parser.add_option_group(group)
 
         if os.name == 'posix':
@@ -381,7 +382,7 @@ class configmanager(object):
                 'db_name', 'db_user', 'db_password', 'db_host',
                 'db_port', 'db_template', 'logfile', 'pidfile', 'smtp_port',
                 'email_from', 'smtp_server', 'smtp_user', 'smtp_password',
-                'db_maxconn', 'import_partial', 'addons_path',
+                'db_maxconn', 'import_partial', 'addons_path', 'newrelic_config_file',
                 'xmlrpc', 'syslog', 'without_demo',
                 'dbfilter', 'log_level', 'log_db',
                 'log_db_level', 'geoip_database',
