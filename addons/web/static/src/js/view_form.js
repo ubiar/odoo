@@ -4415,6 +4415,9 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         this.on('edit:after', this, this.proxy('_after_edit'));
         this.on('save:before cancel:before', this, this.proxy('_before_unedit'));
 
+        /* detect if the user try to exit the one2many widget */
+        instance.web.bus.on('click', this, this._on_click_outside);
+
         this.records
             .bind('add', this.proxy("changed_records"))
             .bind('remove', this.proxy("changed_records"));
@@ -4542,17 +4545,44 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
             }
         });
     },
+    _on_click_outside: function(e) {
+        if(this.__ignore_blur || !this.editor.is_editing()) {
+            return;
+        }
 
+        var $target = $(e.target);
+
+        // If click on a button, a ui-autocomplete dropdown or modal-backdrop, it is not considered as a click outside
+        var click_outside = ($target.closest('.ui-autocomplete,.btn,.modal-backdrop').length === 0);
+
+        // Check if click inside the current list editable
+        var $o2m = $target.closest(".oe_list_editable");
+        if($o2m.length && $o2m[0] === this.el) {
+            click_outside = false;
+        }
+
+        // Check if click inside a modal which is on top of the current list editable
+        var $modal = $target.closest(".modal");
+        if($modal.length) {
+            var $currentModal = this.$el.closest(".modal");
+            if($currentModal.length === 0 || $currentModal[0] !== $modal[0]) {
+                click_outside = false;
+            }
+        }
+
+        if (click_outside) {
+            this._on_form_blur();
+        }
+    },
     _after_edit: function () {
         this.__ignore_blur = false;
         this.editor.form.on('blurred', this, this._on_form_blur);
-
         // The form's blur thing may be jiggered during the edition setup,
         // potentially leading to the o2m instasaving the row. Cancel any
         // blurring triggered the edition startup here
         this.editor.form.widgetFocused();
     },
-    _before_unedit: function () {
+    _before_unedit: function () {        
         this.editor.form.off('blurred', this, this._on_form_blur);
     },
     _button_down: function () {
