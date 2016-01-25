@@ -2205,6 +2205,9 @@ instance.web.list.Column = instance.web.Class.extend({
     modifiers_for: function (fields) {
         var out = {};
         var domain_computer = instance.web.form.compute_domain;
+        if (_.isEmpty(fields)) {
+            return out;
+        }
 
         for (var attr in this.modifiers) {
             if (!this.modifiers.hasOwnProperty(attr)) { continue; }
@@ -2213,7 +2216,6 @@ instance.web.list.Column = instance.web.Class.extend({
                 ? modifier
                 : domain_computer(modifier, fields);
         }
-
         return out;
     },
     to_aggregate: function () {
@@ -2293,6 +2295,7 @@ instance.web.list.Button = instance.web.list.Column.extend({
             widget: this,
             prefix: instance.session.prefix,
             disabled: attrs.readonly
+                || isNaN(row_data)
                 || isNaN(row_data.id.value)
                 || instance.web.BufferedDataSet.virtual_id_regex.test(row_data.id.value)
         });

@@ -111,7 +111,6 @@ class hr_payslip(osv.osv):
                     continue
                 partner_id = line.salary_rule_id.register_id.partner_id and line.salary_rule_id.register_id.partner_id.id or default_partner_id
                 accounts = line.salary_rule_id.get_account_payslip(line.salary_rule_id, slip)
-                print accounts
                 debit_account = accounts.get('account_debit')
                 credit_account = accounts.get('account_credit')
                 analytic_account_id = accounts.get('analytic_account')

@@ -2706,7 +2706,7 @@ class BaseModel(object):
                                         "Try to re-run: openerp-server --update=module\n"\
                                         "If it doesn't work, update records and execute manually:\n"\
                                         "ALTER TABLE %s ALTER COLUMN %s SET NOT NULL"
-                                    _logger.warning(msg, k, self._table, self._table, k, exc_info=True)
+                                    _logger.warning(msg, k, self._table, self._table, k, exc_info=False) # Ubiar, se modifico ya que aunque queden valores nulos se tiene que poder realizar el update normalmente
                             cr.commit()
 
         else:
