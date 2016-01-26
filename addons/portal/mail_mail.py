@@ -36,7 +36,7 @@ class mail_mail(osv.Model):
         if context is None:
             context = {}
         partner_obj = self.pool.get('res.partner')
-        if partner and not partner.user_ids:
+        if partner and not partner.user_ids and False: # Se desactivo por el momento
             contex_signup = dict(context, signup_valid=True)
             signup_url = partner_obj._get_signup_url_for_action(cr, SUPERUSER_ID, [partner.id],
                                                                 action='mail.action_mail_redirect',
