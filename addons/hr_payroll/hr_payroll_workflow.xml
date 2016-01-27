@@ -51,9 +51,9 @@
         </record>
         
          <record id="t3" model="workflow.transition">
-            <field name="act_from" ref="act_cancel"/>
-            <field name="act_to" ref="act_draft"/>
-            <field name="signal">draft</field>
+            <field name="act_from" ref="act_done"/>
+            <field name="act_to" ref="act_cancel"/>
+            <field name="signal">cancel_sheet</field>
         </record>
         
          <record id="t4" model="workflow.transition">
