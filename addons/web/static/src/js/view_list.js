@@ -2295,6 +2295,9 @@ instance.web.list.Button = instance.web.list.Column.extend({
             widget: this,
             prefix: instance.session.prefix,
             disabled: attrs.readonly
+                || _.isUndefined(row_data)
+                || _.isNull(row_data)
+                || _.isEmpty(row_data)
                 || isNaN(row_data.id.value)
                 || instance.web.BufferedDataSet.virtual_id_regex.test(row_data.id.value)
         });
