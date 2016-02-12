@@ -81,6 +81,8 @@ class hr_payslip(osv.osv):
 
 
     def process_sheet(self, cr, uid, ids, context=None):
+        if context and context.get('no_crear_asiento_base'):
+            return super(hr_payslip, self).process_sheet(cr, uid, ids, context=context)
         move_pool = self.pool.get('account.move')
         period_pool = self.pool.get('account.period')
         precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Payroll')
