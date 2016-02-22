@@ -100,6 +100,12 @@ class product_template(osv.osv):
             'property_stock_valuation_account_id': account_valuation
         }
 
+    def _prepare_change_price_move_vals(self, cr, uid, datas, location, prod_variant, new_price, context=None):
+        return {
+                    'journal_id': datas['stock_journal'],
+                    'company_id': location.company_id.id,
+                }
+
 
     def do_change_standard_price(self, cr, uid, ids, new_price, context=None):
         """ Changes the Standard Price of Product and creates an account move accordingly."""
@@ -124,10 +130,7 @@ class product_template(osv.osv):
                     qty = prod_variant.qty_available
                     if qty:
                         # Accounting Entries
-                        move_vals = {
-                            'journal_id': datas['stock_journal'],
-                            'company_id': location.company_id.id,
-                        }
+                        move_vals = self._prepare_change_price_move_vals(cr, uid, datas, location, prod_variant, new_price, context=c)
                         move_id = move_obj.create(cr, uid, move_vals, context=context)
     
                         if diff*qty > 0:
@@ -140,14 +143,14 @@ class product_template(osv.osv):
                             credit_account_id = datas['stock_account_output']
     
                         move_line_obj.create(cr, uid, {
-                                        'name': _('Standard Price changed'),
+                                        'name': "Cambio de costo del producto %s"%prod_variant.name,
                                         'account_id': debit_account_id,
                                         'debit': amount_diff,
                                         'credit': 0,
                                         'move_id': move_id,
                                         }, context=context)
                         move_line_obj.create(cr, uid, {
-                                        'name': _('Standard Price changed'),
+                                        'name': "Cambio de costo del producto %s"%prod_variant.name,
                                         'account_id': credit_account_id,
                                         'debit': 0,
                                         'credit': amount_diff,
