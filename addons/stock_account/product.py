@@ -127,11 +127,12 @@ class product_template(osv.osv):
                 if not diff:
                     raise UserError(_("No difference between standard price and new price!"))
                 for prod_variant in product.product_variant_ids:
+                    c2 = context.copy()
                     qty = prod_variant.qty_available
                     if qty:
                         # Accounting Entries
-                        move_vals = self._prepare_change_price_move_vals(cr, uid, datas, location, prod_variant, new_price, context=c)
-                        move_id = move_obj.create(cr, uid, move_vals, context=context)
+                        move_vals = self._prepare_change_price_move_vals(cr, uid, datas, location, prod_variant, new_price, context=c2)
+                        move_id = move_obj.create(cr, uid, move_vals, context=c2)
     
                         if diff*qty > 0:
                             amount_diff = qty * diff
