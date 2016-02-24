@@ -351,7 +351,8 @@ instance.web.ActionManager = instance.web.Widget.extend({
         });
         action.menu_id = options.action_menu_id;
         if (action.context && action.context.special_clear_breadcrumbs){
-            options.clear_breadcrumbs = action.context.special_clear_breadcrumbs;
+            options.clear_breadcrumbs = true;
+            action.context.special_clear_breadcrumbs = false;
         }
         action.context.params = _.extend({ 'action' : action.id }, action.context.params);
         if (!(type in this)) {
