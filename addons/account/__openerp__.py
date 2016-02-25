@@ -104,7 +104,7 @@ for a particular financial year and for preparation of vouchers there is a modul
         'account_invoice_workflow.xml',
         'partner_view.xml',
         'product_view.xml',
-        'account_assert_test.xml',
+        # 'account_assert_test.xml', Por un tema de rendimiento en clientes grandes no se controlan todos los asientos en cada update
         'account_analytic_view.xml',
         'company_view.xml',
         'edi/invoice_action_data.xml',

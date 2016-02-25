@@ -1396,6 +1396,25 @@
   margin-left: -21px;
   cursor: pointer;
 }
+.openerp .oe-search-options .searchview_extended_prop_value_2 {
+  width: -webkit-calc(100% - 20px);
+  width: calc(100% - 20px);
+}
+.openerp .oe-search-options .searchview_extended_prop_value_2 > select, .openerp .oe-search-options .searchview_extended_prop_value_2 > input {
+  width: -webkit-calc(100% - 20px);
+  width: calc(100% - 20px);
+}
+.openerp .oe-search-options .searchview_extended_prop_value_2 .oe_datepicker_main {
+  width: -webkit-calc(100% - 20px);
+  width: calc(100% - 20px);
+}
+.openerp .oe-search-options .searchview_extended_prop_value_2 .oe_datepicker_master {
+  width: 100%;
+}
+.openerp .oe-search-options .searchview_extended_prop_value_2 .fa-calendar {
+  margin-left: -21px;
+  cursor: pointer;
+}
 .openerp .oe-search-options span.remove-filter {
   position: absolute;
   top: 6px;
