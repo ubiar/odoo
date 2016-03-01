@@ -115,7 +115,7 @@ class product_template(osv.osv):
         if context is None:
             context = {}
         user_company_id = self.pool.get('res.users').browse(cr, uid, uid, context=context).company_id.id
-        loc_ids = location_obj.search(cr, uid, [('usage', '=', 'internal'), ('company_id', '=', user_company_id)])
+        loc_ids = location_obj.search(cr, uid, [('usage', 'in', ['internal', 'transit']), ('company_id', '=', user_company_id)])
         for rec_id in ids:
             datas = self.get_product_accounts(cr, uid, rec_id, context=context)
             for location in location_obj.browse(cr, uid, loc_ids, context=context):
@@ -130,6 +130,8 @@ class product_template(osv.osv):
                     c2 = context.copy()
                     qty = prod_variant.qty_available
                     if qty:
+                        if context.get('stock_ajustado') and context['stock_ajustado'].get(location.id):
+                           qty -= context['stock_ajustado'][location.id].get(prod_variant.id) or 0
                         # Accounting Entries
                         move_vals = self._prepare_change_price_move_vals(cr, uid, datas, location, prod_variant, new_price, context=c2)
                         move_id = move_obj.create(cr, uid, move_vals, context=c2)
