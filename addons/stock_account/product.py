@@ -129,9 +129,9 @@ class product_template(osv.osv):
                 for prod_variant in product.product_variant_ids:
                     c2 = context.copy()
                     qty = prod_variant.qty_available
+                    if context.get('stock_ajustado') and context['stock_ajustado'].get(location.id):
+                       qty -= context['stock_ajustado'][location.id].get(prod_variant.id) or 0
                     if qty:
-                        if context.get('stock_ajustado') and context['stock_ajustado'].get(location.id):
-                           qty -= context['stock_ajustado'][location.id].get(prod_variant.id) or 0
                         # Accounting Entries
                         move_vals = self._prepare_change_price_move_vals(cr, uid, datas, location, prod_variant, new_price, context=c2)
                         move_id = move_obj.create(cr, uid, move_vals, context=c2)
