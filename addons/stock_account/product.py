@@ -159,7 +159,7 @@ class product_template(osv.osv):
                                         'credit': amount_diff,
                                         'move_id': move_id
                                         }, context=context)
-            self.write(cr, uid, rec_id, {'standard_price': new_price})
+            self.write(cr, uid, rec_id, {'standard_price': new_price}, context={'do_change_standard_price': True})
         return True
 
 
