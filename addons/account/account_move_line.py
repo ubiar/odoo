@@ -200,12 +200,13 @@ class account_move_line(osv.osv):
 
         return [('id', 'in', ids)]
 
-    def default_get(self, cr, uid, fields, context=None):
-        data = self._default_get(cr, uid, fields, context=context)
-        for f in data.keys():
-            if f not in fields:
-                del data[f]
-        return data
+    # Se comento ya que consumia muchos recursos y no era necesaria la funcionalidad
+    # def default_get(self, cr, uid, fields, context=None):
+    #     data = self._default_get(cr, uid, fields, context=context)
+    #     for f in data.keys():
+    #         if f not in fields:
+    #             del data[f]
+    #     return data
 
     def _prepare_analytic_line(self, cr, uid, obj_line, context=None):
         """
