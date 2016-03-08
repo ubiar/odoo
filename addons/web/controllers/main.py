@@ -1259,6 +1259,8 @@ class Action(http.Controller):
                 ctx.update({'bin_size': True})
             if action_type == 'ir.codigo.python':
                 ctx.update({'ir_codigo_python_read_action': True})
+            if action_type == 'ir.interface':
+                ctx.update({'ir_interface_read_action': True})
             if additional_context:
                 ctx.update(additional_context)
             action = request.session.model(action_type).read([action_id], fields=False, context=ctx)
