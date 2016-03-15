@@ -1261,8 +1261,8 @@ class account_move(osv.osv):
     _columns = {
         'name': fields.char('Number', required=True, copy=False),
         'ref': fields.char('Reference', copy=False),
-        'period_id': fields.many2one('account.period', 'Period', required=True, states={'posted':[('readonly',True)]}),
-        'journal_id': fields.many2one('account.journal', 'Journal', required=True, states={'posted':[('readonly',True)]}),
+        'period_id': fields.many2one('account.period', 'Period', required=True, states={'posted':[('readonly',True)]}, select=True),
+        'journal_id': fields.many2one('account.journal', 'Journal', required=True, states={'posted':[('readonly',True)]}, select=True),
         'state': fields.selection(
               [('draft','Unposted'), ('posted','Posted')], 'Status',
               required=True, readonly=True, copy=False,
@@ -1270,7 +1270,7 @@ class account_move(osv.osv):
                    'but you can set the option to skip that status on the related journal. '
                    'In that case, they will behave as journal entries automatically created by the '
                    'system on document validation (invoices, bank statements...) and will be created '
-                   'in \'Posted\' status.'),
+                   'in \'Posted\' status.', select=True),
         'line_id': fields.one2many('account.move.line', 'move_id', 'Entries',
                                    states={'posted':[('readonly',True)]},
                                    copy=True),
@@ -1278,11 +1278,11 @@ class account_move(osv.osv):
         'partner_id': fields.related('line_id', 'partner_id', type="many2one", relation="res.partner", string="Partner", store={
             _name: (lambda self, cr,uid,ids,c: ids, ['line_id'], 10),
             'account.move.line': (_get_move_from_lines, ['partner_id'],10)
-            }),
+            }, select=True),
         'amount': fields.function(_amount_compute, string='Amount', digits_compute=dp.get_precision('Account'), type='float', fnct_search=_search_amount),
         'date': fields.date('Date', required=True, states={'posted':[('readonly',True)]}, select=True),
         'narration':fields.text('Internal Note'),
-        'company_id': fields.related('journal_id','company_id',type='many2one',relation='res.company',string='Company', store=True, readonly=True),
+        'company_id': fields.related('journal_id','company_id',type='many2one',relation='res.company',string='Company', store=True, readonly=True, select=True),
         'balance': fields.float('balance', digits_compute=dp.get_precision('Account'), help="This is a field only used for internal purpose and shouldn't be displayed"),
         'statement_line_id': fields.many2one('account.bank.statement.line', 'Bank statement line reconciled with this entry', copy=False, readonly=True)
     }
