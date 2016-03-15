@@ -27,6 +27,7 @@ import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 from openerp.tools import float_compare
 from openerp.report import report_sxw
+from openerp import SUPERUSER_ID
 import openerp
 from openerp.exceptions import UserError
 
@@ -119,7 +120,7 @@ class account_voucher(osv.osv):
             if journal.currency:
                 return journal.currency.id
         #no journal given in the context, use company currency as default
-        return self.pool.get('res.users').browse(cr, uid, uid, context=context).company_id.currency_id.id
+        return self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context).company_id.currency_id.id
 
     def _get_currency(self, cr, uid, context=None):
         if context is None: context = {}
@@ -132,7 +133,7 @@ class account_voucher(osv.osv):
             journal = journal_pool.browse(cr, uid, journal_id, context=context)
             if journal.currency:
                 return journal.currency.id
-        return self.pool.get('res.users').browse(cr, uid, uid, context=context).company_id.currency_id.id
+        return self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context).company_id.currency_id.id
 
     def _get_partner(self, cr, uid, context=None):
         if context is None: context = {}
