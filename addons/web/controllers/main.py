@@ -1020,10 +1020,20 @@ class TreeView(View):
 class Binary(http.Controller):
 
     @http.route('/web/binary/image', type='http', auth="public")
-    def image(self, model, id, field, **kw):
+    def image(self, model=False, id=False, field=False, **kw):
         last_update = '__last_update'
-        Model = request.registry[model]
         cr, uid, context = request.cr, request.uid, request.context
+        if kw.get('perfil'):
+            field = 'image_small'
+            if kw.get('size') == 'medium':
+                field = 'image_medium'
+            cr.execute("SELECT id FROM res_partner WHERE %s IS NOT NULL AND '%s' = md5(id::VARCHAR)" % (field, kw.get('perfil')))
+            res = cr.fetchone()
+            model = 'res.partner'
+            if res:
+                id = str(res[0])
+                uid = openerp.SUPERUSER_ID
+        Model = request.registry[model]
         headers = [('Content-Type', 'image/png')]
         etag = request.httprequest.headers.get('If-None-Match')
         hashed_session = hashlib.md5(request.session_id).hexdigest()
