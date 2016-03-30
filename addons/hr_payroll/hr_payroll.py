@@ -266,7 +266,7 @@ class hr_payslip(osv.osv):
         'struct_id': fields.many2one('hr.payroll.structure', 'Structure', readonly=True, states={'draft': [('readonly', False)]}, help='Defines the rules that have to be applied to this payslip, accordingly to the contract chosen. If you let empty the field contract, this field isn\'t mandatory anymore and thus the rules applied will be all the rules set on the structure of all contracts of the employee valid for the chosen period'),
         'name': fields.char('Payslip Name', required=False, readonly=True, states={'draft': [('readonly', False)]}),
         'number': fields.char('Reference', required=False, readonly=True, states={'draft': [('readonly', False)]}, copy=False),
-        'employee_id': fields.many2one('hr.employee', 'Employee', required=True, readonly=True, states={'draft': [('readonly', False)]}),
+        'employee_id': fields.many2one('hr.employee', 'Employee', required=True, readonly=True, states={'draft': [('readonly', False)]}, select=True),
         'date_from': fields.date('Date From', readonly=True, states={'draft': [('readonly', False)]}, required=True),
         'date_to': fields.date('Date To', readonly=True, states={'draft': [('readonly', False)]}, required=True),
         'state': fields.selection([
@@ -285,10 +285,10 @@ class hr_payslip(osv.osv):
         'input_line_ids': fields.one2many('hr.payslip.input', 'payslip_id', 'Payslip Inputs', required=False, readonly=True, states={'draft': [('readonly', False)]}),
         'paid': fields.boolean('Made Payment Order ? ', required=False, readonly=True, states={'draft': [('readonly', False)]}, copy=False),
         'note': fields.text('Internal Note', readonly=True, states={'draft':[('readonly',False)]}),
-        'contract_id': fields.many2one('hr.contract', 'Contract', required=False, readonly=True, states={'draft': [('readonly', False)]}),
+        'contract_id': fields.many2one('hr.contract', 'Contract', required=False, readonly=True, states={'draft': [('readonly', False)]}, select=True),
         'details_by_salary_rule_category': fields.function(_get_lines_salary_rule_category, method=True, type='one2many', relation='hr.payslip.line', string='Details by Salary Rule Category'),
         'credit_note': fields.boolean('Credit Note', help="Indicates this payslip has a refund of another", readonly=True, states={'draft': [('readonly', False)]}),
-        'payslip_run_id': fields.many2one('hr.payslip.run', 'Payslip Batches', readonly=True, states={'draft': [('readonly', False)]}, copy=False),
+        'payslip_run_id': fields.many2one('hr.payslip.run', 'Payslip Batches', readonly=True, states={'draft': [('readonly', False)]}, copy=False, select=True),
         'payslip_count': fields.function(_count_detail_payslip, type='integer', string="Payslip Computation Details"),
     }
     _defaults = {
@@ -919,14 +919,14 @@ class hr_payslip_line(osv.osv):
         return res
 
     _columns = {
-        'slip_id':fields.many2one('hr.payslip', 'Pay Slip', required=True, ondelete='cascade'),
-        'salary_rule_id':fields.many2one('hr.salary.rule', 'Rule', required=True),
+        'slip_id':fields.many2one('hr.payslip', 'Pay Slip', required=True, ondelete='cascade', select=True),
+        'salary_rule_id':fields.many2one('hr.salary.rule', 'Rule', required=True, select=True),
         'employee_id':fields.many2one('hr.employee', 'Employee', required=True),
         'contract_id':fields.many2one('hr.contract', 'Contract', required=True, select=True),
         'rate': fields.float('Rate (%)', digits_compute=dp.get_precision('Payroll Rate')),
         'amount': fields.float('Amount', digits_compute=dp.get_precision('Payroll')),
         'quantity': fields.float('Quantity', digits_compute=dp.get_precision('Payroll')),
-        'total': fields.function(_calculate_total, method=True, type='float', string='Total', digits_compute=dp.get_precision('Payroll'),store=True ),
+        'total': fields.function(_calculate_total, method=True, type='float', string='Total', digits_compute=dp.get_precision('Payroll'), store=True),
     }
 
     _defaults = {
