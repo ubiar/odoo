@@ -293,7 +293,7 @@ class res_users(osv.Model):
         for user in self.browse(cr, uid, ids, context):
             if not user.email:
                 raise UserError(_("Cannot send email: user %s has no email address.") % user.name)
-            self.pool.get('mail.template').send_mail(cr, uid, template.id, user.id, force_send=True, raise_exception=True, context=context)
+            self.pool.get('mail.template').send_mail(cr, uid, template.id, user.id, force_send=True, raise_exception=False, context=context)
 
     def create(self, cr, uid, values, context=None):
         if context is None:

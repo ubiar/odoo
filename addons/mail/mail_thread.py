@@ -391,7 +391,7 @@ class mail_thread(osv.AbstractModel):
         # track values
         track_ctx = dict(context)
         if 'lang' not in track_ctx:
-            track_ctx['lang'] = self.pool.get('res.users').browse(cr, uid, uid, context=context).lang
+            track_ctx['lang'] = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context).lang
         if not context.get('mail_notrack'):
             tracked_fields = self._get_tracked_fields(cr, uid, values.keys(), context=track_ctx)
             if tracked_fields:
@@ -418,7 +418,7 @@ class mail_thread(osv.AbstractModel):
         # Track initial values of tracked fields
         track_ctx = dict(context)
         if 'lang' not in track_ctx:
-            track_ctx['lang'] = self.pool.get('res.users').browse(cr, uid, uid, context=context).lang
+            track_ctx['lang'] = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context).lang
 
         tracked_fields = None
         if not context.get('mail_notrack'):
