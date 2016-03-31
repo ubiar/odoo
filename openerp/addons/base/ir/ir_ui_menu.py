@@ -306,7 +306,7 @@ class ir_ui_menu(osv.osv):
         for menu in self.browse(cr, uid, ids, context=context):
             menu_ids.add(menu.id)
             ctx = None
-            if menu.action and menu.sudo().action.type == 'ir.codigo.python':
+            if menu.action and menu.sudo().action.type in ['ir.codigo.python', 'ir.interface']:
                 menu = menu.sudo()
             if menu.action and menu.action.type in ('ir.actions.act_window', 'ir.actions.client') and menu.action.context:
                 try:
