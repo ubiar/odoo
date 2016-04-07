@@ -154,7 +154,7 @@ class ir_values(osv.osv):
                                      help="Action bound to this entry - "
                                          "helper field for binding an action, will "
                                          "automatically set the correct reference"),
-
+        'action_default_id': fields.many2one('ir.actions.actions', 'Default Action'),
         'value': fields.text('Value', help="Default value (pickled) or reference to an action"),
         'value_unpickle': fields.function(_value_unpickle, fnct_inv=_value_pickle,
                                           type='text',
@@ -205,7 +205,7 @@ class ir_values(osv.osv):
         self.clear_caches()
         return res
 
-    def set_default(self, cr, uid, model, field_name, value, for_all_users=True, company_id=False, condition=False):
+    def set_default(self, cr, uid, model, field_name, value, for_all_users=True, company_id=False, condition=False, action_id=False):
         """Defines a default value for the given model and field_name. Any previous
            default for the same scope (model, field_name, value, for_all_users, company_id, condition)
            will be replaced and lost in the process.
@@ -245,7 +245,7 @@ class ir_values(osv.osv):
             # should be company-specific, need to get company id
             user = self.pool.get('res.users').browse(cr, uid, uid)
             company_id = user.company_id.id
-
+        
         # remove existing defaults for the same scope
         search_criteria = [
             ('key', '=', 'default'),
@@ -253,7 +253,8 @@ class ir_values(osv.osv):
             ('model', '=', model),
             ('name', '=', field_name),
             ('user_id', '=', False if for_all_users else uid),
-            ('company_id','=', company_id)
+            ('company_id','=', company_id),
+            ('action_default_id', '=', action_id)
             ]
         self.unlink(cr, uid, self.search(cr, uid, search_criteria))
 
@@ -265,6 +266,7 @@ class ir_values(osv.osv):
             'key2': condition and condition[:200],
             'user_id': False if for_all_users else uid,
             'company_id': company_id,
+            'action_default_id': action_id,
         })
 
     def get_default(self, cr, uid, model, field_name, for_all_users=True, company_id=False, condition=False):
@@ -282,7 +284,7 @@ class ir_values(osv.osv):
         defaults = self.browse(cr, uid, self.search(cr, uid, search_criteria))
         return pickle.loads(defaults[0].value.encode('utf-8')) if defaults else None
 
-    def get_defaults(self, cr, uid, model, condition=False):
+    def get_defaults(self, cr, uid, model, condition=False, action_id=False):
         """Returns any default values that are defined for the current model and user,
            (and match ``condition``, if specified), previously registered via
            :meth:`~.set_default`.
@@ -314,6 +316,7 @@ class ir_values(osv.osv):
         query = """SELECT v.id, v.name, v.value FROM ir_values v
                       LEFT JOIN res_users u ON (v.user_id = u.id)
                    WHERE v.key = %%s AND v.model = %%s
+                      AND (v.action_default_id = %%s or v.action_default_id IS NULL)
                       AND (v.user_id = %%s OR v.user_id IS NULL)
                       AND (v.company_id IS NULL OR
                            v.company_id =
@@ -321,7 +324,7 @@ class ir_values(osv.osv):
                           )
                       %s
                    ORDER BY v.user_id, u.company_id"""
-        params = ('default', model, uid, uid)
+        params = ('default', model, action_id or 0, uid, uid)
         if condition:
             query %= 'AND v.key2 = %s'
             params += (condition[:200],)
@@ -338,14 +341,14 @@ class ir_values(osv.osv):
 
     # use ormcache: this is called a lot by BaseModel.default_get()!
     @tools.ormcache(skiparg=2)
-    def get_defaults_dict(self, cr, uid, model, condition=False):
+    def get_defaults_dict(self, cr, uid, model, condition=False, action_id=False):
         """ Returns a dictionary mapping field names with their corresponding
             default value. This method simply improves the returned value of
             :meth:`~.get_defaults`.
         """
-        return dict((f, v) for i, f, v in self.get_defaults(cr, uid, model, condition))
+        return dict((f, v) for i, f, v in self.get_defaults(cr, uid, model, condition, action_id=action_id))
 
-    def set_action(self, cr, uid, name, action_slot, model, action, res_id=False):
+    def set_action(self, cr, uid, name, action_slot, model, action, res_id=False, action_default_id=False):
         """Binds an the given action to the given model's action slot - for later
            retrieval via :meth:`~.get_actions`. Any existing binding of the same action
            to the same slot is first removed, allowing an update of the action's name.
@@ -385,6 +388,7 @@ class ir_values(osv.osv):
             'res_id': res_id,
             'name': name,
             'value': action,
+            'action_default_id': action_default_id,
         })
 
     @tools.ormcache_context(accepted_keys=('lang',))

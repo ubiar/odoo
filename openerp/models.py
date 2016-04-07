@@ -1317,7 +1317,8 @@ class BaseModel(object):
 
             # 2. look up ir_values
             #    Note: performance is good, because get_defaults_dict is cached!
-            ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name)
+            action_id = self._context.get('params') and self._context.get('params').get('action')
+            ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
             if name in ir_values_dict:
                 defaults[name] = ir_values_dict[name]
                 continue
