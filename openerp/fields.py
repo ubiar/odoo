@@ -754,7 +754,7 @@ class Field(object):
         """
         return value
 
-    def convert_to_read(self, value, use_name_get=True):
+    def convert_to_read(self, value, use_name_get=True, context=False):
         """ convert ``value`` from the cache to a value as returned by method
             :meth:`BaseModel.read`
 
@@ -1027,7 +1027,7 @@ class Integer(Field):
             return value.get('id', False)
         return int(value or 0)
 
-    def convert_to_read(self, value, use_name_get=True):
+    def convert_to_read(self, value, use_name_get=True, context=False):
         # Integer values greater than 2^31-1 are not supported in pure XMLRPC,
         # so we have to pass them as floats :-(
         if value and value > xmlrpclib.MAXINT:
@@ -1442,7 +1442,7 @@ class Reference(Selection):
             return False
         raise ValueError("Wrong value for %s: %r" % (self, value))
 
-    def convert_to_read(self, value, use_name_get=True):
+    def convert_to_read(self, value, use_name_get=True, context=False):
         return "%s,%s" % (value._name, value.id) if value else False
 
     def convert_to_export(self, value, env):
@@ -1562,7 +1562,7 @@ class Many2one(_Relational):
         else:
             return self.null(record.env)
 
-    def convert_to_read(self, value, use_name_get=True):
+    def convert_to_read(self, value, use_name_get=True, context=False):
         if use_name_get and value:
             # evaluate name_get() as superuser, because the visibility of a
             # many2one field value (id and name) depends on the current record's
@@ -1572,7 +1572,9 @@ class Many2one(_Relational):
                 # performance trick: make sure that all records of the same
                 # model as value in value.env will be prefetched in value_sudo.env
                 value_sudo.env.prefetch[value._name].update(value.env.prefetch[value._name])
-                return value_sudo.name_get()[0]
+                ctx = value_sudo._context.copy()
+                ctx.update(context or {})
+                return value_sudo.with_context(ctx).name_get()[0]
             except MissingError:
                 # Should not happen, unless the foreign key is missing.
                 return False
@@ -1656,7 +1658,7 @@ class _RelationalMulti(_Relational):
             return self.null(record.env)
         raise ValueError("Wrong value for %s: %s" % (self, value))
 
-    def convert_to_read(self, value, use_name_get=True):
+    def convert_to_read(self, value, use_name_get=True, context=False):
         return value.ids
 
     def convert_to_write(self, value, target=None, fnames=None):
