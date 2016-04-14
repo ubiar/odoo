@@ -159,7 +159,14 @@ class product_template(osv.osv):
                                         'credit': amount_diff,
                                         'move_id': move_id
                                         }, context=context)
-            self.write(cr, uid, rec_id, {'standard_price': new_price}, context={'do_change_standard_price': True})
+            context_ubiar = {'do_change_standard_price': True}
+            if context.get('default_model'):
+                context_ubiar['default_model'] = context.get('default_model')
+            if context.get('default_origen'):
+                context_ubiar['default_origen'] = context.get('default_origen')
+            if context.get('default_concepto'):
+                context_ubiar['default_concepto'] = context.get('default_concepto')
+            self.write(cr, uid, rec_id, {'standard_price': new_price}, context=context_ubiar)
         return True
 
 
