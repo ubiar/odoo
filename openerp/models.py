@@ -5946,7 +5946,18 @@ class BaseModel(object):
         if field_name and not isinstance(field_name, list) and \
                 self._fields[field_name].type in ('one2many', 'many2many'):
             result['value'].pop(field_name, None)
-
+        # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
+        if result and result.get('value'):
+            for name, val in result.get('value').iteritems():
+                if val and self._fields[name].type == 'many2one' and type(val) == int:
+                    result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
+                    self_rel = self.env[self._fields[name].comodel_name]
+                    for va in val:
+                        if va and type(va) in (list, tuple) and len(va) == 3 and type(va[2]) == dict:
+                            for n, v in va[2].iteritems():
+                                if v and self_rel._fields[n].type == 'many2one' and type(v) == int:
+                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
         return result
 
     # Agregado por UBIAR
