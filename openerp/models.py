@@ -1350,7 +1350,7 @@ class BaseModel(object):
             defaults.update(self.env[model].default_get(names))
 
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
-        if defaults and type(defaults) == dict:
+        if self._context.get('default_set_name_get') and defaults and type(defaults) == dict:
             for name, val in defaults.iteritems():
                 if val and self._fields[name].type == 'many2one' and type(val) == int:
                     defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]

@@ -560,6 +560,8 @@ instance.web.DataSet =  instance.web.Class.extend(instance.web.PropertiesMixin, 
      */
     default_get: function(fields, options) {
         options = options || {};
+        options.context = options.context || {};
+        options.context.default_set_name_get = true;
         return this._model.call('default_get',
             [fields], {context: this.get_context(options.context)});
     },
