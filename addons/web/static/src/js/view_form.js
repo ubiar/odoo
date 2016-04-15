@@ -4303,10 +4303,20 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
         val = val.concat(_.map(this.dataset.ids, function(id) {
             var alter_order = _.detect(self.dataset.to_create, function(x) {return x.id === id;});
             if (alter_order) {
+                _.map(alter_order.values, function(num, field) { 
+                    if (num instanceof Array && num.length == 2 && typeof(num[0]) == 'number') {
+                        alter_order.values[field] = num[0];
+                    }
+                });
                 return commands.create(alter_order.values);
             }
             alter_order = _.detect(self.dataset.to_write, function(x) {return x.id === id;});
             if (alter_order) {
+                _.map(alter_order.values, function(num, field) { 
+                    if (num instanceof Array && num.length == 2 && typeof(num[0]) == 'number') {
+                        alter_order.values[field] = num[0];
+                    }
+                });
                 return commands.update(alter_order.id, alter_order.values);
             }
             return commands.link_to(id);
