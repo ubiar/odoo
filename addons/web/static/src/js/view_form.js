@@ -813,9 +813,9 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
      */
     save: function(prepend_on_create) {
         var from_button = false;
-        if (typeof prepend_on_create == "string" && prepend_on_create == "from_button"){
+        if (typeof prepend_on_create == "string" && prepend_on_create.indexOf("from_button_") >= 0){
+            from_button = prepend_on_create.replace('from_button_', '');
             prepend_on_create = null;
-            from_button = true;
         }
         var self = this;
         var save_obj = {prepend_on_create: prepend_on_create, ret: null};
@@ -875,7 +875,11 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                 var save_deferral;
                 if (!self.datarecord.id) {
                     // Creation save
-                    save_deferral = self.dataset.create(values, {readonly_fields: readonly_values}).then(function(r) {
+                    options = {readonly_fields: readonly_values};
+                    if (from_button) {
+                        options['context'] = {'from_button': from_button};
+                    }
+                    save_deferral = self.dataset.create(values, options).then(function(r) {
                         return self.record_created(r, prepend_on_create);
                     }, null);
                 } else if (_.isEmpty(values)) {
@@ -885,7 +889,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                     // Write save
                     options = {readonly_fields: readonly_values};
                     if (from_button){
-                        options['context'] = {'from_button':true};
+                        options['context'] = {'from_button': from_button};
                     }
                     save_deferral = self.dataset.write(self.datarecord.id, values, options).then(function(r) {
                         return self.record_saved(r);
@@ -2041,7 +2045,7 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
             }
         };
         if (!this.node.attrs.special) {
-            return this.view.recursive_save('from_button').then(exec_action);
+            return this.view.recursive_save('from_button_' + this.node.attrs.name).then(exec_action);
         } else {
             return exec_action();
         }

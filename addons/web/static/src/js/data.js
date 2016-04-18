@@ -575,9 +575,10 @@ instance.web.DataSet =  instance.web.Class.extend(instance.web.PropertiesMixin, 
      * @returns {$.Deferred}
      */
     create: function(data, options) {
+        options = options || {};
         var self = this;
         return this._model.call('create', [data], {
-            context: this.get_context()
+            context: this.get_context(options.context)
         }).done(function () {
             self.trigger('dataset_changed', data, options);
         });
