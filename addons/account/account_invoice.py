@@ -511,7 +511,7 @@ class account_invoice(models.Model):
         if pterm_list:
             return {'value': {'date_due': max(line[0] for line in pterm_list)}}
         else:
-            raise UserError(_('The payment term of supplier does not have a payment term line.'))
+            return {'value': {'date_due': self.date_due or date_invoice}}
 
     @api.multi
     def onchange_invoice_line(self, lines):
