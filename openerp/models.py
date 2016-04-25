@@ -3925,7 +3925,10 @@ class BaseModel(object):
                     self._check_selection_field_value(cr, user, field, vals[field], context=context)
                 if column._classic_write and not hasattr(column, '_fnct_inv'):
                     if (not totranslate) or not column.translate:
-                        updates.append((field, '%s', column._symbol_set[1](vals[field])))
+                        update_value = column._symbol_set[1](vals[field])
+                        if column._type == 'many2one' and type(update_value) in [list, tuple] and len(update_value) == 2 and type(update_value[0]) == int:
+                            update_value = update_value[0]
+                        updates.append((field, '%s', update_value))
                     direct.append(field)
                 else:
                     upd_todo.append(field)
@@ -4232,7 +4235,10 @@ class BaseModel(object):
         for field in vals:
             current_field = self._columns[field]
             if current_field._classic_write:
-                updates.append((field, '%s', current_field._symbol_set[1](vals[field])))
+                update_value = current_field._symbol_set[1](vals[field])
+                if current_field._type == 'many2one' and type(update_value) in [list, tuple] and len(update_value) == 2 and type(update_value[0]) == int:
+                    update_value = update_value[0]
+                updates.append((field, '%s', update_value))
 
                 #for the function fields that receive a value, we set them directly in the database
                 #(they may be required), but we also need to trigger the _fct_inv()
