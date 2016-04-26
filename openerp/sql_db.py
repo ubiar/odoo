@@ -36,6 +36,10 @@ import psycopg2.extras
 import psycopg2.extensions
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, ISOLATION_LEVEL_READ_COMMITTED, ISOLATION_LEVEL_REPEATABLE_READ
 from psycopg2.pool import PoolError
+import time
+import traceback
+import md5
+import tools.config as config
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
@@ -74,6 +78,8 @@ re_from = re.compile('.* from "?([a-zA-Z_0-9]+)"? .*$')
 re_into = re.compile('.* into "?([a-zA-Z_0-9]+)"? .*$')
 
 sql_counter = 0
+log_min_duration = 10 # Miliseconds
+slow_query_buffer = {} # {'hash': [query, stack, avg_duration, max_duration, execution_count, error_count]}
 
 class Cursor(object):
     """Represents an open transaction to the PostgreSQL DB backend,
@@ -228,18 +234,21 @@ class Cursor(object):
 
         if self.sql_log:
             now = mdt.now()
-
+        start_time = time.time()
         try:
             params = params or None
             res = self._obj.execute(query, params)
         except psycopg2.ProgrammingError, pe:
             if self._default_log_exceptions if log_exceptions is None else log_exceptions:
                 _logger.info("Programming error: %s, in query %s", pe, query)
+            self._add_slow_query_buffer(query, time.time() - start_time, True)
             raise
         except Exception:
             if self._default_log_exceptions if log_exceptions is None else log_exceptions:
                 _logger.info("bad query: %s", self._obj.query or query)
+            self._add_slow_query_buffer(query, time.time() - start_time, True)
             raise
+        self._add_slow_query_buffer(query, time.time() - start_time)
 
         # simple query count is always computed
         self.sql_log_count += 1
@@ -261,6 +270,23 @@ class Cursor(object):
                 self.sql_into_log[res_into.group(1)][0] += 1
                 self.sql_into_log[res_into.group(1)][1] += delay
         return res
+
+    def _add_slow_query_buffer(self, query, duration, error=False):
+        global slow_query_buffer
+        duration = round((duration) * 1000, 2) # Miliseconds
+        if (duration > log_min_duration or error) and config.get('ubiar_log'):
+            # {'hash': [db, query, stack, avg_duration, max_duration, execution_count, error_count]}
+            query_hash = md5.new(query).hexdigest()
+            if query_hash in slow_query_buffer:
+                sqb = slow_query_buffer[query_hash]
+                sqb[3] = round((sqb[3] + duration) / 2, 2) # avg_duration
+                sqb[4] = sqb[4] if sqb[4] > duration else duration # max_duration
+                sqb[5] += 1 # execution_count
+                if error:
+                    sqb[6] += 1 # error_count
+            else:
+                err = 1 if error else 0
+                slow_query_buffer[query_hash] = [self.dbname, query, ''.join(traceback.format_stack()), duration, duration, 1, err]
 
     def split_for_in_conditions(self, ids):
         """Split a list of identifiers into one or more smaller tuples
