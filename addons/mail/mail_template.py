@@ -451,7 +451,7 @@ class mail_template(osv.osv):
             results[res_id]['partner_ids'] = partner_ids
         return results
 
-    def generate_email_batch(self, cr, uid, template_id, res_ids, context=None, fields=None):
+    def generate_email_batch(self, cr, uid, template_id, res_ids, fields=None, context=None):
         """Generates an email from the template for given the given model based on
         records given by res_ids.
 
@@ -605,4 +605,4 @@ class mail_template(osv.osv):
         return self.get_email_template_batch(cr, uid, template_id, [record_id], context)[record_id]
 
     def generate_email(self, cr, uid, template_id, res_id, context=None):
-        return self.generate_email_batch(cr, uid, template_id, [res_id], context)[res_id]
+        return self.generate_email_batch(cr, uid, template_id, [res_id], context=context)[res_id]
