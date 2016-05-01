@@ -275,18 +275,21 @@ class Cursor(object):
         global slow_query_buffer
         duration = round((duration) * 1000, 2) # Miliseconds
         if (duration > log_min_duration or error) and config.get('ubiar_log'):
-            # {'hash': [db, query, stack, avg_duration, max_duration, execution_count, error_count]}
-            query_hash = md5.new(query).hexdigest()
-            if query_hash in slow_query_buffer:
-                sqb = slow_query_buffer[query_hash]
-                sqb[3] = round((sqb[3] + duration) / 2, 2) # avg_duration
-                sqb[4] = sqb[4] if sqb[4] > duration else duration # max_duration
-                sqb[5] += 1 # execution_count
-                if error:
-                    sqb[6] += 1 # error_count
-            else:
-                err = 1 if error else 0
-                slow_query_buffer[query_hash] = [self.dbname, query, ''.join(traceback.format_stack()), duration, duration, 1, err]
+            try:
+                # {'hash': [db, query, stack, avg_duration, max_duration, execution_count, error_count]}
+                query_hash = md5.new(query).hexdigest()
+                if query_hash in slow_query_buffer:
+                    sqb = slow_query_buffer[query_hash]
+                    sqb[3] = round((sqb[3] + duration) / 2, 2) # avg_duration
+                    sqb[4] = sqb[4] if sqb[4] > duration else duration # max_duration
+                    sqb[5] += 1 # execution_count
+                    if error:
+                        sqb[6] += 1 # error_count
+                else:
+                    err = 1 if error else 0
+                    slow_query_buffer[query_hash] = [self.dbname, query, ''.join(traceback.format_stack()), duration, duration, 1, err]
+            except Exception, e:
+                _logger.warning('Error al generar logs: %s' % e)
 
     def split_for_in_conditions(self, ids):
         """Split a list of identifiers into one or more smaller tuples
