@@ -3237,6 +3237,8 @@ class BaseModel(object):
         result = []
         name_fields = [(name, self._fields[name]) for name in (stored + computed)]
         use_name_get = (load == '_classic_read')
+        if self._context.get('read_load'):
+            use_name_get = (self._context.get('read_load') == '_classic_read')
         for record in self:
             try:
                 values = {'id': record.id}
