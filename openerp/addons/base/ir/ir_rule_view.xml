@@ -11,8 +11,8 @@
                         <group string="General">
                             <field name="name"/>
                             <field name="model_id"/>
-                            <field name="active"/>
                             <field name="code"/>
+                            <field name="active"/>
                         </group>
                         <group col="4" string="Access Rights">
                             <field name="perm_read"/>
@@ -24,7 +24,12 @@
                     <separator string="Rule Definition (Domain Filter)"/>
                     <field name="domain_force" colspan="2" nolabel="1"/>
                     <group string="Groups (no group = global)">
-                        <field name="global"/>
+                        <group>
+                            <field name="global"/>
+                        </group>
+                        <group>
+                            <field name="force_and"/>
+                        </group>
                         <field name="groups" nolabel="1" colspan="4"/>
                     </group>
                     <group string="Interaction between rules">
@@ -52,6 +57,7 @@
                     <field name="model_id"/>
                     <field name="name"/>
                     <field name="global"/>
+                    <field name="force_and"/>
                     <field name="domain_force"/>
                     <field name="perm_read"/>
                     <field name="perm_write"/>

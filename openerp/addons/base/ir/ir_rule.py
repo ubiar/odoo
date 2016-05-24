@@ -83,6 +83,7 @@ class ir_rule(osv.osv):
         'perm_write': fields.boolean('Apply for Write'),
         'perm_create': fields.boolean('Apply for Create'),
         'perm_unlink': fields.boolean('Apply for Delete'),
+        'force_and': fields.boolean('Forzar AND', help='Fuerza a aplicar la regla con el operador AND'),
         'code': fields.char('Code'),
     }
 
@@ -135,7 +136,10 @@ class ir_rule(osv.osv):
                 dom = expression.normalize_domain(rule_domain)
                 for group in rule.groups:
                     if group in user.groups_id:
-                        group_domains.setdefault(group, []).append(dom)
+                        if rule.force_and:
+                            global_domains.append(dom)
+                        else:
+                            group_domains.setdefault(group, []).append(dom)
                 if not rule.groups:
                     global_domains.append(dom)
             # combine global domains and group domains
