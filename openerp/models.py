@@ -4146,6 +4146,11 @@ class BaseModel(object):
         for key in new_vals:
             self._fields[key].determine_inverse(record)
 
+        # UBIAR - En caso de un registro proveniente de la aplicacion movil
+        # guardamos el hash por si se corta la conexion antes de retornar el ID
+        if (self._context and 'ref_hash' in self._context):
+            self.env['ir.model.hash'].sudo().create_sql({'model': self._name, 'ref_id': record.id, 'ref_hash': self._context.get('ref_hash')})
+
         return record
 
     def _create(self, cr, user, vals, context=None):
