@@ -740,6 +740,25 @@ class account_voucher(osv.osv):
         #order the lines by most old first
         #ids.reverse() -> Modificado por Ubiar, no se necesitan revertir
         account_move_lines = move_line_pool.browse(cr, uid, ids, context=context)
+        # Importes en liquidaciones de pago
+        aml_lp = {}
+        if ids:
+            cr.execute('''
+                SELECT 
+                    avl.move_line_id,
+                    SUM(avl.amount)
+                FROM
+                    account_voucher_line avl 
+                    LEFT JOIN account_voucher av ON avl.voucher_id = av.id
+                WHERE 
+                    avl.move_line_id IN (%s) 
+                    AND av.subtipo = 'liquidacion_pagos' 
+                    AND av.state NOT IN ('draft', 'posted', 'cancel')
+                    AND avl.type = 'dr'
+                GROUP BY avl.move_line_id
+            ''' % str(ids)[1:-1])
+            for r in cr.fetchall():
+                aml_lp[r[0]] = r[1]
 
         #compute the total debit/credit and look for a matching open amount or invoice
         for line in account_move_lines:
@@ -777,11 +796,11 @@ class account_voucher(osv.osv):
 
             if line.currency_id and currency_id == line.currency_id.id:
                 amount_original = abs(line.amount_currency)
-                amount_unreconciled = abs(line.amount_residual_currency)
+                amount_unreconciled = abs(line.amount_residual_currency) - (aml_lp.get(line.id) or 0)
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 amount_original = currency_pool.compute(cr, uid, company_currency, currency_id, line.credit or line.debit or 0.0, context=context_multi_currency)
-                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(line.amount_residual), context=context_multi_currency)
+                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(line.amount_residual) - (aml_lp.get(line.id) or 0), context=context_multi_currency)
             line_currency_id = line.currency_id and line.currency_id.id or company_currency
             rs = {
                 'name':line.move_id.name,
@@ -1488,11 +1507,11 @@ class account_voucher_line(osv.osv):
                 res['amount_unreconciled'] = 0.0
             elif move_line.currency_id and voucher_currency==move_line.currency_id.id:
                 res['amount_original'] = abs(move_line.amount_currency)
-                res['amount_unreconciled'] = abs(move_line.amount_residual_currency)
+                res['amount_unreconciled'] = abs(move_line.amount_residual_currency) - line.importe_en_liquidaciones
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 res['amount_original'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, move_line.credit or move_line.debit or 0.0, context=ctx)
-                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual), context=ctx)
+                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual) - line.importe_en_liquidaciones, context=ctx)
 
             rs_data[line.id] = res
         return rs_data
