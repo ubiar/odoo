@@ -1501,17 +1501,19 @@ class account_voucher_line(osv.osv):
             company_currency = line.voucher_id.journal_id.company_id.currency_id.id
             voucher_currency = line.voucher_id.currency_id and line.voucher_id.currency_id.id or company_currency
             move_line = line.move_line_id or False
-
+            importe_en_liquidaciones = 0.0
+            if 'importe_en_liquidaciones' in line:
+                importe_en_liquidaciones = line.importe_en_liquidaciones
             if not move_line:
                 res['amount_original'] = 0.0
                 res['amount_unreconciled'] = 0.0
             elif move_line.currency_id and voucher_currency==move_line.currency_id.id:
                 res['amount_original'] = abs(move_line.amount_currency)
-                res['amount_unreconciled'] = abs(move_line.amount_residual_currency) - line.importe_en_liquidaciones
+                res['amount_unreconciled'] = abs(move_line.amount_residual_currency) - importe_en_liquidaciones
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 res['amount_original'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, move_line.credit or move_line.debit or 0.0, context=ctx)
-                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual) - line.importe_en_liquidaciones, context=ctx)
+                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual) - importe_en_liquidaciones, context=ctx)
 
             rs_data[line.id] = res
         return rs_data
