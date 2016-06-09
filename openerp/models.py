@@ -3293,7 +3293,7 @@ class BaseModel(object):
             access_error = e.name
 
         # check the cache, and update it if necessary
-        if not self._cache.contains(field):
+        if field not in self._cache:
             for values in result:
                 record = self.browse(values.pop('id'))
                 record._cache.update(record._convert_to_cache(values, validate=False))
@@ -3301,7 +3301,7 @@ class BaseModel(object):
                 rules_info = ''
                 if self.env['ir.rule'].sudo().search([('model_id', '=', self.env['ir.model'].search([('model', '=', self._name)]).id), ('active', '=', True)]):
                     rules_info = _('\nThis model has active rules, ensure access')
-                e = AccessError(_("No value found for %s.%s\n\n%s%s") % (self, field.name, access_error, rules_info))
+                e = AccessError(_("No value found for %s.%s\n\n%s%s\n\n%s - %s") % (self, field.name, access_error, rules_info, self._name, list(fnames)))
                 self._cache[field] = FailedValue(e)
 
     @api.multi

@@ -823,7 +823,12 @@ class Field(object):
             self.determine_draft_value(record)
 
         # the result should be in cache now
-        return record._cache[self]
+        res = False
+        try:
+            res = record._cache[self]
+        except AccessError, e:
+            raise AccessError(_("%s\nModel:%s Field: %s" % (e.name, self.model_name, self.name)))
+        return res
 
     def __set__(self, record, value):
         """ set the value of field ``self`` on ``record`` """
