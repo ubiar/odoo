@@ -1352,15 +1352,18 @@ class BaseModel(object):
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
         if self._context.get('default_set_name_get') and defaults and type(defaults) == dict:
             for name, val in defaults.iteritems():
-                if val and self._fields[name].type == 'many2one' and type(val) == int:
-                    defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
-                if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
-                    self_rel = self.env[self._fields[name].comodel_name]
-                    for va in val:
-                        if va and type(va) in (list, tuple) and len(va) == 3 and type(va[2]) == dict:
-                            for n, v in va[2].iteritems():
-                                if v and self_rel._fields[n].type == 'many2one' and type(v) == int:
-                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
+                try:
+                    if val and self._fields[name].type == 'many2one' and type(val) == int:
+                        defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                    if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
+                        self_rel = self.env[self._fields[name].comodel_name]
+                        for va in val:
+                            if va and type(va) in (list, tuple) and len(va) == 3 and type(va[2]) == dict:
+                                for n, v in va[2].iteritems():
+                                    if v and self_rel._fields[n].type == 'many2one' and type(v) == int:
+                                        va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
+                except:
+                    pass
         return defaults
 
     def fields_get_keys(self, cr, user, context=None):
