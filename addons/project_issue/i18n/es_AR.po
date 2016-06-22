@@ -346,6 +346,11 @@ msgstr ""
 msgid "Edit..."
 msgstr "Editar..."
 
+#. module: project
+#: model:ir.ui.view,arch_db:project.view_task_kanban
+msgid "Edit Issue"
+msgstr "Editar Incidencia"
+
 #. module: project_issue
 #: field:project.issue,email_from:0
 msgid "Email"

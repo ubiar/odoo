@@ -270,7 +270,17 @@ msgstr "Cancelar"
 #. module: project
 #: view:project.project:project.edit_project
 msgid "Cancel Project"
-msgstr ""
+msgstr "Cancelar Proyecto"
+
+#. module: project
+#: view:project.project:project.edit_project
+msgid "Edit Project"
+msgstr "Editar Proyecto"
+
+#. module: project
+#: view:project.project:project.edit_project
+msgid "No activity yet, click to enter in the project."
+msgstr "Aún no hay actividad, haga clic para entrar en el proyecto."
 
 #. module: project
 #: selection:project.project,state:0
@@ -294,12 +304,12 @@ msgstr ""
 #. module: project
 #: view:project.project:project.edit_project
 msgid "Close Project"
-msgstr ""
+msgstr "Cerrar Proyecto"
 
 #. module: project
 #: selection:project.project,state:0
 msgid "Closed"
-msgstr ""
+msgstr "Cerrado"
 
 #. module: project
 #: field:project.project,color:0
@@ -408,7 +418,7 @@ msgstr ""
 #. module: project
 #: field:project.task,partner_id:0
 msgid "Customer"
-msgstr ""
+msgstr "Cliente"
 
 #. module: project
 #: field:project.task.history,date:0
@@ -488,13 +498,13 @@ msgstr "Tareas delegadas"
 #. module: project
 #: view:project.task:project.view_task_form2
 msgid "Delegation"
-msgstr ""
+msgstr "Delegar"
 
 #. module: project
 #: view:project.project:project.view_project_kanban
 #: view:project.task:project.view_task_kanban
 msgid "Delete"
-msgstr ""
+msgstr "Eliminar"
 
 #. module: project
 #: view:project.task:project.view_task_form2
@@ -506,18 +516,18 @@ msgstr "Descripción"
 #. module: project
 #: model:project.task.type,name:project.project_tt_design
 msgid "Design"
-msgstr ""
+msgstr "Diseño"
 
 #. module: project
 #: model:project.task.type,name:project.project_tt_development
 msgid "Development"
-msgstr ""
+msgstr "Desarrollo"
 
 #. module: project
 #: view:project.project:project.edit_project
 #: view:project.project:project.view_project_kanban
 msgid "Documents"
-msgstr ""
+msgstr "Documentos"
 
 #. module: project
 #: selection:project.task.delegate,state:0
@@ -533,7 +543,7 @@ msgstr "Realizado por"
 #. module: project
 #: view:project.task:project.view_task_kanban
 msgid "Edit..."
-msgstr ""
+msgstr "Editar..."
 
 #. module: project
 #: field:report.project.task.user,hours_effective:0
@@ -1247,6 +1257,11 @@ msgid "Re-open project"
 msgstr ""
 
 #. module: project
+#: view:project.project:project.edit_project
+msgid "Set as Pending"
+msgstr "Establecer como Pendiente"
+
+#. module: project
 #: view:project.task.history.cumulative:project.view_task_history_search
 msgid "Ready"
 msgstr ""
@@ -1272,6 +1287,16 @@ msgstr ""
 #. module: project
 #: view:project.task:project.view_task_form2
 msgid "Remaining"
+msgstr ""
+
+#. module: project
+#: view:project.task:project.view_task_form2
+msgid "Assign dates to make this task appear in the gantt chart ("
+msgstr "Asignar fechas para el diagrama de Gantt ("
+
+#. module: project
+#: view:project.task:project.view_task_form2
+msgid "icono en la parte superior derecha)"
 msgstr ""
 
 #. module: project
@@ -1487,9 +1512,41 @@ msgid "Task Stage"
 msgstr ""
 
 #. module: project
+#: model:ir.model,name:project.model_project_task_type
+#: view:project.task.type:project.task_type_edit
+msgid "Stage Description and Tooltips"
+msgstr "Descripción de la etapa e información sobre herramientas"
+
+#. module: project
+#: model:ir.model,name:project.model_project_task_type
+#: view:project.task.type:project.task_type_edit
+msgid "At each stage employees can block or make task/issue ready for next stage.\n"
+"                            You can define here labels that will be displayed for the state instead\n"
+"                            of the default labels."
+msgstr "En cada etapa los empleados pueden marcar una tarea como bloqueada, normal o lista para la próxima etapa.\n"
+"Aquí se puede determinar las etiquetas que se mostrarán para el Estado en lugar de las etiquetas predeterminadas."
+
+#. module: project
+#: model:ir.model,name:project.model_project_task_type
+#: view:project.task.type:project.task_type_edit
+msgid "You can also give a tooltip about the use of the stars available in the kanban and form views."
+msgstr "Puede mostrar un texto de ayuda sobre el uso de las estrellas disponibles en las vistas de Kanban y Formulario."
+
+#. module: project
+#: model:ir.model,name:project.model_project_task_type
+#: view:project.task.type:project.task_type_edit
+msgid "You can also add a description to help your coworkers understand the meaning and purpose of the stage."
+msgstr "Puede agregar una descripción para ayudar a sus compañeros de trabajo a entender el significado y propósito de la etapa."
+
+#. module: project
 #: model:mail.message.subtype,name:project.mt_project_task_stage
 msgid "Task Stage Changed"
 msgstr ""
+
+#. module: project
+#: model:ir.ui.view,arch_db:project.view_task_kanban
+msgid "Edit Task"
+msgstr "Editar Tarea"
 
 #. module: project
 #: model:ir.ui.menu,name:project.menu_task_types_view
@@ -1844,7 +1901,7 @@ msgstr ""
 #: code:addons/project/project.py:878
 #, python-format
 msgid "tasks"
-msgstr ""
+msgstr "Tareas"
 
 #. module: project
 #: field:account.analytic.account,company_uom_id:0
