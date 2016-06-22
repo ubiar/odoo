@@ -173,11 +173,6 @@
                             </group>
                         </page>
                         <page string="Project Stages" attrs="{'invisible': [('use_tasks', '=', False)]}" name="project_stages">
-                            <p class="oe_grey">
-                                Stages are defined globally and shared between projects.
-                                You can "configure all available stages".Stages are used to organize work in steps inside a project.
-                                In each step, you are able to change the status (validated, stopped) of the activity, no need to create specific stages for validation or blocked activities.
-                            </p>
                             <field name="type_ids"/>
                         </page>
                     </notebook>
