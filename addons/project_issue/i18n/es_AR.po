@@ -851,6 +851,12 @@ msgstr ""
 "¡El proyecto relevante no tienen configurado el Escalado de Proyecto!"
 
 #. module: project_issue
+#: code:addons/project_issue/project_issue.py:551
+#, python-format
+msgid "Issues"
+msgstr "Incidencias"
+
+#. module: project_issue
 #: code:addons/project_issue/project_issue.py:348
 #, python-format
 msgid "issues"

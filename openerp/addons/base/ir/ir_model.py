@@ -1038,7 +1038,7 @@ class ir_model_data(osv.osv):
             results = cr.fetchall()
             for imd_id2,res_id2,real_id2,real_model,noupdate_imd in results:
                 # In update mode, do not update a record if it's ir.model.data is flagged as noupdate
-                if mode == 'update' and noupdate_imd:
+                if mode == 'update' and noupdate_imd and not context.get('force_update'):
                     return res_id2
                 if not real_id2:
                     self.clear_caches()

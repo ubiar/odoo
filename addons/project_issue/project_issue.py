@@ -548,7 +548,7 @@ class project_project(osv.Model):
 
     _defaults = {
         'use_issues': True,
-        'label_issues': 'Issues',
+        'label_issues': _('Incidencias'),
     }
 
     def _check_create_write_values(self, cr, uid, vals, context=None):

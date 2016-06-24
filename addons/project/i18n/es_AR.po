@@ -42,6 +42,12 @@ msgid "%s (copy)"
 msgstr ""
 
 #. module: project
+#: code:addons/project/project.py:350
+#, python-format
+msgid "Tasks"
+msgstr "Tareas"
+
+#. module: project
 #: model:ir.actions.act_window,help:project.open_view_project_all
 msgid ""
 "<p class=\"oe_view_nocontent_create\">\n"

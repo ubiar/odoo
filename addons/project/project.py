@@ -347,7 +347,7 @@ class project(osv.osv):
     _defaults = {
         'active': True,
         'type': 'contract',
-        'label_tasks': 'Tasks',
+        'label_tasks': _('Tareas'),
         'state': 'open',
         'sequence': 10,
         'type_ids': _get_type_common,
