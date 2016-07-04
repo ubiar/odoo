@@ -5674,7 +5674,7 @@ instance.web.form.FieldBinary = instance.web.form.AbstractField.extend(instance.
         this._super(field_manager, node);
         this.binary_value = false;
         this.useFileAPI = !!window.FileReader;
-        this.max_upload_size = 25 * 1024 * 1024; // 25Mo
+        this.max_upload_size = (parseInt(node.attrs.max_upload_size) || 25) * 1024 * 1024; // 25Mo
         if (!this.useFileAPI) {
             this.fileupload_id = _.uniqueId('oe_fileupload');
             $(window).on(this.fileupload_id, function() {
