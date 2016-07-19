@@ -1280,7 +1280,7 @@ class account_invoice_line(models.Model):
         else:
             return self.env['ir.property'].get('property_account_expense_categ', 'product.category')
 
-    name = fields.Text(string='Description', required=True)
+    name = fields.Char(string='Description', required=True)
     origin = fields.Char(string='Source Document',
         help="Reference of the document that produced this invoice.")
     sequence = fields.Integer(string='Sequence', default=10,
