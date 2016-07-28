@@ -730,7 +730,7 @@ class account_voucher(osv.osv):
                 account_type = 'receivable'
 
         if not context.get('move_line_ids', False):
-            ids = move_line_pool.search(cr, uid, [('state','=','valid'), ('account_id.type', '=', account_type), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False)], context=context)
+            ids = move_line_pool.search(cr, uid, [('state','=','valid'), ('account_id.type', '=', account_type), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')], context=context)
         else:
             ids = context['move_line_ids']
         invoice_id = context.get('invoice_id', False)
