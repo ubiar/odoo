@@ -495,6 +495,8 @@ class ir_model_fields(osv.osv):
 
         res = super(ir_model_fields,self).write(cr, user, ids, vals, context=context)
 
+        self.pool.clear_manual_fields()
+        
         if column_rename:
             obj, rename = column_rename
             cr.execute('ALTER TABLE "%s" RENAME COLUMN "%s" TO "%s"' % rename)
