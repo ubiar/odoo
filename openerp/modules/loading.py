@@ -454,8 +454,10 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         cr.commit()
 
         # Paso 10: se revisan los querys por si se elimino alguna vista en el update
-        if 'ir.query' in registry:
-            registry['ir.query'].actualizar_vistas(cr, SUPERUSER_ID)
+        for argv in sys.argv:
+            if argv and '--update=' in argv and argv.strip().replace('--update=', '') and 'ir.query' in registry:
+                registry['ir.query'].actualizar_vistas(cr, SUPERUSER_ID)
+                break
 
         t0 = time.time()
         t0_sql = openerp.sql_db.sql_counter
