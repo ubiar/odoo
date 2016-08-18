@@ -280,6 +280,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # openerp.modules.registry.RegistryManager.new().
         registry = openerp.registry(cr.dbname)
 
+        update_ubiar = tools.config['update']
         if 'base' in tools.config['update'] or 'all' in tools.config['update']:
             cr.execute("update ir_module_module set state=%s where name=%s and state=%s", ('to upgrade', 'base', 'installed'))
 
@@ -454,10 +455,8 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         cr.commit()
 
         # Paso 10: se revisan los querys por si se elimino alguna vista en el update
-        for argv in sys.argv:
-            if argv and '--update=' in argv and argv.strip().replace('--update=', '') and 'ir.query' in registry:
-                registry['ir.query'].actualizar_vistas(cr, SUPERUSER_ID)
-                break
+        if update_ubiar and 'ir.query' in registry:
+            registry['ir.query'].actualizar_vistas(cr, SUPERUSER_ID)
 
         t0 = time.time()
         t0_sql = openerp.sql_db.sql_counter
