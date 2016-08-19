@@ -1676,6 +1676,7 @@ class account_move_reconcile(osv.osv):
                     total += line.amount_currency
                 else:
                     total += (line.debit or 0.0) - (line.credit or 0.0)
+        total = round(total, self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
         if not total:
             self.pool.get('account.move.line').write(cr, uid,
                 map(lambda x: x.id, rec.line_partial_ids),
