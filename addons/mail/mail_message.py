@@ -542,6 +542,9 @@ class mail_message(osv.Model):
         # no specific IDS given: fetch messages according to the domain, add their parents if uid has access to
         if ids is None:
             ids = self.search(cr, uid, domain, context=context, limit=limit)
+        else:
+            # Vuelve a buscar para evaluar las reglas y en caso de no ver el mensaje lo filtra
+            ids = self.search(cr, uid, [('id', 'in', ids)], context=context, limit=limit)
 
         # fetch parent if threaded, sort messages
         for message in self.browse(cr, uid, ids, context=context):
