@@ -134,50 +134,48 @@
                         <field name="team_id" groups="base.group_multi_salesteams"/>
                         <field name="date_deadline"/>
                     </group>
-                    <group colspan="4" col="4">
-                        <notebook>
-                            <page string="Claim Description">
-                                <group colspan="2" col="2" groups="base.group_user">
-                                    <separator colspan="2" string="Claim Reporter"/>
-                                    <field name="partner_id" string="Partner"
-                                        on_change="onchange_partner_id(partner_id)"/>
-                                    <field name="partner_phone"/>
-                                    <field name="email_from" widget="email"/>
-                                </group>
-                                <group colspan="2" col="2" groups="base.group_user">
-                                    <separator colspan="2" string="Responsibilities"/>
-                                    <field name="user_fault"/>
-                                    <field name="categ_id" options="{'no_create': True, 'no_open': True}"/>
-                                    <field name="ref"/>
-                                </group>
-                                <separator colspan="4" string="Claim/Action Description" groups="base.group_user"/>
-                                <field name="description" colspan="4" nolabel="1"/>
-                            </page>
-                            <page string="Follow Up" groups="base.group_user">
-                                <group colspan="2" col="2">
-                                    <separator colspan="2" string="Actions"/>
-                                    <field name="date_action_next"/>
-                                    <field name="action_next"/>
-                                </group>
-                                <group colspan="2" col="2" groups="base.group_no_one">
-                                    <separator colspan="2" string="Dates"/>
-                                    <field name="create_date"/>
-                                    <field name="date_closed"/>
-                                    <field name="write_date"/>
-                                </group>
+                    <notebook>
+                        <page string="Claim Description">
+                            <group colspan="2" col="2" groups="base.group_user">
+                                <separator colspan="2" string="Claim Reporter"/>
+                                <field name="partner_id" string="Partner"
+                                    on_change="onchange_partner_id(partner_id)"/>
+                                <field name="partner_phone"/>
+                                <field name="email_from" widget="email"/>
+                            </group>
+                            <group colspan="2" col="2" groups="base.group_user">
+                                <separator colspan="2" string="Responsibilities"/>
+                                <field name="user_fault"/>
+                                <field name="categ_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="ref"/>
+                            </group>
+                            <separator colspan="4" string="Claim/Action Description" groups="base.group_user"/>
+                            <field name="description" colspan="4" nolabel="1"/>
+                        </page>
+                        <page string="Follow Up" groups="base.group_user">
+                            <group colspan="2" col="2">
+                                <separator colspan="2" string="Actions"/>
+                                <field name="date_action_next"/>
+                                <field name="action_next"/>
+                            </group>
+                            <group colspan="2" col="2" groups="base.group_no_one">
+                                <separator colspan="2" string="Dates"/>
+                                <field name="create_date"/>
+                                <field name="date_closed"/>
+                                <field name="write_date"/>
+                            </group>
 
-                                <group colspan="2" col="2">
-                                    <separator colspan="2" string="Root Causes"/>
-                                    <field name="cause" colspan="2" nolabel="1"/>
-                                </group>
-                                <group colspan="2" col="2">
-                                    <separator colspan="2" string="Resolution Actions"/>
-                                    <field name="type_action"/>
-                                    <field name="resolution" colspan="2" nolabel="1" placeholder="Action Description..."/>
-                                </group>
-                            </page>
-                        </notebook>
-                    </group>
+                            <group colspan="2" col="2">
+                                <separator colspan="2" string="Root Causes"/>
+                                <field name="cause" colspan="2" nolabel="1"/>
+                            </group>
+                            <group colspan="2" col="2">
+                                <separator colspan="2" string="Resolution Actions"/>
+                                <field name="type_action"/>
+                                <field name="resolution" colspan="2" nolabel="1" placeholder="Action Description..."/>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
