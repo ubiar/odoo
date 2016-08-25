@@ -577,15 +577,15 @@ openerp.point_of_sale.load_chrome = function load_chrome(instance, module){ //mo
                 'widget': module.HeaderButtonWidget,
                 'append':  '.pos-rightheader',
                 'args': {
-                    label: _t('Close'),
+                    label: _t('Cerrar'),
                     action: function(){ 
                         var self = this;
                         if (!this.confirmed) {
                             this.$el.addClass('confirm');
-                            this.$el.text(_t('Confirm'));
+                            this.$el.text(_t('Confirmar'));
                             this.confirmed = setTimeout(function(){
                                 self.$el.removeClass('confirm');
-                                self.$el.text(_t('Close'));
+                                self.$el.text(_t('Cerrar'));
                                 self.confirmed = false;
                             },2000);
                         } else {

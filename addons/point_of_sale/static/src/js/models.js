@@ -129,11 +129,13 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
         // used during loading such as object ids, etc. 
         models: [
         {
+            label: "Usuarios",
             model:  'res.users',
             fields: ['name','company_id'],
             ids:    function(self){ return [self.session.uid]; },
             loaded: function(self,users){ self.user = users[0]; },
         },{ 
+            label: "Compañías",
             model:  'res.company',
             fields: [ 'currency_id', 'email', 'website', 'company_registry', 'vat', 'name', 'phone', 'partner_id' , 'country_id', 'tax_calculation_rounding_method'],
             ids:    function(self){ return [self.user.company_id[0]] },
@@ -147,7 +149,8 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                     self.dp[dps[i].name] = dps[i].digits;
                 }
             },
-        },{ 
+        },{
+            label: "Unidades de Medida",
             model:  'product.uom',
             fields: [],
             domain: null,
@@ -162,6 +165,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.units_by_id = units_by_id;
             }
         },{
+            label: "Clientes",
             model:  'res.partner',
             fields: ['name','street','city','state_id','country_id','vat','phone','zip','mobile','email','barcode','write_date'],
             domain: [['customer','=',true]], 
@@ -170,6 +174,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.db.add_partners(partners);
             },
         },{
+            label: "Países",
             model:  'res.country',
             fields: ['name'],
             loaded: function(self,countries){
@@ -182,6 +187,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 }
             },
         },{
+            label: "Impuestos",
             model:  'account.tax',
             fields: ['name','amount', 'price_include', 'include_base_amount', 'type', 'child_ids', 'child_depend', 'include_base_amount'],
             domain: null,
@@ -199,6 +205,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 });
             },
         },{
+            label: "Sesiones",
             model:  'pos.session',
             fields: ['id', 'journal_ids','name','user_id','config_id','start_at','stop_at','sequence_number','login_number'],
             domain: function(self){ return [['state','=','opened'],['user_id','=',self.session.uid]]; },
@@ -206,6 +213,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.pos_session = pos_sessions[0]; 
             },
         },{
+            label: "Configuración",
             model: 'pos.config',
             fields: [],
             domain: function(self){ return [['id','=', self.pos_session.config_id[0]]]; },
@@ -229,6 +237,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 }
            },
         },{
+            label: "Cajeros",
             model:  'res.users',
             fields: ['name','pos_security_pin','groups_id','barcode'],
             domain: function(self){ return [['company_id','=',self.user.company_id[0]],'|', ['groups_id','=', self.config.group_pos_manager_id[0]],['groups_id','=', self.config.group_pos_user_id[0]]]; },
@@ -258,16 +267,19 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.users = pos_users; 
             },
         },{
+            label: "Ubicaciones de Stock",
             model: 'stock.location',
             fields: [],
             ids:    function(self){ return [self.config.stock_location_id[0]]; },
             loaded: function(self, locations){ self.shop = locations[0]; },
         },{
+            label: "Listas de Precios",
             model:  'product.pricelist',
             fields: ['currency_id'],
             ids:    function(self){ return [self.config.pricelist_id[0]]; },
             loaded: function(self, pricelists){ self.pricelist = pricelists[0]; },
         },{
+            label: "Monedas",
             model: 'res.currency',
             fields: ['name','symbol','position','rounding','accuracy'],
             ids:    function(self){ return [self.pricelist.currency_id[0]]; },
@@ -281,6 +293,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
 
             },
         },{
+            label: "Packaging",
             model: 'product.packaging',
             fields: ['barcode','product_tmpl_id'],
             domain: null,
@@ -288,6 +301,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.db.add_packagings(packagings);
             },
         },{
+            label: "Categorías",
             model:  'pos.category',
             fields: ['id','name','parent_id','child_id','image'],
             domain: null,
@@ -295,6 +309,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.db.add_categories(categories);
             },
         },{
+            label: "Productos",
             model:  'product.product',
             fields: ['display_name', 'list_price','price','pos_categ_id', 'taxes_id', 'barcode', 'default_code', 
                      'to_weight', 'uom_id', 'uos_id', 'uos_coeff', 'mes_type', 'description_sale', 'description',
@@ -306,6 +321,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 self.db.add_products(products);
             },
         },{
+            label: "Extractos",
             model:  'account.bank.statement',
             fields: ['account_id','currency','journal_id','state','name','user_id','pos_session_id'],
             domain: function(self){ return [['state', '=', 'open'],['pos_session_id', '=', self.pos_session.id]]; },
@@ -318,6 +334,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 });
             },
         },{
+            label: "Diarios",
             model:  'account.journal',
             fields: [],
             domain: function(self,tmp){ return [['id','in',tmp.journals]]; },
@@ -345,7 +362,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
 
             },
         },  {
-            label: 'fonts',
+            label: 'Fuentes',
             loaded: function(self){
                 var fonts_loaded = new $.Deferred();
                 // Waiting for fonts to be loaded to prevent receipt printing
@@ -363,7 +380,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 return fonts_loaded;
             },
         },{
-            label: 'pictures',
+            label: 'Imágenes',
             loaded: function(self){
                 self.company_logo = new Image();
                 var  logo_loaded = new $.Deferred();
@@ -398,7 +415,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 return logo_loaded;
             },
         }, {
-            label: 'barcodes',
+            label: 'Códigos de Barra',
             loaded: function(self) {
                 var barcode_parser = new instance.barcodes.BarcodeParser({'nomenclature_id': self.config.barcode_nomenclature_id});
                 self.barcode_reader.set_barcode_parser(barcode_parser);

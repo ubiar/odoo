@@ -2671,7 +2671,7 @@ msgstr "Apertura de sesión del Punto de Venta"
 #: view:res.users:point_of_sale.res_users_form_view
 #: view:website:point_of_sale.report_sessionsummary
 msgid "Point of Sale"
-msgstr "Terminal Punto de Venta"
+msgstr "TPV"
 
 #. module: point_of_sale
 #: view:report.pos.order:point_of_sale.view_report_pos_order_graph
@@ -2922,7 +2922,7 @@ msgstr "Poner Dinero Dentro"
 #: view:website:point_of_sale.report_usersproduct
 #, python-format
 msgid "Qty"
-msgstr "Ctd."
+msgstr "Cant."
 
 #. module: point_of_sale
 #: view:website:point_of_sale.report_detailsofsales
@@ -4419,3 +4419,24 @@ msgstr "desconocido"
 #, python-format
 #~ msgid "Sorry, we could not create a session for this user."
 #~ msgstr "Lo siento, no se puede crear una sesión para este usuario."
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:573
+#, python-format
+msgid "Payment"
+msgstr "Pagos"
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:595
+#, python-format
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:600
+#, python-format
+msgid "Invoice"
+msgstr "Factura"

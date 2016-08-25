@@ -2726,7 +2726,7 @@ msgstr "Apertura de sesión del TPV"
 #: view:res.users:point_of_sale.res_users_form_view
 #: view:website:point_of_sale.report_sessionsummary
 msgid "Point of Sale"
-msgstr "Terminal Punto de Venta"
+msgstr "TPV"
 
 #. module: point_of_sale
 #: view:report.pos.order:point_of_sale.view_report_pos_order_graph
