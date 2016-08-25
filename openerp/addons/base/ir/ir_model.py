@@ -373,6 +373,11 @@ class ir_model_fields(osv.osv):
             context = {}
         if context and context.get('manual',False):
             vals['state'] = 'manual'
+        if vals.get('state') == 'manual':
+            try:
+                eval(vals.get('domain'))
+            except Exception, e:
+                raise UserError(_("%s domain field is invalid") % item.name)
         if vals.get('ttype', False) == 'selection':
             if not vals.get('selection',False):
                 raise UserError(_('For selection fields, the Selection Options must be given!'))
@@ -477,6 +482,13 @@ class ir_model_fields(osv.osv):
 
                 if 'ttype' in vals and vals['ttype'] != item.ttype and not context.get('_ignore_val_ttype'):
                     raise UserError(_("Changing the type of a column is not yet supported. " "Please drop it and create it again!"))
+
+                if 'domain' in vals.keys():
+                    if item.state == 'manual':
+                        try:
+                            eval(vals['domain'])
+                        except Exception, e:
+                            raise UserError(_("%s domain field is invalid") % item.name)
 
                 # We don't check the 'state', because it might come from the context
                 # (thus be set for multiple fields) and will be ignored anyway.

@@ -729,7 +729,12 @@ class BaseModel(object):
                 attrs['relation'] = 'x_%s_%s_%s_rel' % (_rel1, _rel2, name)
                 attrs['column1'] = 'id1'
                 attrs['column2'] = 'id2'
-                attrs['domain'] = eval(field['domain']) if field['domain'] else None
+                domain = None
+                try:
+                    domain = eval(field['domain']) if field['domain'] else None
+                except Exception, e:
+                    pass
+                attrs['domain'] = domain
             cls._add_field(name, Field.by_type[field['ttype']](**attrs))
 
     @classmethod
