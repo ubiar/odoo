@@ -9266,6 +9266,13 @@ msgid "For selection fields, the Selection Options must be given!"
 msgstr ""
 
 #. module: base
+#: code:addons/base/ir/ir_model.py:380
+#: code:addons/base/ir/ir_model.py:491
+#, python-format
+msgid "%s domain field is invalid"
+msgstr "El dominio del campo %s es invalido"
+
+#. module: base
 #: selection:ir.actions.act_window,view_type:0
 #: selection:ir.actions.act_window.view,view_mode:0
 #: view:ir.ui.view:base.view_view_search
