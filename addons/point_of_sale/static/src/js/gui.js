@@ -228,10 +228,10 @@ openerp.point_of_sale.load_gui = function load_gui(instance, module) {
             var ret = new $.Deferred();
             if (password) {
                 this.show_popup('password',{
-                    'title': _t('Password ?'),
+                    'title': _t('Clave'),
                     confirm: function(pw) {
                         if (pw !== password) {
-                            self.show_popup('error',_t('Incorrect Password'));
+                            self.show_popup('error',_t('Clave incorrecta'));
                             ret.reject();
                         } else {
                             ret.resolve();
@@ -259,7 +259,7 @@ openerp.point_of_sale.load_gui = function load_gui(instance, module) {
                 return this.select_user({
                     security:       true, 
                     only_managers:  true,
-                    title:       _t('Login as a Manager'),
+                    title:       _t('Ingrese como administrador'),
                 })
             }
         },

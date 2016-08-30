@@ -90,7 +90,7 @@ openerp.point_of_sale.load_chrome = function load_chrome(instance, module){ //mo
             this.gui.select_user({
                 'security':     true,
                 'current_user': this.pos.get_cashier(),
-                'title':      _t('Change Cashier'),
+                'title':      _t('Cambiar Cajero'),
             }).then(function(user){
                 self.pos.set_cashier(user);
                 self.renderElement();
