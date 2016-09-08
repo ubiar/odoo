@@ -425,7 +425,8 @@ class pos_session(osv.osv):
                 raise UserError(_("Unable to open the session. You have to assign a sale journal to your point of sale."))
 
         # define some cash journal if no payment method exists
-        if not pos_config.journal_ids:
+        # Desactivado por UBIAR
+        if not pos_config.journal_ids and False: 
             journal_proxy = self.pool.get('account.journal')
             cashids = journal_proxy.search(cr, uid, [('journal_user', '=', True), ('type','=','cash')], context=context)
             if not cashids:
