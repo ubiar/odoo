@@ -424,6 +424,13 @@ class pos_session(osv.osv):
             else:
                 raise UserError(_("Unable to open the session. You have to assign a sale journal to your point of sale."))
 
+        # Pisado por Ubiar, el resto de la funcionalidad no se utiliza
+        values.update({
+            'name': self.pool['ir.sequence'].next_by_code(cr, uid, 'pos.session'),
+            'config_id': config_id
+        })
+        return super(pos_session, self).create(cr, uid, values, context=context)
+
         # define some cash journal if no payment method exists
         # Desactivado por UBIAR
         if not pos_config.journal_ids and False: 
@@ -559,6 +566,7 @@ class pos_session(osv.osv):
     def open_frontend_cb(self, cr, uid, ids, context=None):
         if not context:
             context = {}
+        context = context.copy()
         if not ids:
             return {}
         for session in self.browse(cr, uid, ids, context=context):
