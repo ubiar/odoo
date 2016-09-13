@@ -444,7 +444,7 @@ class AccountAssetDepreciationLine(models.Model):
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
-    asset_id = fields.Many2one('account.asset.asset', string='Asset', ondelete="restrict")
+    asset_id = fields.Many2one('account.asset.asset', string='Asset', ondelete="restrict", readonly=True)
 
 
 class AccountAssetHistory(models.Model):
