@@ -237,7 +237,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 }
            },
         },{
-            label: "Cajeros",
+            label: "Cajeros y Vendedores",
             model:  'res.users',
             fields: ['name','pos_security_pin','groups_id','barcode'],
             domain: function(self){ return [['company_id','=',self.user.company_id[0]],'|', ['groups_id','=', self.config.group_pos_manager_id[0]],['groups_id','=', self.config.group_pos_user_id[0]]]; },
