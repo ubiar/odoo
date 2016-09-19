@@ -1479,7 +1479,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
                 } else if ( event.keyCode === 190 || // Dot
                             event.keyCode === 110 ||  // Decimal point (numpad)
                             event.keyCode === 188 ) { // Comma
-                    key = '.';
+                    key = self.decimal_point;
                 } else if ( event.keyCode === 46 ) {  // Delete
                     key = 'CLEAR';
                 } else if ( event.keyCode === 8 ) {   // Backspace 
@@ -1527,7 +1527,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
                 if (order.selected_paymentline) {
                     var amount;
                     try{
-                        amount = instance.web.parse_value(this.inputbuffer, {type: "float"});
+                        amount = instance.web.parse_value(this.inputbuffer, {type: "float"}, 0);
                     }
                     catch(e){
                         amount = 0;
@@ -1535,7 +1535,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
                     order.selected_paymentline.set_amount(amount);
                     this.order_changes();
                     this.render_paymentlines();
-                    this.$('.paymentline.selected .edit').text(this.inputbuffer);
+                    this.$('.paymentline.selected .edit').text(this.format_currency_no_symbol(amount));
                 }
             }
         },
@@ -1651,9 +1651,9 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
 
             this.gui.show_popup('number',{
                 'title': tip ? _t('Change Tip') : _t('Add Tip'),
-                'value': value,
+                'value': self.format_currency_no_symbol(value),
                 'confirm': function(value) {
-                    order.set_tip(Number(value));
+                    order.set_tip(instance.web.parse_value(value, {type: "float"}, 0));
                     self.order_changes();
                     self.render_paymentlines();
                 }
@@ -1857,7 +1857,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
                 this.gui.show_screen('receipt');
             }
         },
-    });
+    })
     module.Gui.define_screen({name:'payment', widget:module.PaymentScreenWidget});
 
 };
