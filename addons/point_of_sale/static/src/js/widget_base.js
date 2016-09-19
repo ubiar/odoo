@@ -40,12 +40,6 @@ openerp.point_of_sale.load_basewidget = function load_basewidget(instance, modul
                 decimals = this.pos.dp[precision];
             }
 
-            this.format_currency_no_symbol = function(amount){
-                amount = round_pr(amount,currency.rounding);
-                amount = amount.toFixed(decimals);
-                return amount;
-            };
-
             if (typeof amount === 'number') {
                 amount = round_di(amount,decimals).toFixed(decimals);
                 amount = openerp.instances[this.session.name].web.format_value(round_di(amount, decimals), { type: 'float', digits: [69, decimals]});
