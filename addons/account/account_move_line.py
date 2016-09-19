@@ -1257,9 +1257,10 @@ class account_move_line(osv.osv):
                 else:
                     ctx['period_id'] = line.period_id.id
             #Check for centralisation
-            journal = journal_obj.browse(cr, uid, ctx['journal_id'], context=ctx)
-            if journal.centralisation:
-                self._check_moves(cr, uid, context=ctx)
+            if False: # No se valida la cantidad de asientos de centralización en ubiar
+                journal = journal_obj.browse(cr, uid, ctx['journal_id'], context=ctx)
+                if journal.centralisation:
+                    self._check_moves(cr, uid, context=ctx)
         result = super(account_move_line, self).write(cr, uid, ids, vals, context)
 
         if affects_move and check and not context.get('novalidate'):

@@ -913,14 +913,15 @@ class account_fiscalyear(osv.osv):
         period_obj = self.pool.get('account.period')
         for fy in self.browse(cr, uid, ids, context=context):
             ds = datetime.strptime(fy.date_start, '%Y-%m-%d')
-            period_obj.create(cr, uid, {
-                    'name':  "%s %s" % (_('Opening Period'), ds.strftime('%Y')),
-                    'code': ds.strftime('00/%Y'),
-                    'date_start': ds,
-                    'date_stop': ds,
-                    'special': True,
-                    'fiscalyear_id': fy.id,
-                })
+            # No se utilizan los periodos contables de Apertura/Cierre en Ubiar
+            # period_obj.create(cr, uid, {
+            #         'name':  "%s %s" % (_('Opening Period'), ds.strftime('%Y')),
+            #         'code': ds.strftime('00/%Y'),
+            #         'date_start': ds,
+            #         'date_stop': ds,
+            #         'special': True,
+            #         'fiscalyear_id': fy.id,
+            #     })
             while ds.strftime('%Y-%m-%d') < fy.date_stop:
                 de = ds + relativedelta(months=interval, days=-1)
 
@@ -991,7 +992,7 @@ class account_period(osv.osv):
     }
     _order = "date_start, special desc"
     _sql_constraints = [
-        ('name_company_uniq', 'unique(name, company_id)', 'The name of the period must be unique per company!'),
+        #('name_company_uniq', 'unique(name, company_id)', 'The name of the period must be unique per company!'), Comentado por Ubiar
     ]
 
     def _check_duration(self,cr,uid,ids,context=None):
@@ -1010,8 +1011,10 @@ class account_period(osv.osv):
                obj_period.fiscalyear_id.date_start > obj_period.date_start or \
                obj_period.fiscalyear_id.date_start > obj_period.date_stop:
                 return False
-
-            pids = self.search(cr, uid, [('date_stop','>=',obj_period.date_start),('date_start','<=',obj_period.date_stop),('special','=',False),('id','<>',obj_period.id)])
+            domain = [('date_stop','>=',obj_period.date_start),('date_start','<=',obj_period.date_stop),('special','=',False),('id','<>',obj_period.id)]
+            if 'subcompania_id' in obj_period:
+                domain += [('subcompania_id', '=', obj_period.subcompania_id.id)]
+            pids = self.search(cr, uid, domain)
             for period in self.browse(cr, uid, pids):
                 if period.fiscalyear_id.company_id.id==obj_period.fiscalyear_id.company_id.id:
                     return False
@@ -1296,6 +1299,7 @@ class account_move(osv.osv):
     }
 
     def _check_centralisation(self, cursor, user, ids, context=None):
+        return True # Ubiar - No se utiliza mas esta validación
         for move in self.browse(cursor, SUPERUSER_ID, ids, context=context):
             if move.journal_id.centralisation:
                 move_ids = self.search(cursor, user, [
