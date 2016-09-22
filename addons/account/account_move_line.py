@@ -633,21 +633,21 @@ class account_move_line(osv.osv):
         return res
 
     def _check_no_view(self, cr, uid, ids, context=None):
-        lines = self.browse(cr, uid, ids, context=context)
+        lines = self.browse(cr, SUPERUSER_ID, ids, context=context)
         for l in lines:
             if l.account_id.type in ('view', 'consolidation'):
                 return False
         return True
 
     def _check_no_closed(self, cr, uid, ids, context=None):
-        lines = self.browse(cr, uid, ids, context=context)
+        lines = self.browse(cr, SUPERUSER_ID, ids, context=context)
         for l in lines:
             if l.account_id.type == 'closed':
                 raise UserError(('You cannot create journal items on a closed account %s %s.') % (l.account_id.code, l.account_id.name))
         return True
 
     def _check_company_id(self, cr, uid, ids, context=None):
-        lines = self.browse(cr, uid, ids, context=context)
+        lines = self.browse(cr, SUPERUSER_ID, ids, context=context)
         for l in lines:
             if l.company_id != l.account_id.company_id or l.company_id != l.period_id.company_id:
                 return False
@@ -661,27 +661,27 @@ class account_move_line(osv.osv):
         return True
 
     def _check_currency(self, cr, uid, ids, context=None):
-        for l in self.browse(cr, uid, ids, context=context):
+        for l in self.browse(cr, SUPERUSER_ID, ids, context=context):
             if l.account_id.currency_id:
                 if not l.currency_id or not l.currency_id.id == l.account_id.currency_id.id:
                     return False
         return True
 
     def _check_currency_and_amount(self, cr, uid, ids, context=None):
-        for l in self.browse(cr, uid, ids, context=context):
+        for l in self.browse(cr, SUPERUSER_ID, ids, context=context):
             if (l.amount_currency and not l.currency_id):
                 return False
         return True
 
     def _check_currency_amount(self, cr, uid, ids, context=None):
-        for l in self.browse(cr, uid, ids, context=context):
+        for l in self.browse(cr, SUPERUSER_ID, ids, context=context):
             if l.amount_currency:
                 if (l.amount_currency > 0.0 and l.credit > 0.0) or (l.amount_currency < 0.0 and l.debit > 0.0):
                     return False
         return True
 
     def _check_currency_company(self, cr, uid, ids, context=None):
-        for l in self.browse(cr, uid, ids, context=context):
+        for l in self.browse(cr, SUPERUSER_ID, ids, context=context):
             if l.currency_id.id == l.company_id.currency_id.id:
                 return False
         return True
