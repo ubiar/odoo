@@ -809,8 +809,9 @@ class account_invoice(models.Model):
             # create the analytical lines, one move line per invoice line
             iml = inv._get_analytic_lines()
             # check if taxes are all computed
-            compute_taxes = account_invoice_tax.compute(inv.with_context(lang=inv.partner_id.lang))
-            inv.check_tax_lines(compute_taxes)
+            if not self._context.get('no_validate_tax'):
+                compute_taxes = account_invoice_tax.compute(inv.with_context(lang=inv.partner_id.lang))
+                inv.check_tax_lines(compute_taxes)
 
             # I disabled the check_total feature
             if self.env['res.users'].has_group('account.group_supplier_inv_check_total'):
