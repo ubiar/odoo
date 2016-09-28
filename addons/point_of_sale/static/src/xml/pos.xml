@@ -471,10 +471,10 @@
                 </colgroup>
                 <thead>
                     <tr class='label'>
-                        <th>Due</th>
-                        <th>Tendered</th>
-                        <th>Change</th>
-                        <th>Method</th>
+                        <th>Saldo</th>
+                        <th>Pago</th>
+                        <th>Vuelto</th>
+                        <th>Método</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -495,7 +495,6 @@
                                 <t t-if='!order.get_change(line)'>
                                     <td class='col-change' ></td>
                                 </t>
-                                    
                                 <td class='col-name' > <t t-esc='line.name' /> </td>
                                 <td class='delete-button' t-att-data-cid='line.cid'> <i class='fa fa-times-circle' /> </td>
                             </tr>
