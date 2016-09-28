@@ -2594,7 +2594,7 @@ msgstr "Teléfono:"
 #. module: point_of_sale
 #: field:pos.order,picking_id:0
 msgid "Picking"
-msgstr "Remito"
+msgstr "Orden de Entrega"
 
 #. module: point_of_sale
 #: field:pos.config,picking_type_id:0
@@ -2974,7 +2974,7 @@ msgstr ""
 #. module: point_of_sale
 #: field:pos.order,pos_reference:0
 msgid "Receipt Ref"
-msgstr "Referencia del Recibo"
+msgstr "Referencia"
 
 #. module: point_of_sale
 #: model:product.template,name:point_of_sale.poivron_rouges_product_template
@@ -3019,7 +3019,7 @@ msgstr "Resetear"
 #: field:pos.session,user_id:0
 #: view:website:point_of_sale.report_sessionsummary
 msgid "Responsible"
-msgstr "Responsable"
+msgstr "Cajero"
 
 #. module: point_of_sale
 #: view:pos.session.opening:point_of_sale.pos_session_opening_form_view
