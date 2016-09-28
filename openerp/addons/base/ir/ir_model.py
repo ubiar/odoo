@@ -373,11 +373,11 @@ class ir_model_fields(osv.osv):
             context = {}
         if context and context.get('manual',False):
             vals['state'] = 'manual'
-        if vals.get('state') == 'manual':
+        if vals.get('state') == 'manual' and vals.get('domain'):
             try:
                 eval(vals.get('domain'))
             except Exception, e:
-                raise UserError(_("%s domain field is invalid") % item.name)
+                raise UserError(_("%s domain field is invalid") % vals.get('name'))
         if vals.get('ttype', False) == 'selection':
             if not vals.get('selection',False):
                 raise UserError(_('For selection fields, the Selection Options must be given!'))
