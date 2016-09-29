@@ -60,15 +60,6 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 'selectedOrder':    null,
             });
 
-            this.bind('change:synch',function(pos,synch){
-                clearTimeout(self.synch_timeout);
-                self.synch_timeout = setTimeout(function(){
-                    if(synch.state !== 'disconnected' && synch.pending > 0){
-                        self.set('synch',{state:'disconnected', pending:synch.pending});
-                    }
-                },3000);
-            });
-
             this.get('orders').bind('remove', function(order,_unused_,options){ 
                 self.on_removed_order(order,options.index,options.reason); 
             });
@@ -697,6 +688,13 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 });
 
                 return server_ids;
+            }).fail(function(error, event){
+                var pending = self.db.get_orders().length;
+                if (self.get('failed')) {
+                    self.set('synch', { state: 'error', pending: pending });
+                } else {
+                    self.set('synch', { state: 'disconnected', pending: pending });
+                }
             });
         },
 
@@ -715,7 +713,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
             options = options || {};
 
             var self = this;
-            var timeout = typeof options.timeout === 'number' ? options.timeout : 7500 * orders.length;
+            var timeout = typeof options.timeout === 'number' ? options.timeout : 15000 * orders.length;
 
             // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
             // then we want to notify the user that we are waiting on something )
@@ -734,6 +732,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 _.each(orders, function (order) {
                     self.db.remove_order(order.id);
                 });
+                self.set('failed',false);
                 return server_ids;
             }).fail(function (error, event){
                 if(error.code === 200 ){    // Business Logic Error, not a connection problem
@@ -741,10 +740,15 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                     if (error.data.exception_type == 'warning') {
                         delete error.data.debug;
                     }
-                    self.gui.show_popup('error-traceback',{
-                        'title': error.data.message,
-                        'body':  error.data.debug
-                    });
+
+                    // Hide error if already shown before ... 
+                    if ((!self.get('failed') || options.show_error) && !options.to_invoice) {
+                        self.gui.show_popup('error-traceback',{
+                            'title': error.data.message,
+                            'body':  error.data.debug
+                        });
+                    }
+                    self.set('failed',error)
                 }
                 // prevent an error popup creation by the rpc failure
                 // we want the failure to be silent as we send the orders in the background
