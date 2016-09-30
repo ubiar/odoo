@@ -442,10 +442,10 @@ msgstr "Campo asociado en el formulario de producto."
 #: code:addons/product/pricelist.py:208
 #, python-format
 msgid ""
-"At least one pricelist has no active version !\n"
+"The pricelist %s has no active version !\n"
 "Please create or activate one."
 msgstr ""
-"¡Al menos una lista de precios no tiene una versión activa!\n"
+"¡La Lista de Precios %s no tiene una versión activa!\n"
 "Por favor, cree o active una."
 
 #. module: product

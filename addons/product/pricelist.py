@@ -215,7 +215,7 @@ class product_pricelist(osv.osv):
                 version = v
                 break
         if not version:
-            raise UserError(_("At least one pricelist has no active version !\nPlease create or activate one."))
+            raise UserError(_("The pricelist %s has no active version !\nPlease create or activate one.") % pricelist.name)
         categ_ids = {}
         for p in products:
             categ = p.categ_id
