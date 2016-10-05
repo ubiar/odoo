@@ -315,6 +315,7 @@ class BaseModel(object):
     _description = None
     _needaction = False
     _translate = True # set to False to disable translations export for this model
+    _request = False # web request, load in other module for dependency cycle errors
 
     # dict of {field:method}, with method returning the (name_get of records, {id: fold})
     # to include in the _read_group, if grouped on this field
@@ -3946,7 +3947,7 @@ class BaseModel(object):
                 updend.append(field)
 
         if self._log_access:
-            updates.append(('write_uid', '%s', user))
+            updates.append(('write_uid', '%s', self._request and self._request.uid or user))
             updates.append(('write_date', "(now() at time zone 'UTC')"))
             direct.append('write_uid')
             direct.append('write_date')
@@ -4276,8 +4277,8 @@ class BaseModel(object):
                     and vals[field]:
                 self._check_selection_field_value(cr, user, field, vals[field], context=context)
         if self._log_access:
-            updates.append(('create_uid', '%s', user))
-            updates.append(('write_uid', '%s', user))
+            updates.append(('create_uid', '%s', self._request and self._request.uid or user))
+            updates.append(('write_uid', '%s', self._request and self._request.uid or user))
             updates.append(('create_date', "(now() at time zone 'UTC')"))
             updates.append(('write_date', "(now() at time zone 'UTC')"))
 
