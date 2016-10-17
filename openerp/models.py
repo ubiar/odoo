@@ -3224,6 +3224,8 @@ class BaseModel(object):
         # check access rights
         self.check_access_rights('read')
         fields = self.check_field_access_rights('read', fields)
+        if self._name == 'res.users': # Como en los usuarios no heredan las reglas, puede que tenga funciones calculadas del partner las cuales darian error de permisos
+            self = self.sudo()
 
         # split fields into stored and computed fields
         stored, inherited, computed = [], [], []
@@ -4600,10 +4602,11 @@ class BaseModel(object):
         apply_rule(rule_where_clause, rule_where_clause_params, rule_tables)
 
         # apply ir.rules from the parents (through _inherits)
-        for inherited_model in self._inherits:
-            rule_where_clause, rule_where_clause_params, rule_tables = rule_obj.domain_get(cr, uid, inherited_model, mode, context=context)
-            apply_rule(rule_where_clause, rule_where_clause_params, rule_tables,
-                        parent_model=inherited_model)
+        if self._name != 'res.users': # No se heredan las reglas de res.users para que siempre se puedan leer todos los usuarios o da errores de permisos muy raros
+            for inherited_model in self._inherits:
+                rule_where_clause, rule_where_clause_params, rule_tables = rule_obj.domain_get(cr, uid, inherited_model, mode, context=context)
+                apply_rule(rule_where_clause, rule_where_clause_params, rule_tables,
+                            parent_model=inherited_model)
 
     def _generate_m2o_order_by(self, order_field, query):
         """
