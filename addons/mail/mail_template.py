@@ -34,6 +34,7 @@ from openerp import tools, api
 from openerp.tools.translate import _
 from urllib import urlencode, quote as quote
 from openerp.exceptions import UserError
+from openerp.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ class mail_template(osv.osv):
             return results
 
         # prepare template variables
-        user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+        user = self.pool.get('res.users').browse(cr, uid, request and request.uid or uid, context=context)
         records = self.pool[model].browse(cr, uid, filter(None, res_ids), context=context)  # filter to avoid browsing [None]
         res_to_rec = dict.fromkeys(res_ids, None)
         for record in records:
@@ -500,7 +501,7 @@ class mail_template(osv.osv):
                         values['body_html'] = tools.append_content_to_html(values['body_html'], signature, plaintext=False)
                 # add company signature
                 if 'body_html' in fields:
-                    user = self.pool.get('res.users').browse(cr, uid, uid, context)
+                    user = self.pool.get('res.users').browse(cr, uid, request and request.uid or uid, context)
                     if user.company_id.website:
                         website_url = ('http://%s' % user.company_id.website) if not user.company_id.website.lower().startswith(('http:', 'https:')) \
                             else user.company_id.website
