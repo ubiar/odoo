@@ -31,6 +31,7 @@ from openerp.tools import html_email_clean
 from openerp.tools.translate import _
 from HTMLParser import HTMLParser
 from openerp.exceptions import UserError, AccessError
+from openerp.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -172,6 +173,7 @@ class mail_message(osv.Model):
         return [('to_read', '=', True)]
 
     def _get_default_from(self, cr, uid, context=None):
+        uid = request and request.uid or uid # Ubiar -> Toma el usuario que esta realmento logueado
         this = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context)
         if this.alias_name and this.alias_domain:
             return formataddr((this.name, '%s@%s' % (this.alias_name, this.alias_domain)))
@@ -180,6 +182,7 @@ class mail_message(osv.Model):
         raise UserError(_("Unable to send email, please configure the sender's email address or alias."))
 
     def _get_default_author(self, cr, uid, context=None):
+        uid = request and request.uid or uid # Ubiar -> Toma el usuario que esta realmento logueado
         return self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context).partner_id.id
 
     _defaults = {
