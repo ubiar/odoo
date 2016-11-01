@@ -78,7 +78,7 @@ re_from = re.compile('.* from "?([a-zA-Z_0-9]+)"? .*$')
 re_into = re.compile('.* into "?([a-zA-Z_0-9]+)"? .*$')
 
 sql_counter = 0
-log_min_duration = 10 # Miliseconds
+log_min_duration = 30 # Miliseconds
 slow_query_buffer = {} # {'hash': [query, stack, avg_duration, max_duration, execution_count, error_count]}
 
 class Cursor(object):
