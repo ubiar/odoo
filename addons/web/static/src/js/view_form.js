@@ -2658,20 +2658,22 @@ instance.web.form.FieldCharDomain = instance.web.form.AbstractField.extend(insta
         this.$el.html(instance.web.qweb.render("FieldCharDomain", {widget: this}));
         if (this.get('value')) {
             var model = this.options.model || this.field_manager.get_field_value(this.options.model_field);
-            var domain = instance.web.pyeval.eval('domain', this.get('value'));
-            var ds = new instance.web.DataSetStatic(self, model, self.build_context());
-            ds.call('search_count', [domain, self.build_context()]).then(function (results) {
-                $('.oe_domain_count', self.$el).text(results + ' records selected');
-                if (self.get('effective_readonly')) {
-                    $('button span', self.$el).text(' See selection');
-                }
-                else {
-                    $('button span', self.$el).text(' Change selection');
-                }
-            });
+            if (model) {
+                var domain = instance.web.pyeval.eval('domain', this.get('value'));
+                var ds = new instance.web.DataSetStatic(self, model, self.build_context());
+                ds.call('search_count', [domain, self.build_context()]).then(function (results) {
+                    $('.oe_domain_count', self.$el).text(results + ' registros seleccionados');
+                    if (self.get('effective_readonly')) {
+                        $('button span', self.$el).text(' Ver Selección');
+                    }
+                    else {
+                        $('button span', self.$el).text(' Cambiar Selección');
+                    }
+                });
+            }
         } else {
-            $('.oe_domain_count', this.$el).text('0 record selected');
-            $('button span', this.$el).text(' Select records');
+            $('.oe_domain_count', this.$el).text('0 registro seleccionado');
+            $('button span', this.$el).text(' Registros Seleccionados');
         };
         this.$('.select_records').on('click', self.on_click);
     },
@@ -2679,21 +2681,22 @@ instance.web.form.FieldCharDomain = instance.web.form.AbstractField.extend(insta
         event.preventDefault();
         var self = this;
         var model = this.options.model || this.field_manager.get_field_value(this.options.model_field);
-
-        var options = {
-                title: this.get('effective_readonly') ? 'Selected records' : 'Select records...',
-                readonly: this.get('effective_readonly'),
-                disable_multiple_selection: this.get('effective_readonly'),
-                no_create: this.get('effective_readonly'),
-            };
-        var domain = this.get('value');
-        popup = new instance.web.form.DomainEditorPopup(this);
-        popup.select_element(model, options, domain, {});
-        popup.on("elements_selected", self, function(selected_ids) {
-            if (!self.get('effective_readonly')) {
-                self.set_value(popup.get_domain(selected_ids));
-            }
-        });
+        if (model) {
+            var options = {
+                    title: this.get('effective_readonly') ? 'Registros Seleccionados' : 'Registros Seleccionados...',
+                    readonly: this.get('effective_readonly'),
+                    disable_multiple_selection: this.get('effective_readonly'),
+                    no_create: this.get('effective_readonly'),
+                };
+            var domain = this.get('value');
+            popup = new instance.web.form.DomainEditorPopup(this);
+            popup.select_element(model, options, domain, {});
+            popup.on("elements_selected", self, function(selected_ids) {
+                if (!self.get('effective_readonly')) {
+                    self.set_value(popup.get_domain(selected_ids));
+                }
+            });
+        }
     },
 });
 
