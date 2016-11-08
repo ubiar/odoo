@@ -2659,23 +2659,29 @@ instance.web.form.FieldCharDomain = instance.web.form.AbstractField.extend(insta
         if (this.get('value')) {
             var model = this.options.model || this.field_manager.get_field_value(this.options.model_field);
             if (model) {
-                var domain = instance.web.pyeval.eval('domain', this.get('value'));
-                var ds = new instance.web.DataSetStatic(self, model, self.build_context());
-                ds.call('search_count', [domain, self.build_context()]).then(function (results) {
-                    $('.oe_domain_count', self.$el).text(results + ' registros seleccionados');
-                    if (self.get('effective_readonly')) {
-                        $('button span', self.$el).text(' Ver Selección');
-                    }
-                    else {
-                        $('button span', self.$el).text(' Cambiar Selección');
-                    }
-                });
+                try {
+                    var domain = instance.web.pyeval.eval('domain', this.get('value'));
+                    var ds = new instance.web.DataSetStatic(self, model, self.build_context());
+                    ds.call('search_count', [domain, self.build_context()]).then(function (results) {
+                        $('.oe_domain_count', self.$el).text(results + ' registros seleccionados');
+                        if (self.get('effective_readonly')) {
+                            $('button span.fa-arrow-right', self.$el).text(' Ver Selección');
+                        }
+                        else {
+                            $('button span.fa-arrow-right', self.$el).text(' Cambiar Selección');
+                        }
+                    });
+                }
+                catch(err) {
+                    $('button span.fa-arrow-right', self.$el).text(' El dominio no se pudo procesar');
+                }
             }
         } else {
             $('.oe_domain_count', this.$el).text('0 registro seleccionado');
-            $('button span', this.$el).text(' Registros Seleccionados');
+            $('button span.fa-arrow-right', this.$el).text(' Registros Seleccionados');
         };
         this.$('.select_records').on('click', self.on_click);
+        this.$('.edit_domain').on('click', self.on_click_edit_domain);
     },
     on_click: function(event) {
         event.preventDefault();
@@ -2697,6 +2703,20 @@ instance.web.form.FieldCharDomain = instance.web.form.AbstractField.extend(insta
                 }
             });
         }
+    },
+    on_click_edit_domain: function(event) {
+        event.preventDefault();
+        var self = this;
+        if (this.get('effective_readonly')) {
+            alert(this.get('value'));
+        }
+        else{
+            var domain = prompt("Modifique el domain manualmente", this.get('value'));
+            if (domain != null) {
+                self.set_value(domain);
+            }
+        }
+        
     },
 });
 
