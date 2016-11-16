@@ -1005,10 +1005,10 @@
 
 <div t-name="PivotView.nodata" class="oe_view_nocontent" >
     <div class="oe_empty_custom_dashboard">
-        <p><b>No data to display.</b></p>
+        <p><b>Sin datos para mostrar.</b></p>
         <p>
-                No data available for this pivot table.  Try to add some records, or make sure
-                that there is at least one measure and no active filter in the search bar.
+                No hay datos disponibles para este cubo.  Asegúrese de haber aplicado los
+                filtros correctamente.
         </p>
     </div>
 </div>
