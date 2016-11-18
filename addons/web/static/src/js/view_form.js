@@ -2699,7 +2699,7 @@ instance.web.form.FieldCharDomain = instance.web.form.AbstractField.extend(insta
             popup.select_element(model, options, domain, {});
             popup.on("elements_selected", self, function(selected_ids) {
                 if (!self.get('effective_readonly')) {
-                    self.set_value(popup.get_domain(selected_ids));
+                    self.set_value(JSON.stringify(popup.get_domain(selected_ids)));
                 }
             });
         }
