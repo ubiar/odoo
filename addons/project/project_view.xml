@@ -749,7 +749,7 @@
             <field name="model">project.task.type</field>
             <field name="arch" type="xml">
                 <tree string="Task Stage">
-                    <field name="sequence" widget="handle"/>
+                    <field name="sequence" widget="handle" groups="base.group_no_one"/>
                     <field name="name"/>
                     <field name="fold"/>
                     <field name="description"/>
