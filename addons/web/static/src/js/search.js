@@ -679,6 +679,18 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
 
         _.each(filters.concat({category:'filters', item: 'separator'}), function (filter) {
             if (filter.item.tag === 'filter' && filter.category === current_category) {
+                if (filter.item.attrs.name === 'intervalos_fechas') {
+                    if (!filter.item.attrs.field_name){
+                        console.warn('intervalo_fechas mal definido en la vista de busqueda.');
+                        return;
+                    }
+                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<=', context_today().strftime('%Y-%m-%d')),('"+filter.item.attrs.field_name+"','>', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]", help:"Última semana", string:"Última Semana"}, children:[], tag: "filter"}, self));
+                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<', (context_today() + relativedelta(months=1)).strftime('%Y-%m-%d')),('"+filter.item.attrs.field_name+"','>=', context_today().strftime('%Y-%m-01'))]", help:"Mes actual", string:"Mes actual"}, children:[], tag: "filter"}, self));
+                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<', context_today().strftime('%Y-%m-01')),('"+filter.item.attrs.field_name+"','>=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01'))]", help:"Mes anterior", string:"Mes anterior"}, children:[], tag: "filter"}, self));
+                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<=', context_today().strftime('%Y-12-31')),('"+filter.item.attrs.field_name+"','>=', context_today().strftime('%Y-01-01'))]", help:"Año actual", string:"Año actual"}, children:[], tag: "filter"}, self));
+                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<', context_today().strftime('%Y-01-01')),('"+filter.item.attrs.field_name+"','>=', (context_today() - relativedelta(years=1)).strftime('%Y-01-01'))]", help:"Año anterior", string:"Año anterior"}, children:[], tag: "filter"}, self));
+                    return;
+                }
                 return current_group.push(new my.Filter(filter.item, self));
             }
             if (current_group.length) {
