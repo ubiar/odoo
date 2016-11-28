@@ -1342,6 +1342,19 @@ class BaseModel(object):
                 defaults[name] = field.default(self)
                 continue
 
+            # 4.1. default de usuario
+            if name and name[:2] == 'x_':
+                campo_usr = self.env['ir.model.fields'].search([('model', '=', self._name), ('name', '=', name)])
+                if 'default_ubiar' in campo_usr and campo_usr.default_ubiar:
+                    if campo_usr.ttype in ['many2one', 'one2many', 'many2many'] and campo_usr.relation:
+                        default_ubiar_ids = eval(campo_usr.default_ubiar)
+                        if type(default_ubiar_ids) == int:
+                            default_ubiar_ids = [default_ubiar_ids]
+                        defaults[name] = self.env[campo_usr.relation].search([('id', 'in', default_ubiar_ids)])
+                    else:
+                        defaults[name] = campo_usr.default_ubiar
+                    continue
+
             # 5. delegate to parent model
             if field and field.inherited:
                 field = field.related_field
