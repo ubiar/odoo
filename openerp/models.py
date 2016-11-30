@@ -1344,7 +1344,7 @@ class BaseModel(object):
 
             # 4.1. default de usuario
             if name and name[:2] == 'x_':
-                campo_usr = self.env['ir.model.fields'].search([('model', '=', self._name), ('name', '=', name)])
+                campo_usr = self.env['ir.model.fields'].search([('model', '=', self._name), ('name', '=', name)], limit=1)
                 if 'default_ubiar' in campo_usr and campo_usr.default_ubiar:
                     if campo_usr.ttype in ['many2one', 'one2many', 'many2many'] and campo_usr.relation:
                         default_ubiar_ids = eval(campo_usr.default_ubiar)
