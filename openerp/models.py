@@ -5047,7 +5047,7 @@ class BaseModel(object):
                        'id2': [] }
         """
         ir_model_data = self.pool.get('ir.model.data')
-        data_ids = ir_model_data.search(cr, uid, [('model', '=', self._name), ('res_id', 'in', ids)])
+        data_ids = ir_model_data.search(cr, uid, [('model', '=', self._name), ('res_id', 'in', ids)], order='id') # Ubiar - Se ordena por id para que traiga primero la referencia externa del modulo mas base al haber sido instalado antes y de esta manera tiene mayor compatibilidad
         data_results = ir_model_data.read(cr, uid, data_ids, ['module', 'name', 'res_id'])
         result = {}
         for id in ids:
