@@ -2514,6 +2514,7 @@ class BaseModel(object):
 
         store_compute = False
         stored_fields = []              # new-style stored fields with compute
+        default_stored_fields_func = []      # ubiar - funciones por defecto para inicializar los campos calculados con sql
         todo_end = []
         update_custom_fields = context.get('update_custom_fields', False)
         self._field_create(cr, context=context)
@@ -2717,7 +2718,10 @@ class BaseModel(object):
 
                             # remember new-style stored fields with compute method
                             if k in self._fields and self._fields[k].depends:
-                                stored_fields.append(self._fields[k])
+                                if hasattr(f, 'default_store'):
+                                    default_stored_fields_func.append(getattr(f, 'default_store'))
+                                else:
+                                    stored_fields.append(self._fields[k])
 
                             # and add constraints if needed
                             if isinstance(f, fields.many2one) or (isinstance(f, fields.function) and f._type == 'many2one' and f.store):
@@ -2759,6 +2763,17 @@ class BaseModel(object):
         if store_compute:
             self._parent_store_compute(cr)
             cr.commit()
+
+        # ubiar - funciones por defecto para inicializar los campos calculados con sql
+        if default_stored_fields_func:
+            for func in default_stored_fields_func:
+                try:
+                    _logger.info("Storing computed values of %s function %s", self._name, func)
+                    func(cr)
+                    cr.commit()
+                except Exception as e:
+                    _logger.warning("Error executing function %s to initialize fields\n%s" % (func, e))
+                    cr.rollback()
 
         if stored_fields:
             # trigger computation of new-style stored fields with a compute
