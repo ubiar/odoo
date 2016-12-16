@@ -27,7 +27,7 @@ from openerp.tools.translate import _
 
 EXCLUDED_FIELDS = set((
     'report_sxw_content', 'report_rml_content', 'report_sxw', 'report_rml', 'pentaho_file',
-    'report_sxw_content_data', 'report_rml_content_data', 'search_view', 'pentaho_filename'))
+    'report_sxw_content_data', 'report_rml_content_data', 'search_view', 'pentaho_filename', 'log_ids'))
 
 #: Possible slots to bind an action to with :meth:`~.set_action`
 ACTION_SLOTS = [
