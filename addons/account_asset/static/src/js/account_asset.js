@@ -13,8 +13,8 @@ openerp.account_asset = function (instance) {
     instance.web.account_asset.WidgetOnButton = instance.web.list.Column.extend({
         format: function (row_data, options) {
             this._super(row_data, options);
-            this.has_value = !!row_data.move_check.value;
-            this.parent_state = row_data.parent_state.value;
+            this.has_value = row_data.move_check ? !!row_data.move_check.value : false;
+            this.parent_state = row_data.parent_state ? row_data.parent_state.value : false;
             this.icon = this.has_value ? 'gtk-yes' : 'gtk-no'; // or STOCK_YES and STOCK_NO
             this.string = this.has_value ? 'Posted' : 'Unposted' 
             var template = this.icon && 'ListView.row.buttonwidget';
