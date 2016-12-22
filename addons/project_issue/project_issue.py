@@ -499,7 +499,7 @@ class project(osv.Model):
     }
 
     def _check_escalation(self, cr, uid, ids, context=None):
-        project_obj = self.browse(cr, uid, ids[0], context=context)
+        project_obj = self.browse(cr, SUPERUSER_ID, ids[0], context=context)
         if project_obj.project_escalation_id:
             if project_obj.project_escalation_id.id == project_obj.id:
                 return False
