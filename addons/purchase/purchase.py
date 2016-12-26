@@ -37,7 +37,7 @@ from openerp.http import request
 class purchase_order(osv.osv):
 
     def _amount_all(self, cr, uid, ids, field_name, arg, context=None):
-        uid = request.uid # Todo agregado porque trae el uid del admin en los functions - Ubiar
+        uid = request and request.uid or uid # Todo agregado porque trae el uid del admin en los functions - Ubiar
         res = {}
         cur_obj=self.pool.get('res.currency')
         for order in self.browse(cr, uid, ids, context=context):
