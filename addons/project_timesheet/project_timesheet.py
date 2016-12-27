@@ -22,7 +22,7 @@ import time
 import datetime
 
 from openerp.osv import fields, osv
-from openerp import tools
+from openerp import tools, SUPERUSER_ID
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
 
@@ -49,7 +49,7 @@ class project_project(osv.osv):
         mod_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')
 
-        project = self.browse(cr, uid, ids[0], context)
+        project = self.browse(cr, SUPERUSER_ID, ids[0], context)
         view_context = {
             'search_default_account_id': [project.analytic_account_id.id],
             'default_account_id': project.analytic_account_id.id,
@@ -132,7 +132,7 @@ class project_work(osv.osv):
         default_uom = self.pool['res.users'].browse(cr, uid, uid, context=context).company_id.project_time_mode_id.id
         if result['product_uom_id'] != default_uom:
             vals_line['unit_amount'] = self.pool['product.uom']._compute_qty(cr, uid, default_uom, vals_line['unit_amount'], result['product_uom_id'])
-        acc_id = self._timesheet_account(cr, uid, task_obj, context=context)
+        acc_id = self._timesheet_account(cr, SUPERUSER_ID, task_obj, context=context)
         if acc_id:
             vals_line['account_id'] = acc_id
             res = timesheet_obj.on_change_account_id(cr, uid, False, acc_id)
