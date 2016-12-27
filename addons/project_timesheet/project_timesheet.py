@@ -255,7 +255,7 @@ class task(osv.osv):
             vals_line = {}
             hr_anlytic_timesheet = self.pool.get('hr.analytic.timesheet')
             if vals.get('project_id',False):
-                project_obj = self.pool.get('project.project').browse(cr, uid, vals['project_id'], context=context)
+                project_obj = self.pool.get('project.project').browse(cr, SUPERUSER_ID, vals['project_id'], context=context)
                 acc_id = project_obj.analytic_account_id.id
 
             for task_obj in self.browse(cr, uid, ids, context=context):
