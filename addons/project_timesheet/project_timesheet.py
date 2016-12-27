@@ -113,7 +113,7 @@ class project_work(osv.osv):
         acc_id = False
 
         task_id = vals.get('task_id') or context.get('default_task_id')
-        task_obj = task_obj.browse(cr, uid, task_id, context=context)
+        task_obj = task_obj.browse(cr, SUPERUSER_ID, task_id, context=context)
         result = self.get_user_related_details(cr, uid, vals.get('user_id', uid))
         vals_line['name'] = '%s: %s' % (tools.ustr(task_obj.name), tools.ustr(vals['name'] or '/'))
         vals_line['user_id'] = vals.get('user_id', uid)
@@ -132,7 +132,7 @@ class project_work(osv.osv):
         default_uom = self.pool['res.users'].browse(cr, uid, uid, context=context).company_id.project_time_mode_id.id
         if result['product_uom_id'] != default_uom:
             vals_line['unit_amount'] = self.pool['product.uom']._compute_qty(cr, uid, default_uom, vals_line['unit_amount'], result['product_uom_id'])
-        acc_id = self._timesheet_account(cr, SUPERUSER_ID, task_obj, context=context)
+        acc_id = self._timesheet_account(cr, uid, task_obj, context=context)
         if acc_id:
             vals_line['account_id'] = acc_id
             res = timesheet_obj.on_change_account_id(cr, uid, False, acc_id)
