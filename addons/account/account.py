@@ -2207,7 +2207,8 @@ class account_tax(osv.osv):
                 todo = 0
             else:
                 todo = 1
-            amount = round(amount, self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
+            # Ubiar -> Importante no aplicar el redondeo por unidad ya que al ser muchas unidades da mal porque pierde los decimales
+            #amount = round(amount, self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
             res.append({
                 'id': tax.id,
                 'todo': todo,
