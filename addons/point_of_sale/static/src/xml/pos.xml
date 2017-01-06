@@ -455,7 +455,7 @@
                     <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                 </div>
                 <div class='message'>
-                    Please select a payment method. 
+                    Seleccione algún método de pago. 
                 </div>
             </div>
         </t>
