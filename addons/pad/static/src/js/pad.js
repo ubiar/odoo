@@ -40,8 +40,8 @@ openerp.pad = function(instance) {
                 if (self.get('effective_readonly')) {
                     if (_.str.startsWith(value, 'http')) {
                         self.pad_loading_request = self.view.dataset.call('pad_get_content', {url: value}).done(function(data) {
-                            self.$('.oe_pad_content').removeClass('oe_pad_loading').html('<div class="oe_pad_readonly"><div>');
-                            self.$('.oe_pad_readonly').html(data);
+                            self.$('.oe_pad_content').removeClass('oe_pad_loading').html('<div class="oe_pad_readonly"><iframe width="100%" height="100%" frameborder="0"/><div>');
+                            self.$('.oe_pad_readonly iframe').contents().find('html').html(data);
                         }).fail(function() {
                             self.$('.oe_pad_content').text(_t('Unable to load pad'));
                         });
