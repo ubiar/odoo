@@ -775,9 +775,15 @@ class BaseModel(object):
                     _logger.warning("@onchange%r parameters must be field names", func._onchange)
                 methods[name].append(func)
 
+        methods.update(self._onchange_methods_usuario())
+
         # optimization: memoize result on cls, it will not be recomputed
         cls._onchange_methods = methods
         return methods
+        
+    # Onchange de usuario agregado por ubiar
+    def _onchange_methods_usuario(self):
+        return defaultdict(list)
 
     def __new__(cls):
         # In the past, this method was registering the model class in the server.
