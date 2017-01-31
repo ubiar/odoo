@@ -7933,7 +7933,7 @@ msgstr "POr favor verifique que se haya definido una cuenta en el diario."
 msgid ""
 "Please verify the price of the invoice!\n"
 "The encoded total does not match the computed total."
-msgstr ""
+msgstr "El total del comprobante no coincide con el calculado"
 
 #. module: account
 #: view:account.move:account.view_move_form
@@ -9569,7 +9569,7 @@ msgstr "Facturas"
 #. module: account
 #: field:res.partner,property_supplier_payment_term:0
 msgid "Supplier Payment Term"
-msgstr "Plazo de Pago del Proveedor"
+msgstr "Término de Pago de Proveedor"
 
 #. module: account
 #: selection:account.invoice,type:0
