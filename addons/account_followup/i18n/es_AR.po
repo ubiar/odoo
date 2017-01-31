@@ -606,12 +606,12 @@ msgstr "Monto"
 #. module: account_followup
 #: field:res.partner,payment_amount_due:0
 msgid "Amount Due"
-msgstr "Monto Adeudado"
+msgstr "Deuda Total"
 
 #. module: account_followup
 #: field:res.partner,payment_amount_overdue:0
 msgid "Amount Overdue"
-msgstr "Monto Atrasado"
+msgstr "Deuda Vencida"
 
 #. module: account_followup
 #: code:addons/account_followup/account_followup.py:281
