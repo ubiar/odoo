@@ -48,7 +48,7 @@ You can manage:
         'security/ir.model.access.csv',
         'hr_view.xml',
         'hr_installer.xml',
-        'hr_data.xml',
+        #'hr_data.xml', Comentado por Ubiar
         'hr_tip_data.xml',
         'res_config_view.xml',
         'mail_hr_view.xml',
