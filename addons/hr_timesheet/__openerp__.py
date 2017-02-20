@@ -48,7 +48,7 @@ up a management by affair.
         'wizard/hr_timesheet_sign_in_out_view.xml',
         'report/hr_timesheet_report_view.xml',
         'hr_timesheet_installer.xml',
-        'hr_timesheet_data.xml'
+        #'hr_timesheet_data.xml'
     ],
     'demo': ['hr_timesheet_demo.xml'],
     'test': [
