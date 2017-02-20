@@ -2111,7 +2111,7 @@ class account_tax(osv.osv):
         tax_compute_precision = precision
         if taxes and taxes[0].company_id.tax_calculation_rounding_method == 'round_globally':
             tax_compute_precision += 5
-        totalin = totalex = round(price_unit * quantity, precision)
+        totalin = totalex = price_unit * quantity
         tin = []
         tex = []
         for tax in taxes:
@@ -2122,9 +2122,11 @@ class account_tax(osv.osv):
                     tex.append(tax)
             else:
                 tin.append(tax)
+        taxes = 0.0
         tin = self.compute_inv(cr, uid, tin, price_unit, quantity, product=product, partner=partner, precision=tax_compute_precision)
         for r in tin:
             totalex -= r.get('amount', 0.0)
+            taxes += r.get('amount', 0.0)
         totlex_qty = 0.0
         try:
             totlex_qty = totalex/quantity
@@ -2133,8 +2135,11 @@ class account_tax(osv.osv):
         tex = self._compute(cr, uid, tex, totlex_qty, quantity, product=product, partner=partner, precision=tax_compute_precision)
         for r in tex:
             totalin += r.get('amount', 0.0)
+            taxes += r.get('amount', 0.0)
+        totalin = round(totalin, precision)
+        taxes = round(taxes, precision)
         return {
-            'total': totalex,
+            'total': totalin - taxes,
             'total_included': totalin,
             'taxes': tin + tex
         }
@@ -2164,9 +2169,9 @@ class account_tax(osv.osv):
         total = 0.0
         for r in res:
             if r.get('balance',False):
-                r['amount'] = round(r.get('balance', 0.0) * quantity, precision) - total
+                r['amount'] = r.get('balance', 0.0) * quantity - total
             else:
-                r['amount'] = round(r.get('amount', 0.0) * quantity, precision)
+                r['amount'] = r.get('amount', 0.0) * quantity
                 total += r['amount']
         return res
 
