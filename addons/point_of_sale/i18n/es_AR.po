@@ -4002,7 +4002,7 @@ msgstr ""
 #: view:website:point_of_sale.report_payment
 #: view:website:point_of_sale.report_saleslines
 msgid "Unit Price"
-msgstr "Precio Unitario"
+msgstr "Precio Unitario Neto"
 
 #. module: point_of_sale
 #. openerp-web
