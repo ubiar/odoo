@@ -310,6 +310,9 @@ instance.web.ActionManager = instance.web.Widget.extend({
                 active_ids : options.additional_context.active_ids,
                 active_model : options.additional_context.active_model
             };
+            if (jQuery.deparam !== undefined && jQuery.deparam(jQuery.param.querystring()).force_target !== undefined) {
+                additional_context['force_target'] = jQuery.deparam(jQuery.param.querystring()).force_target
+            };
             return self.rpc("/web/action/load", { action_id: action, additional_context : additional_context }).then(function(result) {
                 return self.do_action(result, options);
             });
@@ -433,7 +436,6 @@ instance.web.ActionManager = instance.web.Widget.extend({
     },
     ir_actions_act_window: function (action, options) {
         var self = this;
-
         return this.ir_actions_common({
             widget: function () { 
                 return new instance.web.ViewManager(self, null, null, null, action, options);
@@ -1160,7 +1162,6 @@ instance.web.Sidebar = instance.web.Widget.extend({
                 var c = instance.web.pyeval.eval('context',
                 new instance.web.CompoundContext(
                     sidebar_eval_context, active_ids_context));
-
                 self.rpc("/web/action/load", {
                     action_id: item.action.id,
                     context: new instance.web.CompoundContext(
