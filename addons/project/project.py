@@ -876,7 +876,7 @@ class task(osv.osv):
         visited_node.add(id)
 
         #visit child using DFS
-        task = self.browse(cr, uid, id, context=context)
+        task = self.browse(cr, SUPERUSER_ID, id, context=context)
         for child in task.child_ids:
             res = self._check_cycle(cr, uid, child.id, visited_branch, visited_node, context=context)
             if not res:
@@ -888,7 +888,7 @@ class task(osv.osv):
     def _check_dates(self, cr, uid, ids, context=None):
         if context == None:
             context = {}
-        obj_task = self.browse(cr, uid, ids[0], context=context)
+        obj_task = self.browse(cr, SUPERUSER_ID, ids[0], context=context)
         start = obj_task.date_start or False
         end = obj_task.date_end or False
         if start and end :
