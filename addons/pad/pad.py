@@ -74,10 +74,7 @@ class pad_common(osv.osv_memory):
         content = ''
         if url:
             try:
-                page = urllib2.urlopen('%s/export/html'%url).read()
-                mo = re.search('<body>(.*)</body>',page)
-                if mo:
-                    content = mo.group(1)
+                content = urllib2.urlopen('%s/export/html'%url).read()
             except:
                 _logger.warning("No url found '%s'.", url)
         return content

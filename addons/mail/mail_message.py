@@ -173,7 +173,15 @@ class mail_message(osv.Model):
         return [('to_read', '=', True)]
 
     def _get_default_from(self, cr, uid, context=None):
+        uid_orig = uid
         uid = request and request.uid or uid # Ubiar -> Toma el usuario que esta realmento logueado
+        this = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context)
+        if this.alias_name and this.alias_domain:
+            return formataddr((this.name, '%s@%s' % (this.alias_name, this.alias_domain)))
+        elif this.email:
+            return formataddr((this.name, this.email))
+        # Puede ser que el uid que toma no tenga el email configurado como con los usuarios "Public" y entonces se toma el original que suele ser el admin
+        uid = uid_orig
         this = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context)
         if this.alias_name and this.alias_domain:
             return formataddr((this.name, '%s@%s' % (this.alias_name, this.alias_domain)))

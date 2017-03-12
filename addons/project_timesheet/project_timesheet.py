@@ -22,7 +22,7 @@ import time
 import datetime
 
 from openerp.osv import fields, osv
-from openerp import tools
+from openerp import tools, SUPERUSER_ID
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
 
@@ -49,7 +49,7 @@ class project_project(osv.osv):
         mod_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')
 
-        project = self.browse(cr, uid, ids[0], context)
+        project = self.browse(cr, SUPERUSER_ID, ids[0], context)
         view_context = {
             'search_default_account_id': [project.analytic_account_id.id],
             'default_account_id': project.analytic_account_id.id,
@@ -113,7 +113,7 @@ class project_work(osv.osv):
         acc_id = False
 
         task_id = vals.get('task_id') or context.get('default_task_id')
-        task_obj = task_obj.browse(cr, uid, task_id, context=context)
+        task_obj = task_obj.browse(cr, SUPERUSER_ID, task_id, context=context)
         result = self.get_user_related_details(cr, uid, vals.get('user_id', uid))
         vals_line['name'] = '%s: %s' % (tools.ustr(task_obj.name), tools.ustr(vals['name'] or '/'))
         vals_line['user_id'] = vals.get('user_id', uid)
@@ -255,7 +255,7 @@ class task(osv.osv):
             vals_line = {}
             hr_anlytic_timesheet = self.pool.get('hr.analytic.timesheet')
             if vals.get('project_id',False):
-                project_obj = self.pool.get('project.project').browse(cr, uid, vals['project_id'], context=context)
+                project_obj = self.pool.get('project.project').browse(cr, SUPERUSER_ID, vals['project_id'], context=context)
                 acc_id = project_obj.analytic_account_id.id
 
             for task_obj in self.browse(cr, uid, ids, context=context):

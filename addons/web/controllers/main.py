@@ -1276,6 +1276,8 @@ class Action(http.Controller):
             action = request.session.model(action_type).read([action_id], fields=False, context=ctx)
             if action:
                 value = clean_action(action[0])
+        if value and additional_context and additional_context.get('force_target'):
+            value['target'] = additional_context.get('force_target')
         return value
 
     @http.route('/web/action/run', type='json', auth="user")

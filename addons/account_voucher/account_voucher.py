@@ -236,7 +236,8 @@ class account_voucher(osv.osv):
             for l in voucher.line_cr_ids:
                 credit += l.amount
             currency = voucher.currency_id or voucher.company_id.currency_id
-            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - sign * (credit - debit))
+            total_compensaciones = 'total_compensaciones' in voucher and voucher.total_compensaciones
+            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - total_compensaciones - sign * (credit - debit))
         return res
 
     def _paid_amount_in_company_currency(self, cr, uid, ids, name, args, context=None):
@@ -730,7 +731,13 @@ class account_voucher(osv.osv):
                 account_type = 'receivable'
 
         if not context.get('move_line_ids', False):
-            ids = move_line_pool.search(cr, uid, [('state','=','valid'), ('account_id.type', '=', account_type), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')], context=context)
+            # Ubiar - Modificado para que traiga las FC/ND de Proovedor en Recibos y las FC/ND de Cliente en Pagos
+            domain_base = [('state','=','valid'), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')]
+            ids = move_line_pool.search(cr, uid, [('account_id.type', '=', account_type)] + domain_base, context=context)
+            if account_type == 'receivable':
+                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable'), ('tipo', '=', 'haber')] + domain_base, context=context)
+            else:
+                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable'), ('tipo', '=', 'debe')] + domain_base, context=context)
         else:
             ids = context['move_line_ids']
         invoice_id = context.get('invoice_id', False)
@@ -1057,6 +1064,12 @@ class account_voucher(osv.osv):
             credit = voucher.paid_amount_in_company_currency
         elif voucher.type in ('sale', 'receipt'):
             debit = voucher.paid_amount_in_company_currency
+        # Si es un Recibo/Pago le resto las compensaciones de Cliente/Proveedor ya que ya estan incluidas en las Lineas
+        if voucher.type in ['receipt', 'payment'] and 'total_compensaciones' in voucher:
+            if credit > 0:
+                credit -= voucher.total_compensaciones
+            if debit > 0:
+                debit -= voucher.total_compensaciones
         if debit < 0: credit = -debit; debit = 0.0
         if credit < 0: debit = -credit; credit = 0.0
         sign = debit - credit < 0 and -1 or 1
@@ -1220,8 +1233,10 @@ class account_voucher(osv.osv):
             'voucher_special_currency_rate': voucher_currency.rate * voucher.payment_rate ,
             'voucher_special_currency': voucher.payment_rate_currency_id and voucher.payment_rate_currency_id.id or False,})
         prec = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
-        rec_full_ids = [] # Se creo para conciliar todos los movimientos que se paguen completos en la misma conciliación para que sea mucho mas rapida la conciliación
+        rec_full_ids = {} # Se creo para conciliar todos los movimientos que se paguen completos en la misma conciliación para que sea mucho mas rapida la conciliación
         for line in voucher.line_ids:
+            if not rec_full_ids.get(line.account_id.id):
+                rec_full_ids[line.account_id.id] = []
             rec_ids = []
             #create one move line per voucher line where amount is not 0.0
             # AND (second part of the clause) only if the original move line was not having debit = credit = 0 (which is a legal value)
@@ -1295,7 +1310,7 @@ class account_voucher(osv.osv):
             if line.amount != line.amount_unreconciled:
                 rec_ids = [voucher_line, line.move_line_id.id]
             else:
-                rec_full_ids += [voucher_line, line.move_line_id.id]
+                rec_full_ids[line.account_id.id] += [voucher_line, line.move_line_id.id]
 
             if not currency_obj.is_zero(cr, uid, voucher.company_id.currency_id, currency_rate_difference):
                 # Change difference entry in company currency
@@ -1305,7 +1320,7 @@ class account_voucher(osv.osv):
                 if line.amount != line.amount_unreconciled:
                     rec_ids.append(new_id)
                 else:
-                    rec_full_ids.append(new_id)
+                    rec_full_ids[line.account_id.id] += [new_id]
             
             if line.move_line_id and line.move_line_id.currency_id and not currency_obj.is_zero(cr, uid, line.move_line_id.currency_id, foreign_currency_diff):
                 # Change difference entry in voucher currency
@@ -1327,11 +1342,11 @@ class account_voucher(osv.osv):
                 if line.amount != line.amount_unreconciled:
                     rec_ids.append(new_id)
                 else:
-                    rec_full_ids.append(new_id)
+                    rec_full_ids[line.account_id.id] += [new_id]
             if rec_ids and line.move_line_id.id:
                 rec_lst_ids.append(rec_ids)
-        if rec_full_ids:
-            rec_lst_ids.append(rec_full_ids)
+        for rec_full in rec_full_ids.values():
+            rec_lst_ids.append(rec_full)
         return (tot_line, rec_lst_ids)
 
     def writeoff_move_line_get(self, cr, uid, voucher_id, line_total, move_id, name, company_currency, current_currency, context=None):

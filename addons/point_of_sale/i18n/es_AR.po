@@ -3510,7 +3510,7 @@ msgstr "Subtotal"
 #. module: point_of_sale
 #: field:pos.order.line,price_subtotal:0
 msgid "Subtotal w/o Tax"
-msgstr "Impuesto Subtotal neto"
+msgstr "Subtotal Neto"
 
 #. module: point_of_sale
 #. openerp-web
@@ -4002,7 +4002,7 @@ msgstr ""
 #: view:website:point_of_sale.report_payment
 #: view:website:point_of_sale.report_saleslines
 msgid "Unit Price"
-msgstr "Precio Unitario"
+msgstr "Precio Unitario Neto"
 
 #. module: point_of_sale
 #. openerp-web
