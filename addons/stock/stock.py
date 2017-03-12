@@ -2331,7 +2331,7 @@ class stock_move(osv.osv):
                     main_domain[move.id] += [('history_ids', 'in', ancestors)]
 
                 #if the move is returned from another, restrict the choice of quants to the ones that follow the returned move
-                if move.origin_returned_move_id:
+                if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
                 for link in move.linked_move_operation_ids:
                     operations.add(link.operation_id)
