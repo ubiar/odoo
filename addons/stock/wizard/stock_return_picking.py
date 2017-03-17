@@ -77,11 +77,23 @@ class stock_return_picking(osv.osv_memory):
                     chained_move_exist = True
                 #Sum the quants in that location that can be returned (they should have been moved by the moves that were included in the returned picking)
                 qty = 0
-                quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                quant_search = False
+                validar_trazabilidad = True
+                if 'validar_trazabilidad' in move.product_id.categ_id:
+                    validar_trazabilidad = move.product_id.categ_id.validar_trazabilidad
+                if validar_trazabilidad:
+                    quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                else:
+                    quant_search = quant_obj.search(cr, uid, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 for quant in quant_obj.browse(cr, uid, quant_search, context=context):
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
                         qty += quant.qty
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
+                
+                if not validar_trazabilidad:
+                    cantidad_restante = move.product_qty - move.cantidad_devuelta
+                    if qty > cantidad_restante:
+                        qty = cantidad_restante
                 result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
 
             if len(result1) == 0:
@@ -141,7 +153,7 @@ class stock_return_picking(osv.osv_memory):
                     move_dest_id = move.origin_returned_move_id.move_dest_id.id
                 else:
                     move_dest_id = False
-
+                
                 returned_lines += 1
                 move_obj.copy(cr, uid, move.id, {
                     'product_id': data_get.product_id.id,
@@ -157,6 +169,7 @@ class stock_return_picking(osv.osv_memory):
                     'procure_method': 'make_to_stock',
                     'restrict_lot_id': data_get.lot_id.id,
                     'move_dest_id': move_dest_id,
+                    'devolucion_no_validar_trazabilidad': 'validar_trazabilidad' in data_get.product_id.categ_id and not data_get.product_id.categ_id.validar_trazabilidad,
                 })
 
         if not returned_lines:
