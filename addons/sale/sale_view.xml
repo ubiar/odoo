@@ -534,7 +534,7 @@
             <field name="groups_id" eval="[(4, ref('base.group_sale_salesman'))]"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@name='buttons']" position="inside">
-                    <button class="oe_inline oe_stat_button" name="action_view_sales" 
+                    <button class="oe_inline oe_stat_button" name="action_view_sales" attrs="{'invisible': [('sale_ok', '=', False)]}"
                         type="object" icon="fa-strikethrough">
                         <field string="Sales" name="sales_count" widget="statinfo" />
                     </button>
