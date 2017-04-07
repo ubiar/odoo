@@ -500,12 +500,12 @@ class mail_thread(osv.AbstractModel):
         def format_message(message_description, tracked_values):
             message = ''
             if message_description:
-                message = '<span>%s</span>' % message_description.decode('utf8')
+                message = '<span>%s</span>' % tools.ustr(message_description)
             for name, change in tracked_values.items():
-                message += '<div> &nbsp; &nbsp; &bull; <b>%s</b>: ' % change.get('col_info', '').decode('utf8')
+                message += '<div> &nbsp; &nbsp; &bull; <b>%s</b>: ' % tools.ustr(change.get('col_info', ''))
                 if change.get('old_value'):
-                    message += '%s &rarr; ' % change.get('old_value').decode('utf8')
-                message += '%s</div>' % change.get('new_value', '').decode('utf8')
+                    message += '%s &rarr; ' % tools.ustr(change.get('old_value'))
+                message += '%s</div>' % tools.ustr(change.get('new_value', ''))
             return message
 
         if not tracked_fields:
