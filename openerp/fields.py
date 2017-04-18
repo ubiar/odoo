@@ -1086,6 +1086,8 @@ class Float(Field):
 
     def convert_to_cache(self, value, record, validate=True):
         # apply rounding here, otherwise value in cache may be wrong!
+        if type(value) == dict:
+            value = value.get(self.name) or 0.0
         value = float(value or 0.0)
         digits = self.digits
         return float_round(value, precision_digits=digits[1]) if digits else value
