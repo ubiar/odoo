@@ -807,7 +807,14 @@ class account_voucher(osv.osv):
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 amount_original = currency_pool.compute(cr, uid, company_currency, currency_id, line.credit or line.debit or 0.0, context=context_multi_currency)
-                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(line.amount_residual) - (aml_lp.get(line.id) or 0), context=context_multi_currency)
+                amount_residual = 0
+                if line.reconcile_partial_id and 'diferencia_conciliacion_parcial' in line:
+                    amount_residual = line.diferencia_conciliacion_parcial
+                else:
+                    amount_residual = line.amount_residual
+                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(amount_residual) - (aml_lp.get(line.id) or 0), context=context_multi_currency)
+            if not amount_unreconciled:
+                continue
             line_currency_id = line.currency_id and line.currency_id.id or company_currency
             rs = {
                 'name':line.move_id.name,
