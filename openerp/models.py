@@ -3261,6 +3261,9 @@ class BaseModel(object):
         fields = self.check_field_access_rights('read', fields)
         if self._name == 'res.users': # Como en los usuarios no heredan las reglas, puede que tenga funciones calculadas del partner las cuales darian error de permisos
             self = self.sudo()
+            
+        if self._context.get('_fast_read_ubiar') and fields:
+            return self._fast_read_ubiar(fields)
 
         # split fields into stored and computed fields
         stored, inherited, computed = [], [], []
