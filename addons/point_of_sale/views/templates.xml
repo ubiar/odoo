@@ -14,17 +14,17 @@
         <meta name="viewport" content=" width=1024, user-scalable=no"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="mobile-web-app-capable" content="yes"/>
-
-        <link rel="shortcut icon"    sizes="196x196" href="/point_of_sale/static/src/img/touch-icon-196.png"/>
-        <link rel="shortcut icon"    sizes="128x128" href="/point_of_sale/static/src/img/touch-icon-128.png"/>
-        <link rel="apple-touch-icon"                 href="/point_of_sale/static/src/img/touch-icon-iphone.png"/>
-        <link rel="apple-touch-icon" sizes="76x76"   href="/point_of_sale/static/src/img/touch-icon-ipad.png"/>
-        <link rel="apple-touch-icon" sizes="120x120" href="/point_of_sale/static/src/img/touch-icon-iphone-retina.png"/>
-        <link rel="apple-touch-icon" sizes="152x152" href="/point_of_sale/static/src/img/touch-icon-ipad-retina.png"/>
+        
+        <link rel="shortcut icon"    sizes="196x196" href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
+        <link rel="shortcut icon"    sizes="128x128" href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
+        <link rel="apple-touch-icon"                 href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
+        <link rel="apple-touch-icon" sizes="76x76"   href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="/web_ubiar/static/src/img/logos/ubiar_icon.png"/>
 
         <style> body { background: #222; } </style> 
 
-        <link rel="shortcut icon" href="/web/static/src/img/favicon.ico" type="image/x-icon"/>
+        <link rel="shortcut icon" href="/web_ubiar/static/src/img/logos/ubiar_icon.png" type="image/x-icon"/>
 
         <t t-call-assets="web.assets_common" t-css="false" />
         <t t-call-assets="web.assets_backend" t-css="false" />
