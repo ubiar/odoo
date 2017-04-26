@@ -101,6 +101,7 @@ class stock_location(osv.osv):
     def name_get(self, cr, uid, ids, context=None):
         res = []
         for location in self.browse(cr, uid, ids, context=context):
+            
             res.append((location.id, self._name_get(cr, uid, location, context=context)))
         return res
 

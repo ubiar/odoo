@@ -2729,7 +2729,9 @@ class BaseModel(object):
                                     default_stored_fields_func.append(getattr(f, 'default_store'))
                                 else:
                                     stored_fields.append(self._fields[k])
-
+                            elif k in self._fields and hasattr(f, 'default_store'): # Tambien se puede utilizar para inicializar campos nuevos
+                                default_stored_fields_func.append(getattr(f, 'default_store'))
+                            
                             # and add constraints if needed
                             if isinstance(f, fields.many2one) or (isinstance(f, fields.function) and f._type == 'many2one' and f.store):
                                 if f._obj not in self.pool:
