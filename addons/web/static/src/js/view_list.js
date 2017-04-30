@@ -1553,15 +1553,18 @@ instance.web.ListView.Groups = instance.web.Class.extend( /** @lends instance.we
         // drag and drop enabled if list is not sorted (unless it is sorted by
         // sequence (ASC)), and there is a visible column with @widget=handle
         // or "sequence" column in the view.
-        if ((dataset.sort && dataset.sort() && dataset.sort() !== 'sequence'
-            && dataset.sort() !== 'sequence ASC')
+        
+        var sequence_field = _(this.columns).find(function (c) {
+            return c.widget === 'handle';
+        });
+        
+        if ((dataset.sort && sequence_field && dataset.sort() && dataset.sort() !== sequence_field.name
+            && dataset.sort() !== sequence_field.name + ' ASC')
             || !_(this.columns).any(function (column) {
                     return column.widget === 'handle'; })) {
             return;
         }
-        var sequence_field = _(this.columns).find(function (c) {
-            return c.widget === 'handle';
-        });
+        
         var seqname = sequence_field ? sequence_field.name : 'sequence';
 
         // ondrop, move relevant record & fix sequences
