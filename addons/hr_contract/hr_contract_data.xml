@@ -3,6 +3,8 @@
     <data noupdate="1">
 
         <!-- Contract Types -->
+        <!-- Comentado por Ubiar
+
         <record id="hr_contract_type_emp" model="hr.contract.type">
             <field name="name">Employee</field>
         </record>
@@ -14,6 +16,8 @@
         <record id="hr_contract_type_sub" model="hr.contract.type">
             <field name="name">Subcontractor</field>
         </record>
+        
+        -->
 
         <!-- Contract-related subtypes for messaging / Chatter -->
         <record id="mt_contract_pending" model="mail.message.subtype">
