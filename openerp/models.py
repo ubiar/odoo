@@ -5958,7 +5958,10 @@ class BaseModel(object):
         # load fields on secondary records, to avoid false changes
         with env.do_in_onchange():
             for field_seq in secondary:
-                record.mapped(field_seq)
+                try:
+                    record.mapped(field_seq)
+                except MissingError as e: 
+                    secondary.remove(field_seq)
 
         # determine which field(s) should be triggered an onchange
         todo = list(names) or list(values)
@@ -5991,7 +5994,10 @@ class BaseModel(object):
 
                 # force re-evaluation of function fields on secondary records
                 for field_seq in secondary:
-                    record.mapped(field_seq)
+                    try:
+                        record.mapped(field_seq)
+                    except MissingError as e: 
+                        secondary.remove(field_seq)
 
                 # determine which fields have been modified
                 for name, oldval in values.iteritems():
