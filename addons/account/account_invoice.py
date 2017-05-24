@@ -169,6 +169,11 @@ class account_invoice(models.Model):
                 lines = self.env['account.move.line']
             partial_lines += data_line
             self.move_lines = lines - partial_lines
+            
+    @api.depends('partner_id')
+    def _fnc_commercial_partner_id(self):
+        for obj in self:
+            obj.commercial_partner_id = obj.partner_id.commercial_partner_id
 
     @api.one
     @api.depends(
@@ -304,7 +309,7 @@ class account_invoice(models.Model):
     fiscal_position = fields.Many2one('account.fiscal.position', string='Fiscal Position',
         readonly=True, states={'draft': [('readonly', False)]})
     commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity',
-        related='partner_id.commercial_partner_id', store=True, readonly=True,
+        compute=_fnc_commercial_partner_id, store=True, readonly=True,
         help="The commercial entity that will be used on Journal Entries for this invoice")
     precio_unitario_con_iva = fields.Boolean('Los precios unitarios son con I.V.A.')
 
