@@ -2756,7 +2756,23 @@ class BaseModel(object):
                                         "ALTER TABLE %s ALTER COLUMN %s SET NOT NULL"
                                     _logger.warning(msg, k, self._table, self._table, k, exc_info=False) # Ubiar, se modifico ya que aunque queden valores nulos se tiene que poder realizar el update normalmente
                             cr.commit()
-
+                # Ubiar, Esto se hizo porque el sistema intentaba crear dos ids externos con el mismo nombre, entonces al id externo del primero lo 
+                # llamaba field_xxxx_(id del campo dependiendo de la BD) entonces la unica forma de corregir estos casos
+                # es modificando el id externo para establecer uno generico que no dependa del id de la BD
+                if f.forzar_id_externo:
+                    if type(f.forzar_id_externo) != str:
+                        raise ValueError(_('The value for the field %s (%s) is invalid, it should be a string') % (k, self._name))
+                    if f.forzar_id_externo.count('.') != 1:
+                        raise ValueError(_('The value for the field %s (%s) is invalid, it must have one . separating the model and the key') % (k, self._name))
+                    modulo = f.forzar_id_externo.split('.')[0]
+                    id_externo = f.forzar_id_externo.split('.')[1]
+                    cr.execute("SELECT id FROM ir_model_data WHERE name = '%s' AND module='%s'" % (id_externo, modulo))
+                    if not cr.fetchone():
+                        cr.execute("SELECT id FROM ir_model_fields WHERE model='%s' AND name='%s'" % (self._name, k))
+                        field_model_id = cr.fetchone()
+                        if field_model_id:
+                            cr.execute("UPDATE ir_model_data SET name='%s' WHERE model='ir.model.fields' AND res_id='%s'" % (id_externo, field_model_id[0]))
+                    
         else:
             cr.execute("SELECT relname FROM pg_class WHERE relkind IN ('r','v') AND relname=%s", (self._table,))
             create = not bool(cr.fetchone())
