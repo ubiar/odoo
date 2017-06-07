@@ -288,7 +288,7 @@ class account_invoice(models.Model):
         readonly=True, states={'draft': [('readonly', False)]}, default=0.0)
 
     reconciled = fields.Boolean(string='Paid/Reconciled',
-        store=True, readonly=True, compute='_compute_reconciled',
+        store=True, readonly=True, compute='_compute_reconciled', compute_sudo=True,
         help="It indicates that the invoice has been paid and the journal entry of the invoice has been reconciled with one or several journal entries of payment.")
     partner_bank_id = fields.Many2one('res.partner.bank', string='Bank Account',
         help='Bank Account Number to which the invoice will be paid. A Company bank account if this is a Customer Invoice or Supplier Refund, otherwise a Partner bank account number.',
@@ -297,7 +297,7 @@ class account_invoice(models.Model):
     move_lines = fields.Many2many('account.move.line', string='Entry Lines',
         compute='_compute_move_lines')
     residual = fields.Float(string='Balance', digits=dp.get_precision('Account'),
-        compute='_compute_residual', store=True,
+        compute='_compute_residual', store=True, compute_sudo=True,
         help="Remaining amount due.")
     payment_ids = fields.Many2many('account.move.line', string='Payments',
         compute='_compute_payments')

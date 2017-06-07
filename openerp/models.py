@@ -6049,14 +6049,24 @@ class BaseModel(object):
         if result and result.get('value'):
             for name, val in result.get('value').iteritems():
                 if val and self._fields[name].type == 'many2one' and type(val) == int:
-                    result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                    field_context = {}
+                    try:
+                        field_context = eval(self._fields[name].context)
+                    except Exception, e:
+                        pass
+                    result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).with_context(field_context).name_get()[0]
                 if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
                     self_rel = self.env[self._fields[name].comodel_name]
+                    field_context = {}
+                    try:
+                        field_context = eval(self._fields[name].context)
+                    except Exception, e:
+                        pass
                     for va in val:
                         if va and type(va) in (list, tuple) and len(va) == 3 and type(va[2]) == dict:
                             for n, v in va[2].iteritems():
                                 if v and self_rel._fields[n].type == 'many2one' and type(v) == int:
-                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
+                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).with_context(field_context).name_get()[0]
         return result
 
     # Agregado por UBIAR

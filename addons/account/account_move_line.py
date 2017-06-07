@@ -1244,7 +1244,7 @@ class account_move_line(osv.osv):
             todo_date = vals['date']
             del vals['date']
 
-        for line in self.browse(cr, uid, ids, context=context):
+        for line in self.browse(cr, SUPERUSER_ID, ids, context=context):
             ctx = context.copy()
             if not ctx.get('journal_id'):
                 if line.move_id:
@@ -1265,7 +1265,7 @@ class account_move_line(osv.osv):
 
         if affects_move and check and not context.get('novalidate'):
             done = []
-            for line in self.browse(cr, uid, ids):
+            for line in self.browse(cr, SUPERUSER_ID, ids):
                 if line.move_id.id not in done:
                     done.append(line.move_id.id)
                     move_obj.validate(cr, uid, [line.move_id.id], context)
