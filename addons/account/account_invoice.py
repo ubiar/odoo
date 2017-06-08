@@ -169,6 +169,11 @@ class account_invoice(models.Model):
                 lines = self.env['account.move.line']
             partial_lines += data_line
             self.move_lines = lines - partial_lines
+            
+    @api.depends('partner_id')
+    def _fnc_commercial_partner_id(self):
+        for obj in self:
+            obj.commercial_partner_id = obj.partner_id.commercial_partner_id
 
     @api.one
     @api.depends(
@@ -283,7 +288,7 @@ class account_invoice(models.Model):
         readonly=True, states={'draft': [('readonly', False)]}, default=0.0)
 
     reconciled = fields.Boolean(string='Paid/Reconciled',
-        store=True, readonly=True, compute='_compute_reconciled',
+        store=True, readonly=True, compute='_compute_reconciled', compute_sudo=True,
         help="It indicates that the invoice has been paid and the journal entry of the invoice has been reconciled with one or several journal entries of payment.")
     partner_bank_id = fields.Many2one('res.partner.bank', string='Bank Account',
         help='Bank Account Number to which the invoice will be paid. A Company bank account if this is a Customer Invoice or Supplier Refund, otherwise a Partner bank account number.',
@@ -292,7 +297,7 @@ class account_invoice(models.Model):
     move_lines = fields.Many2many('account.move.line', string='Entry Lines',
         compute='_compute_move_lines')
     residual = fields.Float(string='Balance', digits=dp.get_precision('Account'),
-        compute='_compute_residual', store=True,
+        compute='_compute_residual', store=True, compute_sudo=True,
         help="Remaining amount due.")
     payment_ids = fields.Many2many('account.move.line', string='Payments',
         compute='_compute_payments')
@@ -304,7 +309,7 @@ class account_invoice(models.Model):
     fiscal_position = fields.Many2one('account.fiscal.position', string='Fiscal Position',
         readonly=True, states={'draft': [('readonly', False)]})
     commercial_partner_id = fields.Many2one('res.partner', string='Commercial Entity',
-        related='partner_id.commercial_partner_id', store=True, readonly=True,
+        compute=_fnc_commercial_partner_id, store=True, readonly=True,
         help="The commercial entity that will be used on Journal Entries for this invoice")
     precio_unitario_con_iva = fields.Boolean('Los precios unitarios son con I.V.A.')
 

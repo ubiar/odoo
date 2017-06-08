@@ -11880,7 +11880,7 @@ msgstr ""
 #: code:addons/account/account_move_line.py:1174
 #: code:addons/account/account_move_line.py:1258
 #, python-format
-msgid "You cannot use an inactive account."
+msgid "You cannot use an inactive account (%s)"
 msgstr ""
 
 #. module: account

@@ -126,6 +126,7 @@ class _column(object):
         'deprecated',           # Optional deprecation warning
         '_args',
         '_prefetch',
+        'forzar_id_externo',
     ]
 
     def __init__(self, string='unknown', required=False, readonly=False, domain=[], context={}, states=None, priority=0, change_default=False, size=None, ondelete=None, translate=False, select=False, manual=False, **args):
@@ -157,6 +158,7 @@ class _column(object):
         args['group_operator'] = args.get('group_operator', None)
         args['groups'] = args.get('groups', None)
         args['deprecated'] = args.get('deprecated', None)
+        args['forzar_id_externo'] = args.get('forzar_id_externo', False)
         args['_prefetch'] = args.get('_prefetch', True)
 
         self._args = EMPTY_DICT
@@ -221,6 +223,7 @@ class _column(object):
             ('groups', self.groups),
             ('change_default', self.change_default),
             ('deprecated', self.deprecated),
+            ('forzar_id_externo', self.forzar_id_externo),
         ]
         truthy_items = filter(itemgetter(1), [
             ('group_operator', self.group_operator),

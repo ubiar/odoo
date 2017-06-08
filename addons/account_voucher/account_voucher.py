@@ -731,13 +731,13 @@ class account_voucher(osv.osv):
                 account_type = 'receivable'
 
         if not context.get('move_line_ids', False):
-            # Ubiar - Modificado para que traiga las FC/ND de Proovedor en Recibos y las FC/ND de Cliente en Pagos
+            # Ubiar - Modificado para que traiga las FC/ND/RC de Proovedor en Recibos y las FC/ND/RC de Cliente en Pagos
             domain_base = [('state','=','valid'), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')]
             ids = move_line_pool.search(cr, uid, [('account_id.type', '=', account_type)] + domain_base, context=context)
             if account_type == 'receivable':
-                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable'), ('tipo', '=', 'haber')] + domain_base, context=context)
+                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable')] + domain_base, context=context)
             else:
-                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable'), ('tipo', '=', 'debe')] + domain_base, context=context)
+                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable')] + domain_base, context=context)
         else:
             ids = context['move_line_ids']
         invoice_id = context.get('invoice_id', False)
@@ -807,7 +807,14 @@ class account_voucher(osv.osv):
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 amount_original = currency_pool.compute(cr, uid, company_currency, currency_id, line.credit or line.debit or 0.0, context=context_multi_currency)
-                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(line.amount_residual) - (aml_lp.get(line.id) or 0), context=context_multi_currency)
+                amount_residual = 0
+                if line.reconcile_partial_id and 'diferencia_conciliacion_parcial' in line:
+                    amount_residual = line.diferencia_conciliacion_parcial
+                else:
+                    amount_residual = line.amount_residual
+                amount_unreconciled = currency_pool.compute(cr, uid, company_currency, currency_id, abs(amount_residual) - (aml_lp.get(line.id) or 0), context=context_multi_currency)
+            if not amount_unreconciled:
+                continue
             line_currency_id = line.currency_id and line.currency_id.id or company_currency
             rs = {
                 'name':line.move_id.name,

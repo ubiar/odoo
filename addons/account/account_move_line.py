@@ -1232,7 +1232,7 @@ class account_move_line(osv.osv):
         if vals.get('account_tax_id', False):
             raise UserError(_('You cannot change the tax, you should remove and recreate lines.'))
         if ('account_id' in vals) and not account_obj.read(cr, uid, vals['account_id'], ['active'])['active']:
-            raise UserError(_('You cannot use an inactive account.'))
+            raise UserError(_('You cannot use an inactive account (%s)') % account_obj.read(cr, uid, [vals['account_id']], ['name'])[0]['name'])
 
         affects_move = any(f in vals for f in ('account_id', 'journal_id', 'period_id', 'move_id', 'debit', 'credit', 'date'))
 
@@ -1244,7 +1244,7 @@ class account_move_line(osv.osv):
             todo_date = vals['date']
             del vals['date']
 
-        for line in self.browse(cr, uid, ids, context=context):
+        for line in self.browse(cr, SUPERUSER_ID, ids, context=context):
             ctx = context.copy()
             if not ctx.get('journal_id'):
                 if line.move_id:
@@ -1265,7 +1265,7 @@ class account_move_line(osv.osv):
 
         if affects_move and check and not context.get('novalidate'):
             done = []
-            for line in self.browse(cr, uid, ids):
+            for line in self.browse(cr, SUPERUSER_ID, ids):
                 if line.move_id.id not in done:
                     done.append(line.move_id.id)
                     move_obj.validate(cr, uid, [line.move_id.id], context)
@@ -1320,7 +1320,7 @@ class account_move_line(osv.osv):
             if move.date and not vals.get('date'):
                 vals['date'] = move.date
         if ('account_id' in vals) and not account_obj.read(cr, uid, [vals['account_id']], ['active'])[0]['active']:
-            raise UserError(_('You cannot use an inactive account.'))
+            raise UserError(_('You cannot use an inactive account (%s)') % account_obj.read(cr, uid, [vals['account_id']], ['name'])[0]['name'])
         if 'journal_id' in vals and vals['journal_id']:
             context['journal_id'] = vals['journal_id']
         if 'period_id' in vals and vals['period_id']:

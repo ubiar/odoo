@@ -317,6 +317,8 @@ class Field(object):
         'computed_fields': (),          # fields computed with the same method as self
         'related_field': None,          # corresponding related field
         '_triggers': (),                # invalidation and recomputation triggers
+        
+        'forzar_id_externo': False,     # fuerza a establecerle ese id externo para solucionar los casos en que el generado es invalido ya que tiene el id del campo de la BD y no se respeta en todas las bases de datos
     }
 
     def __init__(self, string=None, **kwargs):
@@ -732,6 +734,7 @@ class Field(object):
     _column_groups = property(attrgetter('groups'))
     _column_change_default = property(attrgetter('change_default'))
     _column_deprecated = property(attrgetter('deprecated'))
+    _column_forzar_id_externo = property(attrgetter('forzar_id_externo'))
 
     ############################################################################
     #
@@ -1086,6 +1089,8 @@ class Float(Field):
 
     def convert_to_cache(self, value, record, validate=True):
         # apply rounding here, otherwise value in cache may be wrong!
+        if type(value) == dict:
+            value = value.get(self.name) or 0.0
         value = float(value or 0.0)
         digits = self.digits
         return float_round(value, precision_digits=digits[1]) if digits else value

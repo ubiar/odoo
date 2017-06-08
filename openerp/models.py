@@ -2730,7 +2730,9 @@ class BaseModel(object):
                                     default_stored_fields_func.append(getattr(f, 'default_store'))
                                 else:
                                     stored_fields.append(self._fields[k])
-
+                            elif k in self._fields and hasattr(f, 'default_store'): # Tambien se puede utilizar para inicializar campos nuevos
+                                default_stored_fields_func.append(getattr(f, 'default_store'))
+                            
                             # and add constraints if needed
                             if isinstance(f, fields.many2one) or (isinstance(f, fields.function) and f._type == 'many2one' and f.store):
                                 if f._obj not in self.pool:
@@ -2755,7 +2757,23 @@ class BaseModel(object):
                                         "ALTER TABLE %s ALTER COLUMN %s SET NOT NULL"
                                     _logger.warning(msg, k, self._table, self._table, k, exc_info=False) # Ubiar, se modifico ya que aunque queden valores nulos se tiene que poder realizar el update normalmente
                             cr.commit()
-
+                # Ubiar, Esto se hizo porque el sistema intentaba crear dos ids externos con el mismo nombre, entonces al id externo del primero lo 
+                # llamaba field_xxxx_(id del campo dependiendo de la BD) entonces la unica forma de corregir estos casos
+                # es modificando el id externo para establecer uno generico que no dependa del id de la BD
+                if f.forzar_id_externo:
+                    if type(f.forzar_id_externo) != str:
+                        raise ValueError(_('The value for the field %s (%s) is invalid, it should be a string') % (k, self._name))
+                    if f.forzar_id_externo.count('.') != 1:
+                        raise ValueError(_('The value for the field %s (%s) is invalid, it must have one . separating the model and the key') % (k, self._name))
+                    modulo = f.forzar_id_externo.split('.')[0]
+                    id_externo = f.forzar_id_externo.split('.')[1]
+                    cr.execute("SELECT id FROM ir_model_data WHERE name = '%s' AND module='%s'" % (id_externo, modulo))
+                    if not cr.fetchone():
+                        cr.execute("SELECT id FROM ir_model_fields WHERE model='%s' AND name='%s'" % (self._name, k))
+                        field_model_id = cr.fetchone()
+                        if field_model_id:
+                            cr.execute("UPDATE ir_model_data SET name='%s' WHERE model='ir.model.fields' AND res_id='%s'" % (id_externo, field_model_id[0]))
+                    
         else:
             cr.execute("SELECT relname FROM pg_class WHERE relkind IN ('r','v') AND relname=%s", (self._table,))
             create = not bool(cr.fetchone())
@@ -3262,6 +3280,9 @@ class BaseModel(object):
         fields = self.check_field_access_rights('read', fields)
         if self._name == 'res.users': # Como en los usuarios no heredan las reglas, puede que tenga funciones calculadas del partner las cuales darian error de permisos
             self = self.sudo()
+            
+        if self._context.get('_fast_read_ubiar') and fields:
+            return self._fast_read_ubiar(fields)
 
         # split fields into stored and computed fields
         stored, inherited, computed = [], [], []
@@ -5954,7 +5975,10 @@ class BaseModel(object):
         # load fields on secondary records, to avoid false changes
         with env.do_in_onchange():
             for field_seq in secondary:
-                record.mapped(field_seq)
+                try:
+                    record.mapped(field_seq)
+                except MissingError as e: 
+                    secondary.remove(field_seq)
 
         # determine which field(s) should be triggered an onchange
         todo = list(names) or list(values)
@@ -5987,7 +6011,10 @@ class BaseModel(object):
 
                 # force re-evaluation of function fields on secondary records
                 for field_seq in secondary:
-                    record.mapped(field_seq)
+                    try:
+                        record.mapped(field_seq)
+                    except MissingError as e: 
+                        secondary.remove(field_seq)
 
                 # determine which fields have been modified
                 for name, oldval in values.iteritems():
@@ -6023,14 +6050,24 @@ class BaseModel(object):
         if result and result.get('value'):
             for name, val in result.get('value').iteritems():
                 if val and self._fields[name].type == 'many2one' and type(val) == int:
-                    result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                    field_context = {}
+                    try:
+                        field_context = eval(self._fields[name].context)
+                    except Exception, e:
+                        pass
+                    result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).with_context(field_context).name_get()[0]
                 if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
                     self_rel = self.env[self._fields[name].comodel_name]
+                    field_context = {}
+                    try:
+                        field_context = eval(self._fields[name].context)
+                    except Exception, e:
+                        pass
                     for va in val:
                         if va and type(va) in (list, tuple) and len(va) == 3 and type(va[2]) == dict:
                             for n, v in va[2].iteritems():
                                 if v and self_rel._fields[n].type == 'many2one' and type(v) == int:
-                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
+                                    va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).with_context(field_context).name_get()[0]
         return result
 
     # Agregado por UBIAR

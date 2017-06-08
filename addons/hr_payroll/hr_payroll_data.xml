@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data noupdate="1">
+        <!-- Comentado por Ubiar
+        
         <record id="contrib_register_employees" model="hr.contribution.register">
             <field name="name">Employees</field>
             <field name="partner_id" eval="False"/>
@@ -68,14 +70,15 @@
         </record>
 
 
-        <!-- Salary Structure -->
 
-         <record id="structure_base" model="hr.payroll.structure">
+        <record id="structure_base" model="hr.payroll.structure">
             <field name="code">BASE</field>
             <field name="name">Base for new structures</field>
             <field eval="[(6, 0, [ref('hr_rule_basic'), ref('hr_rule_taxable'),ref('hr_rule_net')])]" name="rule_ids"/>
             <field name="company_id" ref="base.main_company"/>
         </record>
+        
+        -->
 
         <!-- Decimal Precision -->
 

@@ -54,7 +54,7 @@ Generic Payroll system.
         'hr_payroll_workflow.xml',
         'hr_payroll_sequence.xml',
         'hr_payroll_report.xml',
-        #'hr_payroll_data.xml', Comentado por Ubiar
+        'hr_payroll_data.xml',
         'security/ir.model.access.csv',
         'wizard/hr_payroll_contribution_register_report.xml',
         'res_config_view.xml',
