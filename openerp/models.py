@@ -727,9 +727,10 @@ class BaseModel(object):
                 attrs['comodel_name'] = field['relation']
                 _rel1 = field['relation'].replace('.', '_')
                 _rel2 = field['model'].replace('.', '_')
-                attrs['relation'] = 'x_%s_%s_%s_rel' % (_rel1, _rel2, name)
-                attrs['column1'] = 'id1'
-                attrs['column2'] = 'id2'
+                
+                attrs['relation'] = field.get('relation_table') or 'x_%s_%s_%s_rel' % (_rel1, _rel2, name)
+                attrs['column1'] = field.get('column1') or 'id1'
+                attrs['column2'] = field.get('column2') or 'id2'
                 domain = None
                 try:
                     domain = eval(field['domain']) if field['domain'] else None
