@@ -236,7 +236,7 @@ class account_move_line(osv.osv):
                 acc_ana_line_obj.unlink(cr,uid,[obj.id for obj in obj_line.analytic_lines])
             if obj_line.analytic_account_id:
                 if not obj_line.journal_id.analytic_journal_id:
-                    raise UserError(("You have to define an analytic journal on the '%s' journal!") % (obj_line.journal_id.name, ))
+                    raise UserError(_("You have to define an analytic journal on the '%s' journal!") % (obj_line.journal_id.name, ))
                 vals_line = self._prepare_analytic_line(cr, uid, obj_line, context=context)
                 acc_ana_line_obj.create(cr, uid, vals_line)
         return True
