@@ -21,6 +21,7 @@
 
 import time
 
+from openerp import SUPERUSER_ID
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
@@ -324,7 +325,7 @@ class hr_analytic_timesheet(osv.osv):
         if not account_id:
             return res
         res.setdefault('value',{})
-        acc = self.pool.get('account.analytic.account').browse(cr, uid, account_id)
+        acc = self.pool.get('account.analytic.account').browse(cr, SUPERUSER_ID, account_id)
         st = acc.to_invoice.id
         res['value']['to_invoice'] = st or False
         if acc.state=='pending':
