@@ -339,8 +339,12 @@ class ir_model_fields(osv.osv):
             # to specify the relation table in the interface for custom fields
             # TODO master: maybe use ir.model.relations for custom fields
             if field.state == 'manual' and field.ttype == 'many2many':
-                rel_name = model._fields[field.name].relation
-                cr.execute('DROP table "%s"' % (rel_name))
+                try:
+                    rel_name = model._fields[field.name].relation
+                    cr.execute('DROP TABLE IF EXISTS "%s"' % (rel_name))
+                except Exception, e:
+                    return True
+            
             model._pop_field(field.name)
 
         return True
