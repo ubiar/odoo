@@ -1577,7 +1577,7 @@ class account_move(osv.osv):
 
                 obj_move_line.write(cr, uid, line_draft_ids, {
                     'state': 'valid'
-                }, context, check=False)
+                }, context=context, check=False)
 
                 account = {}
                 account2 = {}
