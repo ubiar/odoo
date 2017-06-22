@@ -48,6 +48,7 @@ class ir_rule(osv.osv):
     def _domain_force_get(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         eval_context = self._eval_context(cr, uid)
+        eval_context['mode'] = context and context.get('rule_mode')
         for rule in self.browse(cr, uid, ids, context):
             if rule.domain_force:
                 res[rule.id] = expression.normalize_domain(eval(rule.domain_force, eval_context))
@@ -132,7 +133,7 @@ class ir_rule(osv.osv):
                 if context and context.get('disable_rules') and rule.code and rule.code in context.get('disable_rules'):
                     continue
                 # read 'domain' as UID to have the correct eval context for the rule.
-                rule_domain = self.read(cr, uid, [rule.id], ['domain'])[0]['domain']
+                rule_domain = self.read(cr, uid, [rule.id], ['domain'], context={'rule_mode': mode})[0]['domain']
                 dom = expression.normalize_domain(rule_domain)
                 for group in rule.groups:
                     if group in user.groups_id:

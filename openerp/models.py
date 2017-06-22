@@ -6050,17 +6050,17 @@ class BaseModel(object):
         if result and result.get('value'):
             for name, val in result.get('value').iteritems():
                 if val and self._fields[name].type == 'many2one' and type(val) == int:
-                    field_context = {}
+                    field_context = self._context.copy()
                     try:
-                        field_context = eval(self._fields[name].context)
+                        field_context.update(eval(self._fields[name].context))
                     except Exception, e:
                         pass
                     result['value'][name] = self.env[self._fields[name].comodel_name].sudo().browse(val).with_context(field_context).name_get()[0]
                 if val and self._fields[name].type == 'one2many' and type(val) in (list, tuple):
                     self_rel = self.env[self._fields[name].comodel_name]
-                    field_context = {}
+                    field_context = self._context.copy()
                     try:
-                        field_context = eval(self._fields[name].context)
+                        field_context.update(eval(self._fields[name].context))
                     except Exception, e:
                         pass
                     for va in val:
