@@ -92,7 +92,7 @@ class res_partner_bank(osv.osv):
         if (vals.get('state',False)=='iban') and vals.get('acc_number', False):
             vals['acc_number'] = _format_iban(vals['acc_number'])
             vals['acc_number'] = _pretty_iban(vals['acc_number'])
-        return super(res_partner_bank, self).write(cr, uid, ids, vals, context)
+        return super(res_partner_bank, self).write(cr, uid, ids, vals, context=context)
 
     def is_iban_valid(self, cr, uid, iban, context=None):
         """ Check if IBAN is valid or not
