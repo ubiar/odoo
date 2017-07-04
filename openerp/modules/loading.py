@@ -280,7 +280,7 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # openerp.modules.registry.RegistryManager.new().
         registry = openerp.registry(cr.dbname)
 
-        update_ubiar = tools.config['update']
+        update_ubiar = tools.config['update'] in ['base', 'all']
         if 'base' in tools.config['update'] or 'all' in tools.config['update']:
             cr.execute("update ir_module_module set state=%s where name=%s and state=%s", ('to upgrade', 'base', 'installed'))
 
