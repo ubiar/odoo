@@ -192,8 +192,8 @@ class project(osv.osv):
             if proj.analytic_account_id and not proj.analytic_account_id.line_ids:
                 analytic_account_to_delete.add(proj.analytic_account_id.id)
         res = super(project, self).unlink(cr, uid, ids, context=context)
-        mail_alias.unlink(cr, uid, alias_ids, context=context)
-        self.pool['account.analytic.account'].unlink(cr, uid, list(analytic_account_to_delete), context=context)
+        mail_alias.unlink(cr, SUPERUSER_ID, alias_ids, context=context)
+        self.pool['account.analytic.account'].unlink(cr, SUPERUSER_ID, list(analytic_account_to_delete), context=context)
         return res
 
     def _get_attached_docs(self, cr, uid, ids, field_name, arg, context):

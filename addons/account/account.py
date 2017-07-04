@@ -833,8 +833,8 @@ class account_journal(osv.osv):
         if not 'sequence_id' in vals or not vals['sequence_id']:
             # if we have the right to create a journal, we should be able to
             # create it's sequence.
-            vals.update({'sequence_id': self.create_sequence(cr, SUPERUSER_ID, vals, context)})
-        return super(account_journal, self).create(cr, uid, vals, context)
+            vals.update({'sequence_id': self.create_sequence(cr, SUPERUSER_ID, vals, context=context)})
+        return super(account_journal, self).create(cr, uid, vals, context=context)
 
     def name_get(self, cr, user, ids, context=None):
         """
@@ -1148,7 +1148,7 @@ class account_journal_period(osv.osv):
         if period_id:
             period = self.pool.get('account.period').browse(cr, uid, period_id, context=context)
             vals['state']=period.state
-        return super(account_journal_period, self).create(cr, uid, vals, context)
+        return super(account_journal_period, self).create(cr, uid, vals, context=context)
 
     def unlink(self, cr, uid, ids, context=None):
         self._check(cr, uid, ids, context=context)
@@ -1319,7 +1319,7 @@ class account_move(osv.osv):
         if context is None:
             context = {}
         invoice = context.get('invoice', False)
-        valid_moves = self.validate(cr, uid, ids, context)
+        valid_moves = self.validate(cr, uid, ids, context=context)
 
         if not valid_moves:
             raise UserError(_('You cannot validate a non-balanced entry.\nMake sure you have configured payment terms properly.\nThe latest payment term line should be of the "Balance" type.'))
@@ -1432,10 +1432,10 @@ class account_move(osv.osv):
             line_ids = map(lambda x: x.id, move.line_id)
             context['journal_id'] = move.journal_id.id
             context['period_id'] = move.period_id.id
-            obj_move_line._update_check(cr, uid, line_ids, context)
+            obj_move_line._update_check(cr, uid, line_ids, context=context)
             obj_move_line.unlink(cr, uid, line_ids, context=context)
             toremove.append(move.id)
-        result = super(account_move, self).unlink(cr, uid, toremove, context)
+        result = super(account_move, self).unlink(cr, uid, toremove, context=context)
         return result
 
     def _compute_balance(self, cr, uid, id, context=None):
@@ -1481,7 +1481,7 @@ class account_move(osv.osv):
                 'date': move.period_id.date_stop,
                 'debit': 0.0,
                 'credit': 0.0,
-            }, context)
+            }, context=context)
 
         # find the first line of this move with the other mode
         # so that we can exclude it from our calculation
@@ -1524,7 +1524,7 @@ class account_move(osv.osv):
                         'credit': 0.0,
                         'currency_id': row['currency_id'],
                         'amount_currency': amount_currency,
-                    }, context)
+                    }, context=context)
 
         return True
 
@@ -1540,7 +1540,7 @@ class account_move(osv.osv):
         obj_move_line = self.pool.get('account.move.line')
         obj_precision = self.pool.get('decimal.precision')
         prec = obj_precision.precision_get(cr, uid, 'Account')
-        for move in self.browse(cr, uid, ids, context):
+        for move in self.browse(cr, uid, ids, context=context):
             journal = move.journal_id
             amount = 0
             line_ids = []
@@ -1768,7 +1768,7 @@ class account_tax_code(osv.osv):
             if pids:
                 where = ' AND line.period_id IN %s AND move.state IN %s '
                 where_params = (tuple(pids), move_state)
-        return self._sum(cr, uid, ids, name, args, context,
+        return self._sum(cr, uid, ids, name, args, context=context,
                 where=where, where_params=where_params)
 
     def _sum_period(self, cr, uid, ids, name, args, context):
@@ -2499,12 +2499,12 @@ class account_subscription_line(osv.osv):
             data = {
                 'date': line.date,
             }
-            move_ids = obj_model.generate(cr, uid, [line.subscription_id.model_id.id], data, context)
+            move_ids = obj_model.generate(cr, uid, [line.subscription_id.model_id.id], data, context=context)
             tocheck[line.subscription_id.id] = True
             self.write(cr, uid, [line.id], {'move_id':move_ids[0]})
             all_moves.extend(move_ids)
         if tocheck:
-            self.pool.get('account.subscription').check(cr, uid, tocheck.keys(), context)
+            self.pool.get('account.subscription').check(cr, uid, tocheck.keys(), context=context)
         return all_moves
 
     _rec_name = 'date'
