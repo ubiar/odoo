@@ -236,8 +236,9 @@ class account_voucher(osv.osv):
             for l in voucher.line_cr_ids:
                 credit += l.amount
             currency = voucher.currency_id or voucher.company_id.currency_id
-            total_compensaciones = 'total_compensaciones' in voucher and voucher.total_compensaciones
-            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - total_compensaciones - sign * (credit - debit))
+            total_compensaciones = 'total_compensaciones' in voucher and voucher.total_compensaciones or 0
+            total_descuentos_recargos = 'total_descuentos_recargos' in voucher and voucher.total_descuentos_recargos or 0
+            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - total_compensaciones - total_descuentos_recargos - sign * (credit - debit))
         return res
 
     def _paid_amount_in_company_currency(self, cr, uid, ids, name, args, context=None):
