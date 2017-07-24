@@ -1582,7 +1582,6 @@ class Reports(http.Controller):
     @serialize_exception
     def index(self, action, token):
         action = simplejson.loads(action)
-
         report_srv = request.session.proxy("report")
         context = dict(request.context)
         context.update(action["context"])
@@ -1616,6 +1615,9 @@ class Reports(http.Controller):
         report_mimetype = self.TYPES_MAPPING.get(
             report_struct['format'], 'octet-stream')
         file_name = action.get('name', 'report')
+        # Agregado por ubiar
+        if action.get('id') and report_ids and len(report_ids) == 1:
+            file_name = request.session.model('ir.actions.report.xml').get_name_obj(action.get('id'), report_ids[0]) or file_name
         if 'name' not in action:
             reports = request.session.model('ir.actions.report.xml')
             res_id = reports.search([('report_name', '=', action['report_name']),],

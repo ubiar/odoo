@@ -56,7 +56,6 @@ class ReportController(Controller):
             if data_context.get('lang'):
                 del data_context['lang']
             context.update(data_context)
-
         if converter == 'html':
             html = report_obj.get_html(cr, uid, docids, reportname, data=options_data, context=context)
             return request.make_response(html)
