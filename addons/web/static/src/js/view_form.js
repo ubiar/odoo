@@ -2811,7 +2811,7 @@ instance.web.DateTimeWidget = instance.web.Widget.extend({
         }
     },
     change_datetime: function(e) {
-        if ((e.type !== "keypress" || e.which === 13) && this.is_valid_()) {
+        if (this.is_valid_()) {
             this.set_value_from_ui_();
             this.trigger("datetime_changed");
         }
@@ -2871,7 +2871,13 @@ instance.web.form.FieldDatetime = instance.web.form.AbstractField.extend(instanc
         if (!this.get("effective_readonly")) {
             this.datewidget.$input.css('height', height);
         }
-    }
+    },
+    commit_value: function () {
+        if (this.datewidget){
+            this.datewidget.change_datetime();
+        }
+        return this._super();
+    },
 });
 
 instance.web.form.FieldDate = instance.web.form.FieldDatetime.extend({

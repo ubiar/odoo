@@ -236,8 +236,13 @@ class account_voucher(osv.osv):
             for l in voucher.line_cr_ids:
                 credit += l.amount
             currency = voucher.currency_id or voucher.company_id.currency_id
-            total_compensaciones = 'total_compensaciones' in voucher and voucher.total_compensaciones
-            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - total_compensaciones - sign * (credit - debit))
+            total_compensaciones = 'total_compensaciones' in voucher and voucher.total_compensaciones or 0
+            total_descuentos_recargos = 'total_descuentos_recargos' in voucher and voucher.total_descuentos_recargos or 0
+            total_intereses_abonados = 0
+            if 'intereses_abonados' in voucher.line_cr_ids:
+                for line in voucher.line_cr_ids:
+                    total_intereses_abonados += line.intereses_abonados
+            res[voucher.id] =  currency_obj.round(cr, uid, currency, voucher.amount - total_compensaciones - total_descuentos_recargos + total_intereses_abonados - sign * (credit - debit))
         return res
 
     def _paid_amount_in_company_currency(self, cr, uid, ids, name, args, context=None):
@@ -816,6 +821,9 @@ class account_voucher(osv.osv):
             if not amount_unreconciled:
                 continue
             line_currency_id = line.currency_id and line.currency_id.id or company_currency
+            intereses = 0
+            if 'intereses' in line:
+                amount_unreconciled += line.intereses
             rs = {
                 'name':line.move_id.name,
                 'type': line.credit and 'dr' or 'cr',
@@ -1526,17 +1534,21 @@ class account_voucher_line(osv.osv):
             importe_en_liquidaciones = 0.0
             if 'importe_en_liquidaciones' in line:
                 importe_en_liquidaciones = line.importe_en_liquidaciones
+            intereses = 0.0
+            if 'intereses' in line.move_line_id:
+                intereses = line.move_line_id.intereses
+            if 'intereses_abonados' in line:
+                intereses -= line.intereses_abonados
             if not move_line:
                 res['amount_original'] = 0.0
                 res['amount_unreconciled'] = 0.0
             elif move_line.currency_id and voucher_currency==move_line.currency_id.id:
                 res['amount_original'] = abs(move_line.amount_currency)
-                res['amount_unreconciled'] = abs(move_line.amount_residual_currency) - importe_en_liquidaciones
+                res['amount_unreconciled'] = abs(move_line.amount_residual_currency) - importe_en_liquidaciones + intereses
             else:
                 #always use the amount booked in the company currency as the basis of the conversion into the voucher currency
                 res['amount_original'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, move_line.credit or move_line.debit or 0.0, context=ctx)
-                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual) - importe_en_liquidaciones, context=ctx)
-
+                res['amount_unreconciled'] = currency_pool.compute(cr, uid, company_currency, voucher_currency, abs(move_line.amount_residual) - importe_en_liquidaciones + intereses, context=ctx)
             rs_data[line.id] = res
         return rs_data
 

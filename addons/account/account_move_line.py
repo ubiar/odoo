@@ -1261,14 +1261,14 @@ class account_move_line(osv.osv):
                 journal = journal_obj.browse(cr, uid, ctx['journal_id'], context=ctx)
                 if journal.centralisation:
                     self._check_moves(cr, uid, context=ctx)
-        result = super(account_move_line, self).write(cr, uid, ids, vals, context)
+        result = super(account_move_line, self).write(cr, uid, ids, vals, context=context)
 
         if affects_move and check and not context.get('novalidate'):
             done = []
             for line in self.browse(cr, SUPERUSER_ID, ids):
                 if line.move_id.id not in done:
                     done.append(line.move_id.id)
-                    move_obj.validate(cr, uid, [line.move_id.id], context)
+                    move_obj.validate(cr, uid, [line.move_id.id], context=context)
                     if todo_date:
                         move_obj.write(cr, uid, [line.move_id.id], {'date': todo_date}, context=context)
         return result
