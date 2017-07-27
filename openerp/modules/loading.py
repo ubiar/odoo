@@ -279,10 +279,11 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # This is a brand new registry, just created in
         # openerp.modules.registry.RegistryManager.new().
         registry = openerp.registry(cr.dbname)
-
-        update_ubiar = tools.config['update'] in ['base', 'all']
+        
+        update_ubiar = False
         if 'base' in tools.config['update'] or 'all' in tools.config['update']:
             cr.execute("update ir_module_module set state=%s where name=%s and state=%s", ('to upgrade', 'base', 'installed'))
+            update_ubiar = True
 
         # STEP 1: LOAD BASE (must be done before module dependencies can be computed for later steps) 
         graph = openerp.modules.graph.Graph()
