@@ -162,6 +162,7 @@ class mail_notification(osv.Model):
             'company': company,
             'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/'>Advance ERP</a>"
         })
+        signature_company = ''
         footer = tools.append_content_to_html(footer, signature_company, plaintext=False, container_tag='div')
 
         return footer

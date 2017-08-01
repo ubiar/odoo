@@ -1704,6 +1704,10 @@ class mail_thread(osv.AbstractModel):
 
         # Post the message
         msg_id = mail_message.create(cr, uid, values, context=context)
+        # Modificado por Ubiar, al enviar el mensaje puede ser que se haya eliminado porque es un email
+        # y entonces ya no existe mas
+        if not mail_message.search(cr, uid, [('id', '=', msg_id)]):
+            return False
 
         # Post-process: subscribe author, update message_last_post
         if model and model != 'mail.thread' and thread_id and subtype_id:
