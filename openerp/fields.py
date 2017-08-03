@@ -831,7 +831,7 @@ class Field(object):
         try:
             res = record._cache[self]
         except AccessError, e:
-            raise AccessError(_("%s\nModel:%s Field: %s" % (e.name, self.model_name, self.name)))
+            raise AccessError(_("%s\nModelo:%s, Campo: %s, Registro: %s") % (e.name, self.model_name, self.name, record.sudo().name_get()))
         return res
 
     def __set__(self, record, value):
