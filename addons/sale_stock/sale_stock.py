@@ -363,7 +363,7 @@ class sale_order_line(osv.osv):
         res.update({'warning': warning})
         return res
 
-    def button_cancel(self, cr, uid, ids, context=None):
+    def button_cancel_deprecado_ubiar(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
         for procurement in lines.mapped('procurement_ids'):
             for move in procurement.move_ids:

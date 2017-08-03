@@ -904,6 +904,10 @@ class mail_message(osv.Model):
             cr, uid, newid, partners_to_notify=list(partners_to_notify), context=context,
             force_send=force_send, user_signature=user_signature
         )
+        # Modificado por Ubiar, al enviar el mensaje puede ser que se haya eliminado porque es un email
+        # y entonces ya no existe mas
+        if not self.search(cr, uid, [('id', '=', message.id)]):
+            return False
         message.refresh()
 
         # An error appear when a user receive a notification without notifying
