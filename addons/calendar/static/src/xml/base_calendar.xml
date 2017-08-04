@@ -17,9 +17,9 @@
     </t>
     <t t-name='notify_footer'>
         <br/><br/>
-        <button class='link2showed oe_highlight oe_form oe_button '><span>OK</span></button> 
-        <button class='link2event '>Details</button>
-        <button class='link2recall '>Snooze</button> 
+        <button class='link2showed oe_highlight oe_form oe_button '><span>Aceptar</span></button> 
+        <button class='link2event '>Detalles</button>
+        <button class='link2recall '>Reprogramar</button> 
     </t>
     <t t-name='m2mattendee_tag'>
         <div class="text-tag">
@@ -39,11 +39,11 @@
             </div>
             <div>               
                 <div class="invitation_block cal_meeting">
-                    <h2 class="cal_inline">Calendar Invitation</h2>                                
+                    <h2 class="cal_inline">Invitación a Reunión</h2>                                
                     <t t-if="invitation['current_attendee'].state != 'needsAction'">
                         <a t-attf-class="attendee_#{invitation['current_attendee'].state}">
-                            <b t-if="invitation['current_attendee'].state == 'accepted'">Yes I'm going.</b>
-                            <b t-if="invitation['current_attendee'].state == 'declined'">No I'm not going.</b>
+                            <b t-if="invitation['current_attendee'].state == 'accepted'">Asistencia confirmada.</b>
+                            <b t-if="invitation['current_attendee'].state == 'declined'">No asistiré.</b>
                         </a>                        
                     </t>
                     <br/><br/>
@@ -51,15 +51,15 @@
                     <br/>
                     <table class="">
                         <tr>
-                            <td class="cal_lable">When</td>
+                            <td class="cal_lable">Cuando</td>
                             <td> <t t-esc="invitation['meeting'].when"/></td>
                         </tr>
                         <tr>
-                            <td class="cal_lable">Where</td>
+                            <td class="cal_lable">Donde</td>
                             <td> <t t-esc="invitation['meeting'].where or '-'"/></td>
                         </tr>
                         <tr>
-                            <td class="cal_lable">Who</td>
+                            <td class="cal_lable">Asistentes</td>
                             <td>
                                 <t t-foreach="invitation['attendee']" t-as="att">
                                     <br/>
@@ -77,7 +77,7 @@
     <t t-extend="CalendarView.sidebar.responsible">
         <t t-jquery="span[t-attf-class*='color_filter']" t-operation="after">
             <t t-if="(filters_value.value != -1) &amp;&amp; (filters_value.is_remove != false)">
-                <i class="oe_remove_follower fa fa-close hidden" title="Remove this favorite from the list" t-att-data-id="filters_value.value"/>
+                <i class="oe_remove_follower fa fa-close hidden" title="Quitar este favorito de la lista" t-att-data-id="filters_value.value"/>
            </t>
         </t>
     </t>
