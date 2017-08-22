@@ -113,7 +113,7 @@ class AuthSignupHome(openerp.addons.web.controllers.main.Home):
         """ Shared helper that creates a res.partner out of a token """
         values = dict((key, qcontext.get(key)) for key in ('login', 'name', 'password'))
         assert any([k for k in values.values()]), "The form was not properly filled in."
-        assert values.get('password') == qcontext.get('confirm_password'), "Passwords do not match; please retype them."
+        assert values.get('password') == qcontext.get('confirm_password'), _("Las contraseñas ingresadas no coinciden.")
         values['lang'] = request.lang
         self._signup_with_values(qcontext.get('token'), values)
         request.cr.commit()
