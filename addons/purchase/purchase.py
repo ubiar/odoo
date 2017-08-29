@@ -290,18 +290,22 @@ class purchase_order(osv.osv):
                 'purchase.order': (_get_purchase_order, ['order_line'], 10),
             }
         ),
-        'amount_untaxed': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Untaxed Amount',
-            store={
-                'purchase.order.line': (_get_order, None, 10),
-            }, multi="sums", help="The amount without tax", track_visibility='always'),
-        'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Taxes',
-            store={
-                'purchase.order.line': (_get_order, None, 10),
-            }, multi="sums", help="The tax amount"),
-        'amount_total': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Total',
-            store={
-                'purchase.order.line': (_get_order, None, 10),
-            }, multi="sums", help="The total amount"),
+        # 'amount_untaxed': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Untaxed Amount',
+        #     store={
+        #         'purchase.order.line': (_get_order, None, 10),
+        #     }, multi="sums", help="The amount without tax", track_visibility='always'),
+        # 'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Taxes',
+        #     store={
+        #         'purchase.order.line': (_get_order, None, 10),
+        #     }, multi="sums", help="The tax amount"),
+        # 'amount_total': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Total',
+        #     store={
+        #         'purchase.order.line': (_get_order, None, 10),
+        #     }, multi="sums", help="The total amount"),
+        # Como se pisan con los metodos de la version 8 de la api genera un bug al tener los dos function en distintas versiones
+        'amount_untaxed': fields.float('Untaxed Amount', digits_compute=dp.get_precision('Account'), help="The amount without tax", readonly=True),
+        'amount_tax': fields.float('Taxes', digits_compute=dp.get_precision('Account'), help="The tax amount", readonly=True),
+        'amount_total': fields.float('Total', digits_compute=dp.get_precision('Account'), help="The total amount", readonly=True),
         'fiscal_position': fields.many2one('account.fiscal.position', 'Fiscal Position'),
         'payment_term_id': fields.many2one('account.payment.term', 'Payment Term', select=True),
         'incoterm_id': fields.many2one('stock.incoterms', 'Incoterm', help="International Commercial Terms are a series of predefined commercial terms used in international transactions."),
@@ -1019,7 +1023,9 @@ class purchase_order_line(osv.osv):
         'product_id': fields.many2one('product.product', 'Product', domain=[('purchase_ok','=',True)], change_default=True),
         'move_ids': fields.one2many('stock.move', 'purchase_line_id', 'Reservation', readonly=True, ondelete='set null'),
         'price_unit': fields.float('Unit Price', required=True, digits_compute= dp.get_precision('Product Price')),
-        'price_subtotal': fields.function(_amount_line, string='Subtotal', digits_compute= dp.get_precision('Account'), store=True),
+        # Como se pisan con los metodos de la version 8 de la api genera un bug al tener los dos function en distintas versiones
+        'price_subtotal': fields.float('Subtotal', digits_compute= dp.get_precision('Account'), readonly=True),
+        #'price_subtotal': fields.function(_amount_line, string='Subtotal', digits_compute= dp.get_precision('Account')),
         'order_id': fields.many2one('purchase.order', 'Order Reference', select=True, required=True, ondelete='cascade'),
         'account_analytic_id':fields.many2one('account.analytic.account', 'Analytic Account',),
         'company_id': fields.related('order_id','company_id',type='many2one',relation='res.company',string='Company', store=True, readonly=True),
