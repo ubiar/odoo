@@ -3,8 +3,8 @@
     <data>
         <template id="auth_signup.login" inherit_id="web.login" name="Sign up - Reset Password">
             <xpath expr="//button[@type='submit']" position="before">
-                <a t-if="signup_enabled" t-attf-href="/web/signup?{{ keep_query() }}" class="btn btn-link pull-right">Sign up</a>
-                <a t-if="reset_password_enabled" t-attf-href="/web/reset_password?{{ keep_query() }}" class="btn btn-link pull-right">Reset Password</a>
+                <a t-if="signup_enabled" t-attf-href="/web/signup?{{ keep_query() }}" class="btn btn-link pull-right">Iniciar</a>
+                <a t-if="reset_password_enabled" t-attf-href="/web/reset_password?{{ keep_query() }}" class="btn btn-link pull-right">Cambiar Contraseña</a>
             </xpath>
         </template>
 
@@ -12,26 +12,26 @@
             <t t-call="web.database_select"/>
 
             <div class="form-group field-login">
-                <label for="login" class="control-label">Your Email</label>
+                <label for="login" class="control-label">Usuario</label>
                 <input type="text" name="login" t-att-value="login" id="login" class="form-control" autofocus="autofocus"
                     required="required" t-att-readonly="'readonly' if only_passwords else None"/>
             </div>
 
             <div class="form-group field-name">
-                <label for="name" class="control-label">Your Name</label>
+                <label for="name" class="control-label">Nombre y Apellido</label>
                 <input type="text" name="name" t-att-value="name" id="name" class="form-control" placeholder="e.g. John Doe"
                     required="required" t-att-readonly="'readonly' if only_passwords else None"
                     t-att-autofocus="'autofocus' if login and not only_passwords else None" />
             </div>
 
             <div class="form-group field-password">
-                <label for="password" class="control-label">Password</label>
+                <label for="password" class="control-label">Contraseña</label>
                 <input type="password" name="password" id="password" class="form-control"
                     required="required" t-att-autofocus="'autofocus' if only_passwords else None"/>
             </div>
 
             <div class="form-group field-confirm_password">
-                <label for="confirm_password" class="control-label">Confirm Password</label>
+                <label for="confirm_password" class="control-label">Repetir Contraseña</label>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control" required="required"/>
             </div>
         </template>
@@ -48,8 +48,8 @@
                     <input type="hidden" name="redirect" t-att-value="redirect"/>
                     <input type="hidden" name="token" t-att-value="token"/>
                     <div class="clearfix oe_login_buttons">
-                        <a t-attf-href="/web/login?{{ keep_query() }}" class="btn btn-link pull-right">Back to Login</a>
-                        <button type="submit" class="btn btn-primary pull-left">Sign up</button>
+                        <a t-attf-href="/web/login?{{ keep_query() }}" class="btn btn-link pull-right">Volver al Login</a>
+                        <button type="submit" class="btn btn-primary pull-left">Iniciar</button>
                     </div>
 
                 </form>
@@ -62,7 +62,7 @@
                     <p class="alert alert-success" t-if="message">
                         <t t-esc="message"/>
                     </p>
-                    <a href="/web/login" class="btn btn-link pull-right">Back to Login</a>
+                    <a href="/web/login" class="btn btn-link pull-right">Volver al Login</a>
                 </div>
 
                 <form class="oe_reset_password_form" role="form" method="post" t-if="not message">
@@ -75,7 +75,7 @@
 
                     <t t-if="not token">
                         <div class="form-group field-login">
-                            <label for="login" class="control-label">Your Email</label>
+                            <label for="login" class="control-label">Usuario</label>
                             <input type="text" name="login" t-att-value="login" id="login" class="form-control"
                                 autofocus="autofocus" required="required"/>
                         </div>
@@ -87,8 +87,8 @@
                     <input type="hidden" name="redirect" t-att-value="redirect"/>
                     <input type="hidden" name="token" t-att-value="token"/>
                     <div class="clearfix oe_login_buttons">
-                        <a t-attf-href="/web/login?{{ keep_query() }}" class="btn btn-link pull-right">Back to Login</a>
-                        <button type="submit" class="btn btn-primary pull-left">Reset password</button>
+                        <a t-attf-href="/web/login?{{ keep_query() }}" class="btn btn-link pull-right">Volver al Login</a>
+                        <button type="submit" class="btn btn-primary pull-left">Cambiar Contraseña</button>
                     </div>
 
                 </form>
