@@ -4382,7 +4382,7 @@ class stock_warehouse_orderpoint(osv.osv):
         res = super(stock_warehouse_orderpoint, self).default_get(cr, uid, fields, context)
         # default 'warehouse_id' and 'location_id'
         if 'warehouse_id' not in res:
-            warehouse_ids = res.get('company_id') and warehouse_obj.search(cr, uid, [('company_id', '=', res['company_id'])], limit=1, context=context) or []
+            warehouse_ids = res.get('company_id') and warehouse_obj.search(cr, uid, [('company_id', '=', res['company_id'][0])], limit=1, context=context) or []
             res['warehouse_id'] = warehouse_ids and warehouse_ids[0] or False
         if 'location_id' not in res:
             res['location_id'] = res.get('warehouse_id') and warehouse_obj.browse(cr, uid, res['warehouse_id'], context).lot_stock_id.id or False
