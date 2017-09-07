@@ -1398,8 +1398,9 @@ class Root(object):
                     'mimetype': response.headers['Content-Type'],
                     'time': time.time(),
                 }
-
-        if httprequest.session.should_save:
+        # Modificado por UBIAR, nos aseguramos que tenga user_agent para no guardar sesiones del cliente hardware
+        #if httprequest.session.should_save: << original
+        if httprequest.session.should_save and httprequest.user_agent:
             if httprequest.session.rotate:
                 self.session_store.delete(httprequest.session)
                 httprequest.session.sid = self.session_store.generate_key()
