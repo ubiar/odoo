@@ -655,10 +655,23 @@ openerp.Widget = openerp.Class.extend(openerp.PropertiesMixin, {
             this.$el.replaceAll(t);
         }, this), target);
     },
+    /**
+     * Method called between init and start. Performs asynchronous calls required by start.
+     *
+     * This method should return a Deferred which is resolved when start can be executed.
+     *
+     * @return {jQuery.Deferred}
+     */
+    willStart: function() {
+        return $.when();
+    },
     __widgetRenderAndInsert: function(insertion, target) {
-        this.renderElement();
-        insertion(target);
-        return this.start();
+        var self = this;
+        return this.willStart().then(function() {
+            self.renderElement();
+            insertion(target);
+            return self.start();
+        });
     },
     /**
      * Method called after rendering. Mostly used to bind actions, perform asynchronous
