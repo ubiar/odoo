@@ -1155,7 +1155,7 @@ class Text(_String):
 class Html(_String):
     type = 'html'
     _slots = {
-        'sanitize': True,               # whether value must be sanitized
+        'sanitize': False,               # whether value must be sanitized
         'strip_style': False,           # whether to strip style attributes
     }
 
