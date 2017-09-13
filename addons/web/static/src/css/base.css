@@ -2526,12 +2526,7 @@
 }
 .openerp .oe_list .oe_list_content .oe_group_header {
   background-color: #ededed;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#fcfcfc), to(#dedede));
-  background-image: -webkit-linear-gradient(top, #fcfcfc, #dedede);
-  background-image: -moz-linear-gradient(top, #fcfcfc, #dedede);
-  background-image: -ms-linear-gradient(top, #fcfcfc, #dedede);
-  background-image: -o-linear-gradient(top, #fcfcfc, #dedede);
-  background-image: linear-gradient(to bottom, #fcfcfc, #dedede);
+  background: url(/web/static/src/img/background-linear-gradient-grupos.png) repeat;
 }
 .openerp .oe_list_content {
   width: 100%;
