@@ -410,7 +410,7 @@ class configmanager(object):
             'list_db', 'proxy_mode',
             'test_file', 'test_enable', 'test_commit', 'test_report_directory',
             'osv_memory_count_limit', 'osv_memory_age_limit', 'max_cron_threads', 'unaccent',
-            'data_dir',
+            'data_dir', 'administrar_modulos'
         ]
 
         posix_keys = [
