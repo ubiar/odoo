@@ -134,7 +134,7 @@ class configmanager(object):
 
         group.add_option("-D", "--data-dir", dest="data_dir", my_default=_get_default_datadir(),
                          help="Directory where to store Odoo data")
-        group.add_option("--administrar-modulos", dest="update", my_default=False)
+        group.add_option("--administrar-modulos", dest="administrar_modulos", my_default=False, help="Permite instalar modulos en ambientes de produccion")
         parser.add_option_group(group)
 
         # XML-RPC / HTTP
