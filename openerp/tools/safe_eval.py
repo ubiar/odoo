@@ -53,7 +53,7 @@ _UNSAFE_ATTRIBUTES = ['f_builtins', 'f_globals', 'f_locals', 'gi_frame',
 _CONST_OPCODES = set(opmap[x] for x in [
     'POP_TOP', 'ROT_TWO', 'ROT_THREE', 'ROT_FOUR', 'DUP_TOP', 'DUP_TOPX',
     'POP_BLOCK','SETUP_LOOP', 'BUILD_LIST', 'BUILD_MAP', 'BUILD_TUPLE',
-    'LOAD_CONST', 'RETURN_VALUE', 'STORE_SUBSCR', 'STORE_MAP'] if x in opmap)
+    'LOAD_CONST', 'RETURN_VALUE', 'STORE_SUBSCR', 'STORE_MAP', 'STORE_ATTR'] if x in opmap)
 
 _EXPR_OPCODES = _CONST_OPCODES.union(set(opmap[x] for x in [
     'UNARY_POSITIVE', 'UNARY_NEGATIVE', 'UNARY_NOT',
