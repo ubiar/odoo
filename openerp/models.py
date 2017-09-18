@@ -700,6 +700,7 @@ class BaseModel(object):
                 'string': field['field_description'],
                 'required': bool(field['required']),
                 'readonly': bool(field['readonly']),
+                'usuario_calculado': bool(field.get('usuario_calculado')),
             }
             # FIXME: ignore field['serialization_field_id']
             if field['ttype'] in ('char', 'text', 'html'):
