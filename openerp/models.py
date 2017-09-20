@@ -453,7 +453,7 @@ class BaseModel(object):
                         cols[k][key] = cols[k][key].decode('utf-8')
                     if cols[k][key] != vals[key]:
                         # Bugs Fixed para que escriba los valores nuevos en campos de usuario Ubiar
-                        if context.get('field_state', 'base') == 'manual':
+                        if cols[k].get('state', 'base') == 'manual':
                             vals.update(cols[k])
                         cr.execute('update ir_model_fields set field_description=%s where model=%s and name=%s', (vals['field_description'], vals['model'], vals['name']))
                         cr.execute("""UPDATE ir_model_fields SET
@@ -700,6 +700,7 @@ class BaseModel(object):
                 'string': field['field_description'],
                 'required': bool(field['required']),
                 'readonly': bool(field['readonly']),
+                'usuario_calculado': bool(field.get('usuario_calculado')),
             }
             # FIXME: ignore field['serialization_field_id']
             if field['ttype'] in ('char', 'text', 'html'):

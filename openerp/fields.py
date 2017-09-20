@@ -320,6 +320,7 @@ class Field(object):
         
         'forzar_id_externo': False,     # fuerza a establecerle ese id externo para solucionar los casos en que el generado es invalido ya que tiene el id del campo de la BD y no se respeta en todas las bases de datos
         'view_config': False,           # se utiliza solo en los campos de la plantilla de la subcompania, es para marcar los campos disponibles en la variable config de las vistas
+        'usuario_calculado': False,     # es un campo calculado de usuario
     }
 
     def __init__(self, string=None, **kwargs):
@@ -1155,7 +1156,7 @@ class Text(_String):
 class Html(_String):
     type = 'html'
     _slots = {
-        'sanitize': False,               # whether value must be sanitized
+        'sanitize': True,               # whether value must be sanitized
         'strip_style': False,           # whether to strip style attributes
     }
 
