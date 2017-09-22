@@ -63,7 +63,7 @@ def transfer_node_to_modifiers(node, modifiers, context=None, in_tree_view=False
 
     for a in ('invisible', 'readonly', 'required'):
         if node.get(a):
-            v = bool(eval(node.get(a), {'context': context or {}, 'config': context.get('_config_ubiar')}))
+            v = bool(eval(node.get(a), {'context': context or {}, 'config': context and context.get('_config_ubiar') or {}}))
             if in_tree_view and a == 'invisible':
                 # Invisible in a tree view has a specific meaning, make it a
                 # new key in the modifiers attribute.
