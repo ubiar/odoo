@@ -1774,6 +1774,10 @@ class One2many(_RelationalMulti):
         if self.inverse_name:
             # link self to its inverse field and vice-versa
             comodel = env[self.comodel_name]
+            # Evito que no se pueda levantar el servidor si un campo manual hace referencia a otro que ya no existe
+            if self.manual and self.inverse_name not in comodel._fields:
+                _logger.warning('El campo %s no existe en el modelo %s que es referenciado por el campo %s del modelo %s' % (self.inverse_name, self.comodel_name, self.name, self.model_name))
+                return 
             invf = comodel._fields[self.inverse_name]
             # In some rare cases, a ``One2many`` field can link to ``Int`` field
             # (res_model/res_id pattern). Only inverse the field if this is
