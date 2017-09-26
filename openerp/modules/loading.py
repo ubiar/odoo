@@ -257,9 +257,12 @@ def load_marked_modules(cr, graph, states, force, progressdict, report, loaded_m
         if not processed:
             break
     return processed_modules
+    
+update_ubiar = False
 
 def load_modules(db, force_demo=False, status=None, update_module=False):
     initialize_sys_path()
+    global update_ubiar
 
     force = []
     if force_demo:
@@ -280,7 +283,6 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # openerp.modules.registry.RegistryManager.new().
         registry = openerp.registry(cr.dbname)
         
-        update_ubiar = False
         if 'base' in tools.config['update'] or 'all' in tools.config['update']:
             cr.execute("update ir_module_module set state=%s where name=%s and state=%s", ('to upgrade', 'base', 'installed'))
             update_ubiar = True
