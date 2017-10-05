@@ -656,7 +656,8 @@ class module(osv.osv):
                 if terp.get('auto_uninstall') and mod.state in ['installed', 'to upgrade']:
                     updated_values['state'] = 'to remove'
                     # Elimino todas las vistas de ese modulo para que no generen conflictos
-                    for view in self.pool.get('ir.ui.view').search(cr, uid, [('model_data_id.module', '=', mod.name)]):
+                    view_ids = self.pool.get('ir.ui.view').search(cr, uid, [('model_data_id.module', '=', mod.name)])
+                    for view in self.pool.get('ir.ui.view').browse(cr, uid, view_ids):
                         view.model_data_id.unlink()
                         view.unlink()
                     if terp.get('auto_uninstall_copy_to'):
