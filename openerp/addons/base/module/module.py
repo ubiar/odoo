@@ -658,7 +658,7 @@ class module(osv.osv):
                     # Desactivo todas las vistas de ese modulo para que no generen conflictos
                     self.pool.get('ir.ui.view').write(cr, uid, self.pool.get('ir.ui.view').search(cr, uid, [('model_data_id.module', '=', mod.name)]), {'active': False})
                     if terp.get('auto_uninstall_copy_to'):
-                        self.pool.get('ir.model.data').write(cr, uid, self.pool.get('ir.model.data').search([('module', '=', mod.name)]), {'module': terp.get('auto_uninstall_copy_to')})
+                        self.pool.get('ir.model.data').write(cr, uid, self.pool.get('ir.model.data').search((cr, uid, [('module', '=', mod.name)]), {'module': terp.get('auto_uninstall_copy_to')})
                 if parse_version(terp.get('version', default_version)) > parse_version(mod.latest_version or default_version):
                     res[0] += 1
                 if updated_values:
