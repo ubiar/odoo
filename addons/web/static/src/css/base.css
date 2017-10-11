@@ -2002,6 +2002,7 @@
   cursor: pointer;
   margin: 3px 0 0 -21px;
   vertical-align: top;
+  position: absolute;
 }
 .openerp .oe_form .oe_input_icon_disabled {
   position: absolute;
