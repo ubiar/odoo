@@ -2071,7 +2071,7 @@ class stock_move(osv.osv):
                         self.write(cr, uid, [move.move_dest_id.id], propagated_changes_dict, context=context)
         return super(stock_move, self).write(cr, uid, ids, vals, context=context)
 
-    def onchange_quantity(self, cr, uid, ids, product_id, product_qty, product_uom, product_uos):
+    def onchange_quantity(self, cr, uid, ids, product_id, product_qty, product_uom, product_uos, context=None):
         """ On change of product quantity finds UoM and UoS quantities
         @param product_id: Product id
         @param product_qty: Changed Quantity of product
@@ -2111,7 +2111,7 @@ class stock_move(osv.osv):
         return {'value': result, 'warning': warning}
 
     def onchange_uos_quantity(self, cr, uid, ids, product_id, product_uos_qty,
-                          product_uos, product_uom):
+                          product_uos, product_uom, context=None):
         """ On change of product quantity finds UoM and UoS quantities
         @param product_id: Product id
         @param product_uos_qty: Changed UoS Quantity of product
@@ -2140,7 +2140,7 @@ class stock_move(osv.osv):
             result['product_uom_qty'] = product_uos_qty
         return {'value': result}
 
-    def onchange_product_id(self, cr, uid, ids, prod_id=False, loc_id=False, loc_dest_id=False, partner_id=False):
+    def onchange_product_id(self, cr, uid, ids, prod_id=False, loc_id=False, loc_dest_id=False, partner_id=False, context=None):
         """ On change of product id, if finds UoM, UoS, quantity and UoS quantity.
         @param prod_id: Changed Product id
         @param loc_id: Source location id
@@ -2165,7 +2165,7 @@ class stock_move(osv.osv):
             'product_uom': product.uom_id.id,
             'product_uos': uos_id,
             'product_uom_qty': 1.00,
-            'product_uos_qty': self.pool.get('stock.move').onchange_quantity(cr, uid, ids, prod_id, 1.00, product.uom_id.id, uos_id)['value']['product_uos_qty'],
+            'product_uos_qty': self.pool.get('stock.move').onchange_quantity(cr, uid, ids, prod_id, 1.00, product.uom_id.id, uos_id, context=context)['value']['product_uos_qty'],
         }
         if loc_id:
             result['location_id'] = loc_id
