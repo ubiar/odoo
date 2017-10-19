@@ -294,6 +294,15 @@ msgstr ""
 "Ninguno de nuestros colabores para estar disponible. Inténtelo más tarde."
 
 #. module: im_livechat
+#. openerp-web
+#: code:addons/im_livechat/static/src/js/im_livechat.js:279
+#, python-format
+msgid ""
+"I rated you with :rating_%d"
+msgstr ""
+"Te califico con: rating_%d"
+
+#. module: im_livechat
 #: view:website:im_livechat.support_page
 msgid "Odoo"
 msgstr "Odoo"
