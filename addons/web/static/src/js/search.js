@@ -379,7 +379,7 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
         this.search_fields = [];
         this.filters = [];
         this.groupbys = [];
-        this.visible_filters = (localStorage.visible_search_menu === 'true');
+        this.visible_filters = (localStorage.visible_search_menu === 'true' || _.isUndefined(localStorage.visible_search_menu));
         this.input_subviews = []; // for user input in searchbar
         this.defaults = defaults || {};
         this.headless = this.options.hidden &&  _.isEmpty(this.defaults);
