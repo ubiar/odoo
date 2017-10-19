@@ -568,8 +568,9 @@
                     right: -this.$el.outerWidth(),
                 }, opt);
             } else {
-                if (! openerp.bus.bus.activated) {
-                    this.do_warn("Instant Messaging is not activated on this server. Try later.", "");
+                // No controlamos mas si esta activado el bus porque cambio la forma en la que funciona el longpolling
+                if (false && ! openerp.bus.bus.activated) {
+                    openerp.client.do_warn(_t("Warning"), _t("Instant Messaging is not activated on this server. Try later."));
                     return;
                 }
                 // update the list of user status when show the IM

@@ -415,6 +415,12 @@ msgid "Visitor"
 msgstr "Visitante"
 
 #. module: im_livechat
+#: code:addons/im_livechat/controllers/livechat.py:28
+#, python-format
+msgid "Visitor"
+msgstr "Visitante"
+
+#. module: im_livechat
 #: field:im_livechat.channel,web_page:0
 msgid "Web Page"
 msgstr "Página web"

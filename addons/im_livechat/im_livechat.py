@@ -159,7 +159,7 @@ class im_livechat_channel(osv.Model):
         channel = self.browse(cr, SUPERUSER_ID, channel_id, context=context)
         users = []
         for user_id in channel.user_ids:
-            if (user_id.im_status == 'online'):
+            if (user_id.im_status != 'offline'):
                 users.append(user_id)
         return users
 
