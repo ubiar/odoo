@@ -170,7 +170,12 @@ class ir_model(osv.osv):
             if result and result[0] == 'v':
                 cr.execute('DROP view %s' % (model_pool._table,))
             elif result and result[0] == 'r':
-                cr.execute('DROP TABLE %s CASCADE' % (model_pool._table,))
+                cr.execute('SELECT count(*) FROM %s' % model_pool._table)
+                result_data = cr.fetchone()
+                if result_data and not result_data[0]:
+                    cr.execute('DROP TABLE %s CASCADE' % (model_pool._table,))
+                else:
+                    _logger.warning('You must manually delete the %s table because it contains data' % model_pool._table)
         return True
 
     def unlink(self, cr, user, ids, context=None):
@@ -330,10 +335,15 @@ class ir_model_fields(osv.osv):
             model = self.pool[field.model]
             cr.execute('select relkind from pg_class where relname=%s', (model._table,))
             result = cr.fetchone()
+            cr.execute('SELECT count(*) FROM %s' % model._table)
+            result_count = cr.fetchone()
             cr.execute("SELECT column_name FROM information_schema.columns WHERE table_name ='%s' and column_name='%s'" %(model._table, field.name))
             column_name = cr.fetchone()
             if column_name and (result and result[0] == 'r'):
-                cr.execute('ALTER table "%s" DROP column "%s" cascade' % (model._table, field.name))
+                if result_count and not result_count[0]:
+                    cr.execute('ALTER table "%s" DROP column "%s" cascade' % (model._table, field.name))
+                else:
+                    _logger.warning('You must manually remove the %s column from the table %s because it contains data' % (field.name, model._table))
             # remove m2m relation table for custom fields
             # we consider the m2m relation is only one way as it's not possible
             # to specify the relation table in the interface for custom fields

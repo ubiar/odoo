@@ -2316,7 +2316,7 @@ msgstr "Estado"
 #. module: product
 #: selection:product.template,type:0
 msgid "Stockable Product"
-msgstr "Producto almacenable"
+msgstr "Almacenable"
 
 #. module: product
 #: field:product.product,message_summary:0

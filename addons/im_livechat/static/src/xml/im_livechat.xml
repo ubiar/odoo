@@ -9,7 +9,7 @@
     <t t-name="im_livechat.feedback">
         <div class="oe_livechat_rating">
             <div class="oe_im_feedback_text">
-                Did we correctly answer your question ?
+                ¿Respondió correctamente a su pregunta?
             </div>
             <div class="oe_livechat_rating_choices">
                 <img t-att-src="widget.server_origin + '/rating/static/src/img/rating_10.png'" alt="Good" data-value="10"/>

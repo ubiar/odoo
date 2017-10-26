@@ -52,12 +52,18 @@
         },
         click_close: function(event) {
             if(!this.feedback && (this.get('messages').length > 1)){
-                this.feedback = new im_livechat.Feedback(this);
-                this.$(".oe_im_chatview_content").empty();
-                this.$(".oe_im_chatview_input").prop('disabled', true);
-                this.feedback.appendTo( this.$(".oe_im_chatview_content"));
-                // bind event to close conversation
-                this.feedback.on("feedback_sent", this, this.click_close);
+                try {
+                    this.feedback = new im_livechat.Feedback(this);
+                    this.$(".oe_im_chatview_content").empty();
+                    this.$(".oe_im_chatview_input").prop('disabled', true);
+                    this.feedback.appendTo( this.$(".oe_im_chatview_content"));
+                    // bind event to close conversation
+                    this.feedback.on("feedback_sent", this, this.click_close);
+                } catch (e) {
+                    this._super.apply(this, arguments);
+                    openerp.set_cookie(im_livechat.COOKIE_NAME, "", -1);
+                    openerp.set_cookie('im_livechat_auto_popup', JSON.stringify(false), 60*60);
+                }
             }else{
                 this._super.apply(this, arguments);
                 openerp.set_cookie(im_livechat.COOKIE_NAME, "", -1);
