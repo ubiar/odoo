@@ -2591,6 +2591,10 @@ class stock_move(osv.osv):
                 quant_obj.quants_reserve(cr, uid, quants, scrap_move, context=context)
         self.action_done(cr, uid, res, context=context)
         return res
+    
+    @api.model
+    def split_defaults(self, move, qty, defaults):
+        return defaults
 
     def split(self, cr, uid, move, qty, restrict_lot_id=False, restrict_partner_id=False, context=None):
         """ Splits qty from move move into a new move
@@ -2630,6 +2634,7 @@ class stock_move(osv.osv):
             'move_dest_id': move.move_dest_id.id,
             'origin_returned_move_id': move.origin_returned_move_id.id,
         }
+        defaults = self.split_defaults(cr, uid, move, qty, defaults)
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
