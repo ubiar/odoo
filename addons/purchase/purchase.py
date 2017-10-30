@@ -445,6 +445,7 @@ class purchase_order(osv.osv):
         if not inv_ids:
             raise UserError(_('Please create Invoices.'))
         result['domain'] = [('id', 'in', inv_ids)]
+        result["context"] = {}
         return result
 
     def view_invoice(self, cr, uid, ids, context=None):

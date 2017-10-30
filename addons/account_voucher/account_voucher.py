@@ -1535,8 +1535,8 @@ class account_voucher_line(osv.osv):
             if 'importe_en_liquidaciones' in line:
                 importe_en_liquidaciones = line.importe_en_liquidaciones
             intereses = 0.0
-            if 'intereses' in line.move_line_id:
-                intereses = line.move_line_id.intereses
+            if 'intereses' in line:
+                intereses = line.intereses
             if 'intereses_abonados' in line:
                 intereses -= line.intereses_abonados
             if not move_line:
