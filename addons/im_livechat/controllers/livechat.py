@@ -5,6 +5,7 @@ import openerp.addons.im_chat.im_chat
 
 from openerp import http
 from openerp.http import request
+from openerp.tools.translate import _
 
 
 class LivechatController(http.Controller):
@@ -24,7 +25,7 @@ class LivechatController(http.Controller):
         info = registry.get('im_livechat.channel').get_info_for_chat_src(cr, uid, channel_id)
         info["dbname"] = dbname
         info["channel"] = channel_id
-        info["username"] = kwargs.get("username", "Visitor")
+        info["username"] = kwargs.get("username", _("Visitante"))
         # find the country from the request
         country_id = False
         country_code = request.session.geoip and request.session.geoip.get('country_code') or False

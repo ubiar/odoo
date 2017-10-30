@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, workflow
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
@@ -43,7 +43,6 @@ class stock_move(osv.osv):
         if isinstance(ids, (int, long)):
             ids = [ids]
         res = super(stock_move, self).write(cr, uid, ids, vals, context=context)
-        from openerp import workflow
         if vals.get('state') in ['done', 'cancel']:
             for move in self.browse(cr, uid, ids, context=context):
                 if move.purchase_line_id and move.purchase_line_id.order_id:
