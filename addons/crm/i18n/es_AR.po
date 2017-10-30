@@ -290,7 +290,7 @@ msgid "A user associated to the contact"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.sales_team_form_view_in_crm
+#: view:crm.team:crm.sales_team_form_view_in_crm
 msgid "Accept Emails From"
 msgstr ""
 
@@ -318,7 +318,7 @@ msgid "After-Sale Services"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.section,alias_id:0
+#: field:crm.team,alias_id:0
 msgid "Alias"
 msgstr "Alias"
 
@@ -607,7 +607,7 @@ msgstr ""
 "segmentación. Si no se marca, los criterios que contenga serán ignorados"
 
 #. module: crm
-#: help:crm.case.section,use_opportunities:0
+#: help:crm.team,use_opportunities:0
 msgid "Check this box to manage opportunities in this sales team."
 msgstr ""
 
@@ -625,12 +625,12 @@ msgid ""
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
 msgid "Click to see a detailed analysis of leads."
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
 msgid "Click to see a detailed analysis of opportunities."
 msgstr ""
 
@@ -1063,7 +1063,7 @@ msgid "Email"
 msgstr "Email"
 
 #. module: crm
-#: view:crm.case.section:crm.sales_team_form_view_in_crm
+#: view:crm.team:crm.sales_team_form_view_in_crm
 msgid "Email Alias"
 msgstr ""
 
@@ -1505,14 +1505,15 @@ msgid "Lead/Opportunity Mass Mail"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
-#: view:crm.case.section:crm.sales_team_form_view_in_crm
-#: field:crm.case.section,use_leads:0
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
+#: view:crm.team:crm.sales_team_form_view_in_crm
+#: field:crm.team,use_leads:0
 #: view:crm.lead:crm.crm_case_tree_view_leads
 #: model:ir.actions.act_window,name:crm.crm_lead_all_leads
 #: model:ir.actions.act_window,name:crm.crm_case_category_act_leads_all
 #: model:ir.actions.act_window,name:crm.crm_case_form_view_salesteams_lead
 #: model:ir.ui.menu,name:crm.menu_crm_leads
+#: view:crm.team:crm.crm_team_salesteams_view_kanban
 msgid "Leads"
 msgstr "Iniciativas"
 
@@ -2035,8 +2036,8 @@ msgid ""
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
-#: field:crm.case.section,monthly_open_leads:0
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
+#: field:crm.team,monthly_open_leads:0
 msgid "Open Leads per Month"
 msgstr ""
 
@@ -2061,8 +2062,8 @@ msgid "Operator"
 msgstr "Operador"
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
-#: field:crm.case.section,use_opportunities:0
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
+#: field:crm.team,use_opportunities:0
 #: view:crm.lead:crm.crm_case_form_view_oppor
 #: view:crm.lead:crm.crm_case_graph_view_leads
 #: view:crm.lead:crm.crm_case_tree_view_oppor
@@ -2076,6 +2077,7 @@ msgstr "Operador"
 #: model:ir.ui.menu,name:crm.menu_crm_opportunities
 #: view:res.partner:crm.crm_lead_partner_kanban_view
 #: view:res.partner:crm.view_partners_form_crm1
+#: view:crm.team:crm.crm_team_salesteams_view_kanban
 msgid "Opportunities"
 msgstr "Oportunidades"
 
@@ -2390,8 +2392,8 @@ msgid "Planned Date"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.crm_case_section_salesteams_view_kanban
-#: field:crm.case.section,monthly_planned_revenue:0
+#: view:crm.team:crm.crm_case_section_salesteams_view_kanban
+#: field:crm.team,monthly_planned_revenue:0
 msgid "Planned Revenue per Month"
 msgstr ""
 
@@ -2557,6 +2559,7 @@ msgstr "Motivos de Perdidas"
 #: view:crm.lead:crm.view_crm_case_leads_filter
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: field:crm.lead,section_id:0
+#: field:crm.lead,team_id:0
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
 #: field:crm.lead.report,section_id:0
 #: field:crm.lead2opportunity.partner,section_id:0
@@ -2574,9 +2577,9 @@ msgid "Sales Team"
 msgstr "Equipo de Ventas"
 
 #. module: crm
-#: model:ir.model,name:crm.model_crm_case_section
+#: model:ir.model,name:crm.model_crm_team
 msgid "Sales Teams"
-msgstr ""
+msgstr "Equipos de Ventas"
 
 #. module: crm
 #: help:crm.phonecall,section_id:0
@@ -2733,9 +2736,9 @@ msgid "Select Leads/Opportunities"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.sales_team_form_view_in_crm
+#: view:crm.team:crm.sales_team_form_view_in_crm
 msgid "Select Stages for this Sales Team"
-msgstr ""
+msgstr "Seleccione las Etapas para este Equipo de Ventas"
 
 #. module: crm
 #: view:base.partner.merge.automatic.wizard:crm.base_partner_merge_automatic_wizard_form
@@ -2866,8 +2869,8 @@ msgid "Stage of case"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.section:crm.sales_team_form_view_in_crm
-#: field:crm.case.section,stage_ids:0
+#: view:crm.team:crm.sales_team_form_view_in_crm
+#: field:crm.team,stage_ids:0
 #: view:crm.stage:crm.crm_case_stage_tree
 #: model:ir.actions.act_window,name:crm.crm_case_stage_act
 #: model:ir.actions.act_window,name:crm.crm_lead_stage_act
@@ -2939,14 +2942,14 @@ msgid "Tags"
 msgstr ""
 
 #. module: crm
-#: help:crm.case.section,alias_id:0
+#: help:crm.team,alias_id:0
 msgid ""
 "The email address associated with this team. New emails received will "
 "automatically create new leads assigned to the team."
 msgstr ""
 
 #. module: crm
-#: help:crm.case.section,use_leads:0
+#: help:crm.team,use_leads:0
 msgid ""
 "The first contact you get with a potential customer is a lead you qualify "
 "before converting it into a real business opportunity. Check this box to "
@@ -3181,7 +3184,7 @@ msgid "Use existing partner or create"
 msgstr ""
 
 #. module: crm
-#: help:crm.case.section,resource_calendar_id:0
+#: help:crm.team,resource_calendar_id:0
 msgid "Used to compute open days"
 msgstr "Utilizado para cálculo de open days"
 
@@ -3243,10 +3246,10 @@ msgid "Warning!"
 msgstr "Alerta!"
 
 #. module: crm
-#: help:crm.lead,section_id:0
+#: help:crm.lead,team_id:0
 msgid ""
 "When sending mails, the default email address is taken from the sales team."
-msgstr ""
+msgstr "Al enviar correos, la dirección de correo electrónico predeterminada se toma del equipo de ventas."
 
 #. module: crm
 #: field:base.partner.merge.line,wizard_id:0
@@ -3262,7 +3265,7 @@ msgid "Won"
 msgstr "Ganado"
 
 #. module: crm
-#: field:crm.case.section,resource_calendar_id:0
+#: field:crm.team,resource_calendar_id:0
 msgid "Working Time"
 msgstr "Horario de trabajo"
 
