@@ -2929,6 +2929,133 @@ msgstr ""
 
 #. module: web
 #. openerp-web
+#: code:addons/web/static/src/js/view_pivot.js:157
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:344
+#, python-format
+msgid "Not enough data points"
+msgstr "No hay suficientes datos para realizar el grafico"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:344
+#, python-format
+msgid "Invalid data"
+msgstr "Los datos son invalidos"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:344
+#, python-format
+msgid "Pie chart cannot mix positive and negative numbers. Try to change your domain to only display positive results"
+msgstr "El gráfico de torta no puede mezclar números positivos y negativos. Intente cambiar sus filtros para que solo muestre resultados positivos"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:344
+#, python-format
+msgid "Pie chart cannot display all zero numbers.. Try to change your domain to display positive results"
+msgstr "El gráfico de torta no puede mostrar todos los números en cero. Intente cambiar sus filtros para mostrar resultados positivos."
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_pivot.js:344
+#, python-format
+msgid "Download xls"
+msgstr "Descargar a Excel"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:345
+#, python-format
+msgid "You need at least two data points to display a line chart."
+msgstr "Necesita al menos dos puntos de datos para mostrar el gráfico."
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Quarter"
+msgstr "Cuatrimestre"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Year"
+msgstr "Año"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Bar Chart"
+msgstr "Gráfico de Barras"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Line Chart"
+msgstr "Gráfico de Lineas"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Pie Chart"
+msgstr "Gráfico de Torta"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_graph.js:19
+#, python-format
+msgid "Graph"
+msgstr "Gráfico"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/view_pivot.js:19
+#, python-format
+msgid "Pivot"
+msgstr "Tabla Dinámica"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Measure"
+msgstr "Medida"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Measures"
+msgstr "Medidas"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Flip axis"
+msgstr "Invertir Columnas"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/base.xml:945
+#, python-format
+msgid "Expand all"
+msgstr "Expandir Todo"
+
+#. module: web
+#. openerp-web
 #: code:addons/web/static/src/js/search.js:2170
 #: code:addons/web/static/src/js/search.js:2186
 #: code:addons/web/static/src/js/search.js:2222

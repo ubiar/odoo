@@ -63,8 +63,7 @@ instance.web.PivotView = instance.web.View.extend({
         var self = this;
         this.$table_container = this.$('.o-pivot-table');
 
-        var load_fields = this.model.call('fields_get', [])
-                .then(this.prepare_fields.bind(this));
+        var load_fields = this.model.call('fields_get', {context: this.dataset.context}).then(this.prepare_fields.bind(this));
 
         return $.when(this._super(), load_fields).then(this.render_buttons.bind(this)).then(function(){
             if (self.$sidebar) {
@@ -155,7 +154,7 @@ instance.web.PivotView = instance.web.View.extend({
                 }
             }
         });
-        this.measures.__count__ = {string: "Quantity", type: "integer"};
+        this.measures.__count__ = {string: _t("Quantity"), type: "integer"};
     },
     do_search: function (domain, context, group_by) {
         if (!this.ready) {

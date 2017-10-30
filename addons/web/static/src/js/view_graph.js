@@ -29,7 +29,7 @@ instance.web.GraphView = instance.web.View.extend({
         this.widget = undefined;
     },
     start: function () {
-        var load_fields = this.model.call('fields_get', [])
+        var load_fields = this.model.call('fields_get', {context: this.dataset.context})
                 .then(this.prepare_fields.bind(this));
 
         return $.when(this._super(), load_fields).then(this.render_buttons.bind(this));
@@ -342,7 +342,7 @@ instance.web.GraphWidget = instance.web.Widget.extend({
         if (this.data.length < 2) {
             this.$el.append(QWeb.render('GraphView.error', {
                 title: _t("Not enough data points"),
-                description: "You need at least two data points to display a line chart."
+                description: _t("You need at least two data points to display a line chart.")
             }));
             return;
         }
