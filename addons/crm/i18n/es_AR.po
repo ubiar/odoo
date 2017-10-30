@@ -419,7 +419,7 @@ msgstr ""
 #. module: crm
 #: selection:crm.stage,type:0
 msgid "Both"
-msgstr ""
+msgstr "Ambos"
 
 #. module: crm
 #: field:crm.lead,message_bounce:0
@@ -961,7 +961,7 @@ msgstr ""
 #. module: crm
 #: field:crm.stage,case_default:0
 msgid "Default to New Sales Team"
-msgstr ""
+msgstr "Predeterminado al crear un Equipo de Ventas"
 
 #. module: crm
 #: model:ir.filters,name:crm.filter_crm_phonecall_delay_to_close
@@ -2365,9 +2365,9 @@ msgid "Phonecall"
 msgstr ""
 
 #. module: crm
-#: model:ir.actions.act_window,name:crm.crm_phonecall_categ_action
+#: model:ir.actions.act_window,name:crm.crm_phonecall_category_action
 msgid "Phonecall Categories"
-msgstr ""
+msgstr "Tipos de Llamadas"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_phonecall2phonecall
@@ -2565,6 +2565,8 @@ msgstr "Motivos de Perdidas"
 #: field:crm.lead2opportunity.partner,section_id:0
 #: field:crm.lead2opportunity.partner.mass,section_id:0
 #: field:crm.merge.opportunity,section_id:0
+#: field:crm.phonecall.category,team_id:0
+#: field:crm.lead.tag,team_id:0
 #: view:crm.opportunity.report:crm.view_report_crm_opportunity_filter
 #: field:crm.opportunity.report,section_id:0
 #: field:crm.payment.mode,section_id:0
