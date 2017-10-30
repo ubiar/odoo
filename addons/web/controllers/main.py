@@ -642,7 +642,7 @@ class WebClient(http.Controller):
         messages = ir_translation.search_read(request.cr, uid, [('module','in',mods),('lang','=',lang),
                                                ('comments','like','openerp-web'),('value','!=',False),
                                                ('value','!=','')],
-                                              ['module','src','value','lang'], order='module')
+                                              ['module','src','value','lang'], order='id desc, module')
         for mod, msg_group in itertools.groupby(messages, key=operator.itemgetter('module')):
             translations_per_module.setdefault(mod,{'messages':[]})
             translations_per_module[mod]['messages'].extend({'id': m['src'],

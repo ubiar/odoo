@@ -48,6 +48,11 @@ msgstr "Convertir a Presupuesto"
 
 #. module: sale_crm
 #: view:crm.lead:sale_crm.crm_case_form_view_oppor
+msgid "Sales"
+msgstr "Ventas"
+
+#. module: sale_crm
+#: view:crm.lead:sale_crm.crm_case_form_view_oppor
 msgid "Create Quotation"
 msgstr "Crear Presupuesto"
 
@@ -91,6 +96,11 @@ msgstr ""
 #: model:ir.actions.act_window,name:sale_crm.action_crm_make_sale
 msgid "Make Quotation"
 msgstr "Realizar un presupuesto"
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.sale_action_quotations
+msgid "Sale Orders"
+msgstr "Notas de Venta"
 
 #. module: sale_crm
 #: model:ir.model,name:sale_crm.model_crm_make_sale

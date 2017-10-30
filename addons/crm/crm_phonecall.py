@@ -45,9 +45,9 @@ class crm_phonecall(osv.osv):
         'description': fields.text('Description'),
         'state': fields.selection(
             [('open', 'Confirmed'),
-             ('cancel', 'Cancelled'),
              ('pending', 'Pending'),
-             ('done', 'Held')
+             ('done', 'Held'),
+             ('cancel', 'Cancelled'),
              ], string='Status', readonly=True, track_visibility='onchange',
             help='The status is set to Confirmed, when a case is created.\n'
                  'When the call is over, the status is set to Held.\n'

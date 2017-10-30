@@ -164,6 +164,7 @@ class ir_translation_import_cursor(object):
 
 class ir_translation(osv.osv):
     _name = "ir.translation"
+    _order = 'id desc'
     _log_access = False
 
     def _get_language(self, cr, uid, context):
@@ -273,12 +274,13 @@ class ir_translation(osv.osv):
     def _get_ids(self, cr, uid, name, tt, lang, ids):
         translations = dict.fromkeys(ids, False)
         if ids:
+            # En este caso se ordena por id ascendiente porque se van pisando los valres y queda el ultimo
             cr.execute('select res_id,value '
                     'from ir_translation '
                     'where lang=%s '
                         'and type=%s '
                         'and name=%s '
-                        'and res_id IN %s',
+                        'and res_id IN %s order by id',
                     (lang,tt,name,tuple(ids)))
             for res_id, value in cr.fetchall():
                 translations[res_id] = value
@@ -337,6 +339,7 @@ class ir_translation(osv.osv):
     def __get_source(self, cr, uid, name, types, lang, source, res_id):
         # res_id is a tuple or None, otherwise ormcache cannot cache it!
         query, params = self._get_source_query(cr, uid, name, types, lang, source, res_id)
+        query = '%s order by id desc' % query
         cr.execute(query, params)
         res = cr.fetchone()
         trad = res and res[0] or u''

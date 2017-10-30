@@ -1072,6 +1072,7 @@ class expression(object):
                                         it.type = %s and
                                         it.res_id = ct.id and
                                         it.value != '')
+                            order by it.id desc
                             )
                             SELECT id FROM temp_irt_current WHERE {name} {operator} {right} order by name
                             """.format(current_table=model._table, quote_left=_quote(left), name=unaccent('name'),

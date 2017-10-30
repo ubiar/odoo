@@ -14128,7 +14128,7 @@ msgstr ""
 #: model:ir.ui.menu,name:base.menu_sales
 #: model:ir.ui.menu,name:base.next_id_64
 msgid "Sales"
-msgstr ""
+msgstr "Ventas"
 
 #. module: base
 #: view:res.partner:base.view_partner_form

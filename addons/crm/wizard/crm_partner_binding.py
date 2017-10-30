@@ -82,7 +82,6 @@ class crm_partner_binding(osv.osv_memory):
                         ('name', 'ilike', '%'+active_model.contact_name+'%')], context=context)
                 if partner_ids:
                     partner_id = partner_ids[0]
-
         return partner_id
 
     def default_get(self, cr, uid, fields, context=None):

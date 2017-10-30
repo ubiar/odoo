@@ -1460,6 +1460,7 @@
   color: #777777;
   font-size: 125%;
   max-width: 700px;
+  z-index: 10;
 }
 .openerp .oe_view_nocontent .oe_view_nocontent_create {
   margin-top: 0;

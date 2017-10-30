@@ -1763,7 +1763,7 @@ msgstr "Registrar una llamada"
 #: model:ir.actions.act_window,name:crm.crm_case_categ_phone_incoming0
 #: model:ir.ui.menu,name:crm.menu_crm_case_phone_inbound
 msgid "Logged Calls"
-msgstr "Llamadas registradas"
+msgstr "Llamadas Registradas"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:1049

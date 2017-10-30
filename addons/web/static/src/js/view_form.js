@@ -6118,6 +6118,7 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
         this._super(field_manager, node);
         this.options.clickable = this.options.clickable || (this.node.attrs || {}).clickable || false;
         this.options.visible = this.options.visible || (this.node.attrs || {}).statusbar_visible || false;
+        this.options.visible_folded = this.options.visible_folded || (this.node.attrs || {}).statusbar_visible_folded || false;
         this.set({value: false});
         this.selection = {'unfolded': [], 'folded': []};
         this.set("selection", {'unfolded': [], 'folded': []});
@@ -6206,6 +6207,9 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
                     var key = select[i][0];
                     if(key == this.get('value') || !this.options.visible || this.options.visible.indexOf(key) != -1) {
                         selection_unfolded.push(select[i]);
+                    }
+                    if(key != this.get('value') && this.options.visible_folded && this.options.visible_folded.indexOf(key) != -1) {
+                        selection_folded.push(select[i]);
                     }
                 }
                 return $.when();

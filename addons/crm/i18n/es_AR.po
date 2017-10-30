@@ -417,7 +417,7 @@ msgid "Available for mass mailing"
 msgstr ""
 
 #. module: crm
-#: selection:crm.case.stage,type:0
+#: selection:crm.stage,type:0
 msgid "Both"
 msgstr ""
 
@@ -554,9 +554,14 @@ msgid "Category of Case"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.stage,on_change:0
+#: field:crm.stage,on_change:0
 msgid "Change Probability Automatically"
-msgstr ""
+msgstr "Cambiar la Probabilidad Automáticamente"
+
+#. module: crm
+#: field:crm.stage,legend_priority:0
+msgid "Priority Management Explanation"
+msgstr "Explicación de Gestión de Prioridad"
 
 #. module: crm
 #: view:crm.lead:crm.view_crm_case_leads_filter
@@ -718,6 +723,16 @@ msgid "Continue Process"
 msgstr "Continuar el proceso"
 
 #. module: crm
+#: view:crm.stage:crm.crm_stage_form
+msgid "A stage will be considered as 'Won' if the probability is 100% and it is folded in Kanban View."
+msgstr "Una etapa se considerará como 'Ganado' si la probabilidad es del 100% y se pliega en Vista Kanban."
+
+#. module: crm
+#: view:crm.stage:crm.crm_stage_form
+msgid "A stage will be considered as  'Lost (Dead)' if the probability is 0% and it is folded in Kanban View."
+msgstr "Una etapa se considerará como "Perdida (Muerta)" si la probabilidad es 0% y se pliega en Vista Kanban."
+
+#. module: crm
 #: field:crm.segmentation.line,expr_name:0
 msgid "Control Variable"
 msgstr "Variable de control"
@@ -801,7 +816,7 @@ msgstr ""
 #: field:base.partner.merge.automatic.wizard,create_uid:0
 #: field:base.partner.merge.line,create_uid:0
 #: field:crm.case.categ,create_uid:0
-#: field:crm.case.stage,create_uid:0
+#: field:crm.stage,create_uid:0
 #: field:crm.lead,create_uid:0
 #: field:crm.lead2opportunity.partner,create_uid:0
 #: field:crm.lead2opportunity.partner.mass,create_uid:0
@@ -822,7 +837,7 @@ msgstr ""
 #: field:base.partner.merge.automatic.wizard,create_date:0
 #: field:base.partner.merge.line,create_date:0
 #: field:crm.case.categ,create_date:0
-#: field:crm.case.stage,create_date:0
+#: field:crm.stage,create_date:0
 #: field:crm.lead2opportunity.partner,create_date:0
 #: field:crm.lead2opportunity.partner.mass,create_date:0
 #: field:crm.merge.opportunity,create_date:0
@@ -923,7 +938,7 @@ msgid "Days to Close"
 msgstr ""
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead2
+#: model:crm.stage,name:crm.stage_lead2
 msgid "Dead"
 msgstr "Muerta"
 
@@ -944,7 +959,7 @@ msgid "Default Alias Name for Leads"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.stage,case_default:0
+#: field:crm.stage,case_default:0
 msgid "Default to New Sales Team"
 msgstr ""
 
@@ -1172,9 +1187,9 @@ msgid "Finished"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.stage,fold:0
+#: field:crm.stage,fold:0
 msgid "Folded in Kanban View"
-msgstr ""
+msgstr "Replegado en Vista de Kanban"
 
 #. module: crm
 #: field:crm.lead,message_follower_ids:0
@@ -1281,7 +1296,7 @@ msgstr ""
 #: field:base.partner.merge.automatic.wizard,id:0
 #: field:base.partner.merge.line,id:0
 #: field:crm.case.categ,id:0
-#: field:crm.case.stage,id:0
+#: field:crm.stage,id:0
 #: field:crm.lead,id:0
 #: field:crm.lead.report,id:0
 #: field:crm.lead2opportunity.partner,id:0
@@ -1328,7 +1343,7 @@ msgid ""
 msgstr ""
 
 #. module: crm
-#: help:crm.case.stage,case_default:0
+#: help:crm.stage,case_default:0
 msgid ""
 "If you check this field, this stage will be proposed by default on each "
 "sales team. It will not assign this stage to existing teams."
@@ -1407,7 +1422,7 @@ msgstr ""
 #: field:base.partner.merge.automatic.wizard,write_uid:0
 #: field:base.partner.merge.line,write_uid:0
 #: field:crm.case.categ,write_uid:0
-#: field:crm.case.stage,write_uid:0
+#: field:crm.stage,write_uid:0
 #: field:crm.lead,write_uid:0
 #: field:crm.lead2opportunity.partner,write_uid:0
 #: field:crm.lead2opportunity.partner.mass,write_uid:0
@@ -1428,7 +1443,7 @@ msgstr ""
 #: field:base.partner.merge.automatic.wizard,write_date:0
 #: field:base.partner.merge.line,write_date:0
 #: field:crm.case.categ,write_date:0
-#: field:crm.case.stage,write_date:0
+#: field:crm.stage,write_date:0
 #: field:crm.lead2opportunity.partner,write_date:0
 #: field:crm.lead2opportunity.partner.mass,write_date:0
 #: field:crm.merge.opportunity,write_date:0
@@ -1446,7 +1461,7 @@ msgstr ""
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:884
-#: selection:crm.case.stage,type:0
+#: selection:crm.stage,type:0
 #: view:crm.lead:crm.crm_case_form_view_oppor
 #: selection:crm.lead,type:0
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
@@ -1460,7 +1475,7 @@ msgstr "Iniciativa"
 #. module: crm
 #: view:crm.lead:crm.view_crm_case_leads_filter
 msgid "Lead / Customer"
-msgstr ""
+msgstr "Iniciativa / Cliente"
 
 #. module: crm
 #: model:mail.message.subtype,name:crm.mt_lead_create
@@ -1470,19 +1485,19 @@ msgstr "Iniciativa Creada"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_lead2opportunity_partner
-msgid "Lead To Opportunity Partner"
+msgid "Iniciativa a Oportunidad"
 msgstr ""
 
 #. module: crm
 #: model:mail.message.subtype,description:crm.mt_lead_create
 msgid "Lead created"
-msgstr ""
+msgstr "Iniciativa creada"
 
 #. module: crm
 #: field:crm.phonecall,opportunity_id:0
 #: model:ir.model,name:crm.model_crm_lead
 msgid "Lead/Opportunity"
-msgstr ""
+msgstr "Iniciativa/Oportunidad"
 
 #. module: crm
 #: model:ir.actions.act_window,name:crm.action_lead_mass_mail
@@ -1494,17 +1509,18 @@ msgstr ""
 #: view:crm.case.section:crm.sales_team_form_view_in_crm
 #: field:crm.case.section,use_leads:0
 #: view:crm.lead:crm.crm_case_tree_view_leads
+#: model:ir.actions.act_window,name:crm.crm_lead_all_leads
 #: model:ir.actions.act_window,name:crm.crm_case_category_act_leads_all
 #: model:ir.actions.act_window,name:crm.crm_case_form_view_salesteams_lead
 #: model:ir.ui.menu,name:crm.menu_crm_leads
 msgid "Leads"
-msgstr ""
+msgstr "Iniciativas"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:84
 #, python-format
 msgid "Leads / Opportunities"
-msgstr ""
+msgstr "Iniciativas / Oportunidades"
 
 #. module: crm
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
@@ -1584,7 +1600,7 @@ msgid "Lines"
 msgstr ""
 
 #. module: crm
-#: help:crm.case.stage,section_ids:0
+#: help:crm.stage,section_ids:0
 msgid ""
 "Link between stages and sales teams. When set, this limitate the current "
 "stage to the selected sales teams."
@@ -1615,9 +1631,10 @@ msgstr ""
 
 #. module: crm
 #: model:ir.actions.act_window,name:crm.crm_case_categ_phone_incoming0
+#: model:ir.actions.act_window,name:crm.crm_phonecall_category_phone_incoming0
 #: model:ir.ui.menu,name:crm.menu_crm_case_phone_inbound
 msgid "Logged Calls"
-msgstr ""
+msgstr "Llamadas Registradas"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:1049
@@ -1631,7 +1648,7 @@ msgid "Long Term Revenue"
 msgstr ""
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead7
+#: model:crm.stage,name:crm.stage_lead7
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
 #: view:crm.opportunity.report:crm.view_report_crm_opportunity_filter
@@ -1897,16 +1914,19 @@ msgstr ""
 #: field:crm.case.categ,name:0
 #: field:crm.payment.mode,name:0
 #: field:crm.segmentation,name:0
+#: field:crm.phonecall.category,name:0
+#: field:crm.lost.reason,name:0
+#: field:crm.lead.tag,name:0
 msgid "Name"
 msgstr "Nombre"
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead5
+#: model:crm.stage,name:crm.stage_lead5
 msgid "Negotiation"
 msgstr ""
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead1
+#: model:crm.stage,name:crm.stage_lead1
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
 #: view:crm.opportunity.report:crm.view_report_crm_opportunity_filter
@@ -2052,6 +2072,7 @@ msgstr "Operador"
 #: model:ir.actions.act_window,name:crm.crm_case_category_act_oppor11
 #: model:ir.actions.act_window,name:crm.crm_case_form_view_salesteams_opportunity
 #: model:ir.actions.act_window,name:crm.relate_partner_opportunities
+#: model:ir.actions.act_window,name:crm.crm_lead_opportunities
 #: model:ir.ui.menu,name:crm.menu_crm_opportunities
 #: view:res.partner:crm.crm_lead_partner_kanban_view
 #: view:res.partner:crm.view_partners_form_crm1
@@ -2095,7 +2116,7 @@ msgstr ""
 #. module: crm
 #: code:addons/crm/crm_lead.py:864
 #: field:calendar.event,opportunity_id:0
-#: selection:crm.case.stage,type:0
+#: selection:crm.stage,type:0
 #: view:crm.lead:crm.crm_case_tree_view_oppor
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: selection:crm.lead,type:0
@@ -2140,6 +2161,12 @@ msgstr ""
 #: field:crm.lead,opt_out:0
 msgid "Opt-Out"
 msgstr "No acepta recibir mensajes"
+
+#. module: crm
+#: field:crm.lead,lost_reason:0
+#: view:crm.lead:crm.view_crm_case_opportunities_filter
+msgid "Lost Reason"
+msgstr "Motivo de Perdida"
 
 #. module: crm
 #: selection:base.partner.merge.automatic.wizard,state:0
@@ -2398,7 +2425,7 @@ msgid "Probability"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.stage,probability:0
+#: field:crm.stage,probability:0
 msgid "Probability (%)"
 msgstr "Probabilidad (%)"
 
@@ -2418,7 +2445,7 @@ msgid "Profiling Options"
 msgstr "Opciones de perfiles"
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead4
+#: model:crm.stage,name:crm.stage_lead4
 msgid "Proposition"
 msgstr ""
 
@@ -2428,7 +2455,7 @@ msgid "Purchase Amount"
 msgstr "Importe de compra"
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead3
+#: model:crm.stage,name:crm.stage_lead3
 msgid "Qualification"
 msgstr ""
 
@@ -2472,8 +2499,8 @@ msgid "Reminder to User"
 msgstr "Recordatorio al usuario"
 
 #. module: crm
-#: view:crm.case.stage:crm.crm_case_stage_form
-#: field:crm.case.stage,requirements:0
+#: view:crm.stage:crm.crm_case_stage_form
+#: field:crm.stage,requirements:0
 msgid "Requirements"
 msgstr "Requisitos"
 
@@ -2517,7 +2544,13 @@ msgstr "Compra-Ventas"
 #: model:ir.actions.act_window,name:crm.crm_lead_categ_action
 #: model:ir.ui.menu,name:crm.menu_crm_lead_categ
 msgid "Sales Tags"
-msgstr "Etiquetas de ventas"
+msgstr "Etiquetas de Ventas"
+
+#. module: crm
+#: model:ir.actions.act_window,name:crm.crm_lost_reason_action
+#: model:ir.ui.menu,name:crm.menu_crm_lost_reason
+msgid "Lost Reasons"
+msgstr "Motivos de Perdidas"
 
 #. module: crm
 #: field:crm.case.categ,section_id:0
@@ -2538,7 +2571,7 @@ msgstr "Etiquetas de ventas"
 #: field:crm.phonecall2phonecall,section_id:0
 #: field:crm.tracking.campaign,section_id:0
 msgid "Sales Team"
-msgstr ""
+msgstr "Equipo de Ventas"
 
 #. module: crm
 #: model:ir.model,name:crm.model_crm_case_section
@@ -2567,6 +2600,16 @@ msgstr ""
 #: view:crm.phonecall.report:crm.view_report_crm_phonecall_filter
 msgid "Salesperson"
 msgstr "Comercial"
+
+#. module: crm
+#: view:crm.lead:crm.view_crm_case_leads_filter
+msgid "To Process"
+msgstr "A Procesar"
+
+#. module: crm
+#: view:crm.lead:crm.view_crm_case_leads_filter
+msgid "Exclude Opt Out"
+msgstr "Excluir No Aceptan Mensajes"
 
 #. module: crm
 #: view:crm.phonecall:crm.crm_case_phone_form_view
@@ -2658,7 +2701,7 @@ msgid "Section"
 msgstr "Sección"
 
 #. module: crm
-#: field:crm.case.stage,section_ids:0
+#: field:crm.stage,section_ids:0
 msgid "Sections"
 msgstr "Secciones"
 
@@ -2717,7 +2760,7 @@ msgid "Send Email"
 msgstr "Enviar correo electrónico"
 
 #. module: crm
-#: field:crm.case.stage,sequence:0
+#: field:crm.stage,sequence:0
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -2732,7 +2775,7 @@ msgid "Set team to Sales Department"
 msgstr "Establecer como equipo al Departamento de ventas"
 
 #. module: crm
-#: help:crm.case.stage,on_change:0
+#: help:crm.stage,on_change:0
 msgid ""
 "Setting this stage will change the probability automatically on the "
 "opportunity."
@@ -2786,7 +2829,7 @@ msgid "Source Name"
 msgstr ""
 
 #. module: crm
-#: view:crm.case.stage:crm.crm_case_stage_form
+#: view:crm.stage:crm.crm_case_stage_form
 #: view:crm.lead:crm.view_crm_case_leads_filter
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: field:crm.lead,stage_id:0
@@ -2803,12 +2846,12 @@ msgid "Stage Changed"
 msgstr ""
 
 #. module: crm
-#: field:crm.case.stage,name:0
+#: field:crm.stage,name:0
 msgid "Stage Name"
-msgstr "Nombre de etapa"
+msgstr "Nombre de Etapa"
 
 #. module: crm
-#: view:crm.case.stage:crm.crm_lead_stage_search
+#: view:crm.stage:crm.crm_lead_stage_search
 msgid "Stage Search"
 msgstr ""
 
@@ -2825,7 +2868,7 @@ msgstr ""
 #. module: crm
 #: view:crm.case.section:crm.sales_team_form_view_in_crm
 #: field:crm.case.section,stage_ids:0
-#: view:crm.case.stage:crm.crm_case_stage_tree
+#: view:crm.stage:crm.crm_case_stage_tree
 #: model:ir.actions.act_window,name:crm.crm_case_stage_act
 #: model:ir.actions.act_window,name:crm.crm_lead_stage_act
 #: model:ir.ui.menu,name:crm.menu_crm_lead_stage_act
@@ -2980,7 +3023,7 @@ msgid "This adds the menu 'Scheduled Calls' under 'Sales / Phone Calls'"
 msgstr ""
 
 #. module: crm
-#: help:crm.case.stage,type:0
+#: help:crm.stage,type:0
 msgid ""
 "This field is used to distinguish stages related to Leads from stages "
 "related to Opportunities, or to specify stages available for both types."
@@ -3018,7 +3061,7 @@ msgid ""
 msgstr ""
 
 #. module: crm
-#: help:crm.case.stage,probability:0
+#: help:crm.stage,probability:0
 msgid ""
 "This percentage depicts the default/average probability of the Case for this "
 "stage to be a success"
@@ -3027,11 +3070,11 @@ msgstr ""
 "casos de esta etapa tengan éxito."
 
 #. module: crm
-#: help:crm.case.stage,fold:0
+#: help:crm.stage,fold:0
 msgid ""
 "This stage is folded in the kanban view whenthere are no records in that "
 "stage to display."
-msgstr ""
+msgstr "Esta etapa se repliega en la vista kanban."
 
 #. module: crm
 #: view:crm.lead:crm.crm_case_form_view_leads
@@ -3095,7 +3138,7 @@ msgid "Training"
 msgstr "Formación"
 
 #. module: crm
-#: field:crm.case.stage,type:0
+#: field:crm.stage,type:0
 #: field:crm.lead,type:0
 #: field:crm.lead.report,type:0
 #: field:crm.opportunity.report,type:0
@@ -3114,7 +3157,7 @@ msgstr ""
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: view:crm.phonecall:crm.view_crm_case_phonecalls_filter
 msgid "Unassigned"
-msgstr ""
+msgstr "Sin Asignar"
 
 #. module: crm
 #: field:crm.lead,message_unread:0
@@ -3143,7 +3186,7 @@ msgid "Used to compute open days"
 msgstr "Utilizado para cálculo de open days"
 
 #. module: crm
-#: help:crm.case.stage,sequence:0
+#: help:crm.stage,sequence:0
 msgid "Used to order stages. Lower is better."
 msgstr ""
 
@@ -3152,7 +3195,7 @@ msgstr ""
 #: field:crm.opportunity.report,user_id:0
 #: field:crm.phonecall.report,user_id:0
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #. module: crm
 #: field:crm.lead,user_email:0
@@ -3179,14 +3222,14 @@ msgstr "Valor"
 #: selection:crm.lead.report,priority:0
 #: selection:crm.opportunity.report,priority:0
 msgid "Very High"
-msgstr ""
+msgstr "Muy Alto"
 
 #. module: crm
 #: selection:crm.lead,priority:0
 #: selection:crm.lead.report,priority:0
 #: selection:crm.opportunity.report,priority:0
 msgid "Very Low"
-msgstr ""
+msgstr "Muy Bajo"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:392
@@ -3211,7 +3254,7 @@ msgid "Wizard"
 msgstr ""
 
 #. module: crm
-#: model:crm.case.stage,name:crm.stage_lead6
+#: model:crm.stage,name:crm.stage_lead6
 #: view:crm.lead:crm.view_crm_case_opportunities_filter
 #: view:crm.lead.report:crm.view_report_crm_lead_filter
 #: view:crm.opportunity.report:crm.view_report_crm_opportunity_filter
@@ -3254,16 +3297,21 @@ msgid "e.g. Call for proposal"
 msgstr ""
 
 #. module: crm
+#: view:crm.lead:crm.crm_case_form_view_oppor
+msgid "e.g. Product Pricing"
+msgstr "Por ejemplo, Consulta de precios"
+
+#. module: crm
 #: code:addons/crm/crm_lead.py:962
 #, python-format
 msgid "lead"
-msgstr ""
+msgstr "iniciativa"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:91
 #, python-format
 msgid "leads"
-msgstr ""
+msgstr "iniciativas"
 
 #. module: crm
 #: view:crm.phonecall:crm.crm_case_phone_form_view
@@ -3279,7 +3327,7 @@ msgstr "oe_kanban_text_red"
 #: code:addons/crm/crm_lead.py:960
 #, python-format
 msgid "opportunity"
-msgstr ""
+msgstr "oportunidad"
 
 #. module: crm
 #: code:addons/crm/crm_lead.py:1060
