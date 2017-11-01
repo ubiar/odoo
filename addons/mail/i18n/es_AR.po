@@ -2321,12 +2321,12 @@ msgid ""
 "The requested operation cannot be completed due to security restrictions. "
 "Please contact your system administrator.\n"
 "\n"
-"(Document type: %s, Operation: %s)"
+"(Document type: %s, Operation: %s, records: %s)"
 msgstr ""
 "La operación no ha podido ser completada por restricciones de seguridad. Por "
 "favor contacte con su administrador de sistema.\n"
 "\n"
-"(Tipo de documento: %s, Operación: %s)"
+"(Tipo de documento: %s, Operación: %s, registros: %s)"
 
 #. module: mail
 #: help:mail.group,image:0
