@@ -188,8 +188,8 @@ class mail_template(osv.osv):
             return results
 
         # prepare template variables
-        user = self.pool.get('res.users').browse(cr, uid, request and request.uid or uid, context=context)
-        records = self.pool[model].browse(cr, uid, filter(None, res_ids), context=context)  # filter to avoid browsing [None]
+        user = self.pool.get('res.users').browse(cr, SUPERUSER_ID, request and request.uid or uid, context=context)
+        records = self.pool[model].browse(cr, SUPERUSER_ID, filter(None, res_ids), context=context)  # filter to avoid browsing [None]
         res_to_rec = dict.fromkeys(res_ids, None)
         for record in records:
             res_to_rec[record.id] = record
