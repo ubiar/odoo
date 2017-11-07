@@ -99,11 +99,6 @@ class account_invoice(models.Model):
     @api.depends('account_id', 'move_id.line_id.account_id', 'move_id.line_id.reconcile_id')
     def _compute_reconciled(self):
         self.reconciled = self.test_paid()
-        # Todo Ubiar - Le cambio el estado a la factura segun si esta o no conciliada porque a veces no se actualizaba correctamente
-        if self.state == 'paid' and not self.reconciled:
-            self.write({'state': 'open'})
-        if self.state == 'open' and self.reconciled:
-            self.write({'state': 'paid'})
 
     @api.model
     def _get_reference_type(self):
