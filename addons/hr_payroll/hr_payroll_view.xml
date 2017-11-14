@@ -225,7 +225,8 @@
                         <button name="%(act_payslip_lines)d" 
                             class="oe_stat_button" 
                             icon="fa-money" 
-                            type="action">
+                            type="action"
+                            invisible="1">
                             <field name="payslip_count" widget="statinfo" string="Payslip" help="Payslip Computation Details"/>
                         </button>
                     </div>
@@ -396,7 +397,8 @@
                             class="oe_stat_button" 
                             icon="fa-money" 
                             type="action" 
-                            groups="base.group_hr_user">
+                            groups="base.group_hr_user"
+                            invisible="1">
                             <field name="payslip_count" widget="statinfo" string="Payslips"/>
                         </button>
                     </xpath>
