@@ -628,7 +628,7 @@ msgstr ""
 #. module: stock
 #: view:website:stock.report_picking
 msgid "Barcode"
-msgstr ""
+msgstr "Código de Barras"
 
 #. module: stock
 #: view:website:stock.barcode_index

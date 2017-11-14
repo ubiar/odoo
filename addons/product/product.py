@@ -1065,10 +1065,13 @@ class product_product(osv.osv):
                     seller_variant = s.product_name and (
                         variant and "%s (%s)" % (s.product_name, variant) or s.product_name
                         ) or False
+                    default_code = product.default_code
+                    if s.product_code:
+                        default_code = '%s - %s' % (product.default_code, s.product_code or '')
                     mydict = {
                               'id': product.id,
                               'name': seller_variant or name,
-                              'default_code': s.product_code or product.default_code,
+                              'default_code': default_code,
                               }
                     result.append(_name_get(mydict))
             else:
