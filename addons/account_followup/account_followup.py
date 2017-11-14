@@ -456,7 +456,7 @@ class res_partner(osv.osv):
                                          "gets a follow-up level that requires a manual action. "
                                          "Can be practical to set manually e.g. to see if he keeps "
                                          "his promises."),
-        'unreconciled_aml_ids': fields.function(_get_unreconciled_aml_ids, type='one2many', comodel_name='account.move.line'), 
+        'unreconciled_aml_ids': fields.function(_get_unreconciled_aml_ids, type='one2many', relation='account.move.line'), 
         # Ubar - No se usan mas estos campos ya que era muy costoso el calculo en todos los insert/write de partners
         'latest_followup_date': fields.date("Latest Follow-up Date"),
         'latest_followup_level_id': fields.many2one("account_followup.followup.line", "Latest Follow-up Level"),
