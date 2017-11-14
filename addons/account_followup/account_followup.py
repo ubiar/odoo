@@ -434,6 +434,12 @@ class res_partner(osv.osv):
             if aml.partner_id:
                 partners.add(aml.partner_id.id)
         return list(partners)
+        
+    def _get_unreconciled_aml_ids(self, cr, uid, ids, name, arg, context=None):
+        res = {}
+        for obj in self.browse(cr, uid, ids, context=context):
+            res[obj.id] = self.pool.get('account.move.line').search([('partner_id', '=', obj.id), '&', ('reconcile_id', '=', False), '&', ('account_id.active','=', True), '&', ('account_id.type', '=', 'receivable'), ('state', '!=', 'draft')])
+        return res
 
     _inherit = "res.partner"
     _columns = {
@@ -450,8 +456,7 @@ class res_partner(osv.osv):
                                          "gets a follow-up level that requires a manual action. "
                                          "Can be practical to set manually e.g. to see if he keeps "
                                          "his promises."),
-        'unreconciled_aml_ids':fields.one2many('account.move.line', 'partner_id', domain=['&', ('reconcile_id', '=', False), '&', 
-                            ('account_id.active','=', True), '&', ('account_id.type', '=', 'receivable'), ('state', '!=', 'draft')]), 
+        'unreconciled_aml_ids': fields.function(_get_unreconciled_aml_ids, type='one2many', comodel_name='account.move.line'), 
         # Ubar - No se usan mas estos campos ya que era muy costoso el calculo en todos los insert/write de partners
         'latest_followup_date': fields.date("Latest Follow-up Date"),
         'latest_followup_level_id': fields.many2one("account_followup.followup.line", "Latest Follow-up Level"),
