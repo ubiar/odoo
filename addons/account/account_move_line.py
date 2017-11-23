@@ -43,6 +43,7 @@ class account_move_line(osv.osv):
         fiscalyear_obj = self.pool.get('account.fiscalyear')
         fiscalperiod_obj = self.pool.get('account.period')
         account_obj = self.pool.get('account.account')
+        user = self.pool.get('res.users').browse(cr, uid, uid)
         fiscalyear_ids = []
         context = dict(context or {})
         initial_bal = context.get('initial_bal', False)
@@ -66,7 +67,13 @@ class account_move_line(osv.osv):
 
         query_params['fiscalyear_ids'] = tuple(fiscalyear_ids) or (0,)
         state = context.get('state', False)
-        where_move_state = ''
+        where_move_state = " AND %s.move_id IN (SELECT id FROM account_move WHERE subcompania_id = %s) " % (obj, user.subcompania_id.id)
+        if not context.get('incluye_asientos_apertura_cierre'):
+           where_move_state += " AND %s.journal_id IN (SELECT id FROM account_journal WHERE type != 'situation') " % obj
+        if not context.get('incluye_asientos_cancelados'):
+           where_move_state += " AND %s.move_id IN (SELECT id FROM account_move WHERE asiento_cancelado_id IS NULL) " % obj
+        if context.get('filtro_sucursal_ids'):
+            where_move_state += " AND %s.move_id IN (SELECT id FROM account_move WHERE sucursal_id IN (%s)) " % (obj, str(list(context.get('filtro_sucursal_ids')))[1:-1])
         where_move_lines_by_date = ''
 
         if context.get('date_from') and context.get('date_to'):
@@ -80,7 +87,7 @@ class account_move_line(osv.osv):
         if state:
             if state.lower() not in ['all']:
                 query_params['state'] = state
-                where_move_state= " AND "+obj+".move_id IN (SELECT id FROM account_move WHERE account_move.state = %(state)s)"
+                where_move_state += " AND "+obj+".move_id IN (SELECT id FROM account_move WHERE account_move.state = %(state)s)"
         if context.get('period_from') and context.get('period_to') and not context.get('periods'):
             if initial_bal:
                 period_company_id = fiscalperiod_obj.browse(cr, uid, context['period_from'], context=context).company_id.id

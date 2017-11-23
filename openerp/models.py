@@ -1689,6 +1689,8 @@ class BaseModel(object):
         provided domain <reference/orm/domains>`.
         """
         res = self.search(cr, user, args, context=context, count=True)
+        if res and type(res) == list and len(res) == 1 and type(res[0]) == long:
+            return res[0]
         if isinstance(res, list):
             return len(res)
         return res
@@ -5290,7 +5292,6 @@ class BaseModel(object):
         result = self.read(cr, uid, record_ids, fields, context=read_ctx) 
         if len(result) <= 1:
             return result
-
         # reorder read
         index = dict((r['id'], r) for r in result)
         return [index[x] for x in record_ids if x in index]
