@@ -438,7 +438,7 @@ class res_partner(osv.osv):
     def _get_unreconciled_aml_ids(self, cr, uid, ids, name, arg, context=None):
         res = {}
         for obj in self.browse(cr, uid, ids, context=context):
-            res[obj.id] = self.pool.get('account.move.line').search([('partner_id', '=', obj.id), '&', ('reconcile_id', '=', False), '&', ('account_id.active','=', True), '&', ('account_id.type', '=', 'receivable'), ('state', '!=', 'draft')])
+            res[obj.id] = self.pool.get('account.move.line').search(cr, uid, [('partner_id', '=', obj.id), '&', ('reconcile_id', '=', False), '&', ('account_id.active','=', True), '&', ('account_id.type', '=', 'receivable'), ('state', '!=', 'draft')], context=context)
         return res
 
     _inherit = "res.partner"
