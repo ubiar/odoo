@@ -702,7 +702,7 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
             active_id: id,
             active_ids: [id],
             active_model: this.dataset.model
-        }, this.records.get(id).toContext()));
+        }, this.records.get(id) && this.records.get(id).toContext()));
         if (action.context) {
             c.add(action.context);
         }
