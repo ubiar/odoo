@@ -205,9 +205,9 @@ class mail_template(osv.osv):
             variables['object'] = record
             try:
                 render_result = template.render(variables)
-            except Exception:
+            except Exception, e:
                 _logger.info("Failed to render template %r using values %r" % (template, variables), exc_info=True)
-                raise UserError(_("Failed to render template %r using values %r")% (template, variables))
+                raise UserError(_("Failed to render template %r using values %r message: %s")% (template, variables, e))
                 render_result = u""
             if render_result == u"False":
                 render_result = u""
