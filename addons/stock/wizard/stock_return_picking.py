@@ -23,6 +23,7 @@ from openerp.osv import osv, fields
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 from openerp.exceptions import UserError
+from openerp import SUPERUSER_ID
 
 class stock_return_picking_line(osv.osv_memory):
     _name = "stock.return.picking.line"
@@ -71,7 +72,7 @@ class stock_return_picking(osv.osv_memory):
         if pick:
             if pick.state != 'done':
                 raise UserError(_("You may only return pickings that are Done!"))
-
+                
             for move in pick.move_lines:
                 if move.move_dest_id:
                     chained_move_exist = True
@@ -84,8 +85,9 @@ class stock_return_picking(osv.osv_memory):
                 if validar_trazabilidad:
                     quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 else:
-                    quant_search = quant_obj.search(cr, uid, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
-                for quant in quant_obj.browse(cr, uid, quant_search, context=context):
+                    # Se suda porque puede ser que no tengo stock de quants de su sucursal en la ubicacion de clientes y como no se valida trasabilidad no importa
+                    quant_search = quant_obj.search(cr, SUPERUSER_ID, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                for quant in quant_obj.browse(cr, SUPERUSER_ID, quant_search, context=context):
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
                         qty += quant.qty
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
