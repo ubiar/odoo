@@ -1444,7 +1444,7 @@ class Reference(Selection):
 
     def convert_to_cache(self, value, record, validate=True):
         if isinstance(value, BaseModel):
-            if ((not validate or value._name in self.get_values(record.env))
+            if ((not validate or value._name in record.env.registry)
                     and len(value) <= 1):
                 return value.with_env(record.env) or False
         elif isinstance(value, basestring):
