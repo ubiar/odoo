@@ -68,8 +68,15 @@ class account_move_line(osv.osv):
         query_params['fiscalyear_ids'] = tuple(fiscalyear_ids) or (0,)
         state = context.get('state', False)
         where_move_state = " AND %s.move_id IN (SELECT id FROM account_move WHERE subcompania_id = %s) " % (obj, user.subcompania_id.id)
-        if not context.get('incluye_asientos_apertura_cierre'):
-           where_move_state += " AND %s.journal_id IN (SELECT id FROM account_journal WHERE type != 'situation') " % obj
+        if not context.get('incluye_asiento_apertura'):
+            where_move_state += " AND %s.move_id NOT IN (SELECT asiento_inicio_ejercicio_id FROM account_fiscalyear WHERE asiento_inicio_ejercicio_id IS NOT NULL) " % obj
+        if not context.get('incluye_asiento_cierre'):
+            where_move_state += " AND %s.move_id NOT IN (SELECT asiento_cierre_cuentas_patrimoniales_id FROM account_fiscalyear WHERE asiento_cierre_cuentas_patrimoniales_id IS NOT NULL) " % obj
+            where_move_state += " AND %s.move_id NOT IN (SELECT asiento_cierre_cuentas_resultado_id FROM account_fiscalyear WHERE asiento_cierre_cuentas_resultado_id IS NOT NULL) " % obj
+        if context.get('solo_asientos_vuelco'):
+            where_move_state += " AND %s.move_id IN (SELECT id FROM account_move WHERE periodo_resumen_id NOT IS NULL) " % obj
+        else:
+            where_move_state += " AND %s.move_id IN (SELECT id FROM account_move WHERE periodo_resumen_id IS NULL) " % obj
         if not context.get('incluye_asientos_cancelados'):
            where_move_state += " AND %s.move_id IN (SELECT id FROM account_move WHERE asiento_cancelado_id IS NULL) " % obj
         if context.get('filtro_sucursal_ids'):
