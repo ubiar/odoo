@@ -155,6 +155,8 @@ class stock_return_picking(osv.osv_memory):
                     move_dest_id = move.origin_returned_move_id.move_dest_id.id
                 else:
                     move_dest_id = False
+                    
+                location_id = context.get('force_location_id') or move.location_dest_id.id
                 
                 returned_lines += 1
                 move_obj.copy(cr, uid, move.id, {
@@ -163,7 +165,7 @@ class stock_return_picking(osv.osv_memory):
                     'product_uos_qty': new_qty * move.product_uos_qty / move.product_uom_qty,
                     'picking_id': new_picking,
                     'state': 'draft',
-                    'location_id': move.location_dest_id.id,
+                    'location_id': location_id,
                     'location_dest_id': move.location_id.id,
                     'picking_type_id': pick_type_id,
                     'warehouse_id': pick.picking_type_id.warehouse_id.id,

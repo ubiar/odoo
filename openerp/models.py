@@ -707,7 +707,7 @@ class BaseModel(object):
                 attrs['translate'] = bool(field['translate'])
                 attrs['size'] = field['size'] or None
             elif field['ttype'] in ('selection', 'reference'):
-                attrs['selection'] = eval(field['selection'])
+                attrs['selection'] = eval(field['selection'] or '[]')
             elif field['ttype'] == 'many2one':
                 if partial and field['relation'] not in cls.pool:
                     continue
