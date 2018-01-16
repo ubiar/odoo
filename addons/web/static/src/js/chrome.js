@@ -1358,11 +1358,12 @@ instance.web.WebClient = instance.web.Client.extend({
     show_common: function() {
         var self = this;
         this._super();
-        window.onerror = function (message, file, line) {
+        window.onerror = function (message, file, line, col, error) {
             self.crashmanager.show_error({
                 type: _t("Error del Cliente"),
                 message: message,
-                data: {debug: file + ':' + line}
+                data: {debug: file + ':' + line},
+                error: error
             });
         };
     },
