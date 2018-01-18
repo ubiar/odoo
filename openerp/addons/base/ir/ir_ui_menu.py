@@ -310,6 +310,8 @@ class ir_ui_menu(osv.osv):
                 menu = menu.sudo()
             if menu.action and menu.sudo().action.type == 'ir.codigo.python':
                 menu = menu.sudo()
+            if menu.action and menu.sudo().action.type == 'ir.bi.powerbi.consulta':
+                menu = menu.sudo()
             if menu.action and menu.action.type in ('ir.actions.act_window', 'ir.actions.client') and menu.action.context:
                 try:
                     # use magical UnquoteEvalContext to ignore undefined client-side variables such as `active_id`
@@ -341,6 +343,8 @@ class ir_ui_menu(osv.osv):
             if menu.action and menu.sudo().action._name == 'ir.interface':
                 menu = menu.sudo()
             if menu.action and menu.sudo().action.type == 'ir.codigo.python':
+                menu = menu.sudo()
+            if menu.action and menu.sudo().action.type == 'ir.bi.powerbi.consulta':
                 menu = menu.sudo()
             if menu.action and menu.action.type in ('ir.actions.act_window', 'ir.actions.client') and menu.action.res_model:
                 if menu.action.res_model in self.pool:
@@ -462,6 +466,7 @@ class ir_ui_menu(osv.osv):
                 ('ir.actions.server', 'ir.actions.server'),
                 ('ir.actions.client', 'ir.actions.client'),
                 ('ir.codigo.python', 'ir.codigo.python'),
+                ('ir.bi.powerbi.consulta', 'ir.bi.powerbi.consulta'),
             ]),
     }
 
