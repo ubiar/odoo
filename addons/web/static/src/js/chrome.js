@@ -1542,7 +1542,7 @@ instance.web.WebClient = instance.web.Client.extend({
     },
     on_menu_action: function(options) {
         var self = this;
-        return this.menu_dm.add(this.rpc("/web/action/load", { action_id: options.action_id }))
+        return this.menu_dm.add(this.rpc("/web/action/load", { action_id: options.action_id, needaction: options.needaction}))
             .then(function (result) {
                 return self.action_mutex.exec(function() {
                     if (options.needaction) {
