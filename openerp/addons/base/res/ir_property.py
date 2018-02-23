@@ -83,9 +83,11 @@ class ir_property(osv.osv):
 
     def _update_values(self, cr, uid, ids, values):
         value = values.pop('value', None)
-        if not value:
-            return values
-
+        # si el valor es falso se almacena un 0 para que quede falso
+        # si no cuando el property tiene un valor por defecto distinto a false
+        # el sistema no modificaba el property y quedaba el valor anterior
+        # if not value:
+        #     return values
         prop = None
         type_ = values.get('type')
         if not type_:
@@ -101,7 +103,7 @@ class ir_property(osv.osv):
 
         if field == 'value_reference':
             if isinstance(value, orm.BaseModel):
-                value = '%s,%d' % (value._name, value.id)
+                value = '%s,%d' % (value._name, value.id or 0)
             elif isinstance(value, (int, long)):
                 field_id = values.get('fields_id')
                 if not field_id:
@@ -111,7 +113,7 @@ class ir_property(osv.osv):
                 else:
                     field_id = self.pool.get('ir.model.fields').browse(cr, uid, field_id)
 
-                value = '%s,%d' % (field_id.relation, value)
+                value = '%s,%d' % (field_id.relation, value or 0)
 
         values[field] = value
         return values

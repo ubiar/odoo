@@ -101,7 +101,9 @@ class ir_sequence(models.Model):
             else:
                 # get number from postgres sequence. Cannot use currval, because that might give an error when
                 # not having used nextval before.
-                query = "SELECT last_value, increment_by, is_called FROM ir_sequence_%03d" % element.id
+                # En postgresql 10 eliminaron el campo incremented_by entonces se toma con un subquery del sistema
+                # no se utiliza la vista nueva porque no existe en las versiones viejas de postgres
+                query = "SELECT last_value, (SELECT number_increment FROM ir_sequence WHERE id = %s) as incremented_by, is_called FROM ir_sequence_%03d" % (element.id, element.id)
                 self.env.cr.execute(query)
                 (last_value, increment_by, is_called) = self.env.cr.fetchone()
                 if is_called:
@@ -338,7 +340,9 @@ class ir_sequence_date_range(models.Model):
             else:
                 # get number from postgres sequence. Cannot use currval, because that might give an error when
                 # not having used nextval before.
-                query = "SELECT last_value, increment_by, is_called FROM ir_sequence_%03d_%03d" % (element.sequence_id.id, element.id)
+                # En postgresql 10 eliminaron el campo incremented_by entonces se toma con un subquery del sistema
+                # no se utiliza la vista nueva porque no existe en las versiones viejas de postgres
+                query = "SELECT last_value, (SELECT number_increment FROM ir_sequence WHERE id = %s) AS increment_by, is_called FROM ir_sequence_%03d_%03d" % (element.sequence_id.id, element.sequence_id.id, element.id)
                 self.env.cr.execute(query)
                 (last_value, increment_by, is_called) = self.env.cr.fetchone()
                 if is_called:
