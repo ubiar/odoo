@@ -1248,7 +1248,7 @@ class Binary(http.Controller):
 class Action(http.Controller):
 
     @http.route('/web/action/load', type='json', auth="user")
-    def load(self, action_id, do_not_eval=False, additional_context=None):
+    def load(self, action_id, do_not_eval=False, additional_context=None, needaction=False):
         Actions = request.session.model('ir.actions.actions')
         value = False
         try:
@@ -1278,6 +1278,18 @@ class Action(http.Controller):
             action = request.session.model(action_type).read([action_id], fields=False, context=ctx)
             if action:
                 value = clean_action(action[0])
+            if action and needaction:
+                try:
+                    # Agrego el domain del needaction para que cuando apriete el boton
+                    # filtre por esos valores, no ejecuta un eval del domain para manejarlo como tupla
+                    # porque no se si le pueden llegar variables, entonce lo armo como texto
+                    domain = action[0].get('domain') or '[]'
+                    model = request.session.model(action[0]['res_model'])
+                    need_domain = ('%s' % model.get_needaction_domain_get()) or '[]'
+                    need_domain = ''.join(need_domain.rsplit(']', 1)) # Reemplazo solo el ultimo corchete
+                    action[0]['domain'] = domain.replace('[', '%s, ' % need_domain, 1)
+                except Exception:
+                    pass
         if value and additional_context and additional_context.get('force_target'):
             value['target'] = additional_context.get('force_target')
         return value
