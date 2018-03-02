@@ -171,7 +171,7 @@ class ir_attachment(osv.osv):
             _logger.info("_read_file reading %s", full_path, exc_info=True)
         return r
 
-    def _file_write(self, cr, uid, value, checksum):
+    def _file_write(self, cr, uid, value, checksum, context=None):
         bin_value = value.decode('base64')
         fname, full_path = self._get_path(cr, uid, bin_value, checksum)
         if not os.path.exists(full_path):
@@ -182,7 +182,7 @@ class ir_attachment(osv.osv):
                 _logger.info("_file_write writing %s", full_path, exc_info=True)
         return fname
 
-    def _file_delete(self, cr, uid, fname):
+    def _file_delete(self, cr, uid, fname, context=None):
         # using SQL to include files hidden through unlink or due to record rules
         cr.execute("SELECT COUNT(*) FROM ir_attachment WHERE store_fname = %s", (fname,))
         count = cr.fetchone()[0]
@@ -242,7 +242,7 @@ class ir_attachment(osv.osv):
         vals['index_content'] = self._index(cr, SUPERUSER_ID, bin_data, attach.datas_fname, attach.mimetype),
         if location != 'db':
             # create the file
-            fname = self._file_write(cr, uid, value, checksum, context)
+            fname = self._file_write(cr, uid, value, checksum, context=context)
             vals.update({
                 'store_fname': fname,
                 'db_datas': False
