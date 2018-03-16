@@ -712,6 +712,15 @@ class view(osv.osv):
                     if 'attrs' in node.attrib:
                         del(node.attrib['attrs']) #avoid making field visible later
                 del(node.attrib['groups'])
+            if node.get('groups_editable'):
+                can_edit = self.user_has_groups(
+                    cr, user, groups=node.get('groups_editable'), context=context)
+                if not can_edit:
+                    node.set('readonly', '1')
+                    modifiers['readonly'] = True
+                    if 'attrs' in node.attrib:
+                        del(node.attrib['attrs']) #avoid making field editable later
+                del(node.attrib['groups_editable'])
             return True
 
         if node.tag in ('field', 'node', 'arrow'):
