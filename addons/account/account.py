@@ -2180,7 +2180,7 @@ class account_tax(osv.osv):
         res = []
         taxes.reverse()
         cur_price_unit = price_unit
-
+        amount = 0.0
         tax_parent_tot = 0.0
         for tax in taxes:
             if (tax.type=='percent') and not tax.include_base_amount:
