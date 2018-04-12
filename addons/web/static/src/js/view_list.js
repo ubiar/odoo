@@ -2373,7 +2373,7 @@ instance.web.list.ProgressBar = instance.web.list.Column.extend({
      */
     _format: function (row_data, options) {
         return _.template(
-            '<div class="progress"><div class="progress-bar" style="width: <%-value%>%;" role="progressbar" aria-valuenow="<%-value%>" aria-valuemin="0" aria-valuemax="100"><%-value%>%</div></div>')({
+            '<div class="progress" style="margin-bottom: 2px;"><div class="progress-bar" style="width: <%-value%>%;" role="progressbar" aria-valuenow="<%-value%>" aria-valuemin="0" aria-valuemax="100"><%-value%>%</div></div>')({
                 value: _.str.sprintf("%.0f", row_data[this.id].value || 0)
             });
     }
