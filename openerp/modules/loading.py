@@ -134,7 +134,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
     for index, package in enumerate(graph):
         module_name = package.name
         module_id = package.id
-
+        
         if skip_modules and module_name in skip_modules:
             continue
 
@@ -160,8 +160,12 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         mode = 'update'
         if hasattr(package, 'init') or package.state == 'to install':
             mode = 'init'
+        
+        # No actualizo los modulos que estan por desinstalarse si no quedan como instalados y no se puede automatizar una desinstalacion desde ir_upgrade_data
+        cr.execute("SELECT state FROM ir_module_module WHERE name='%s'" % package.name)
+        actual_state = cr.fetchone()[0]
 
-        if hasattr(package, 'init') or hasattr(package, 'update') or package.state in ('to install', 'to upgrade'):
+        if (hasattr(package, 'init') or hasattr(package, 'update') or package.state in ('to install', 'to upgrade')) and actual_state != 'to remove':
             # Can't put this line out of the loop: ir.module.module will be
             # registered by init_module_models() above.
             modobj = registry['ir.module.module']
