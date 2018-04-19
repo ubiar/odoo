@@ -171,7 +171,7 @@ class ir_attachment(osv.osv):
             _logger.info("_read_file reading %s", full_path, exc_info=True)
         return r
 
-    def _file_write(self, cr, uid, value, checksum):
+    def _file_write(self, cr, uid, value, checksum, context=None):
         bin_value = value.decode('base64')
         fname, full_path = self._get_path(cr, uid, bin_value, checksum)
         if not os.path.exists(full_path):
@@ -182,7 +182,7 @@ class ir_attachment(osv.osv):
                 _logger.info("_file_write writing %s", full_path, exc_info=True)
         return fname
 
-    def _file_delete(self, cr, uid, fname):
+    def _file_delete(self, cr, uid, fname, context=None):
         # using SQL to include files hidden through unlink or due to record rules
         cr.execute("SELECT COUNT(*) FROM ir_attachment WHERE store_fname = %s", (fname,))
         count = cr.fetchone()[0]
@@ -199,11 +199,17 @@ class ir_attachment(osv.osv):
     def _data_get(self, cr, uid, ids, name, arg, context=None):
         if context is None:
             context = {}
+        context = context.copy()
         result = {}
         bin_size = context.get('bin_size')
         for attach in self.browse(cr, uid, ids, context=context):
             if attach.store_fname:
-                result[attach.id] = self._file_read(cr, uid, attach.store_fname, bin_size)
+                if not context.get('bin_size'):
+                    context['file_id'] = attach.id
+                try:
+                    result[attach.id] = self._file_read(cr, uid, attach.store_fname, bin_size, context=context)
+                except Exception, e:
+                    result[attach.id] = False
             else:
                 result[attach.id] = attach.db_datas
         return result
@@ -224,15 +230,19 @@ class ir_attachment(osv.osv):
             return True
         if context is None:
             context = {}
+        context = context.copy()
         # browse the attachment and get the file to delete
         attach = self.browse(cr, uid, id, context=context)
+        context['file_url'] = attach.url
+        context['file_id'] = attach.id
         fname_to_delete = attach.store_fname
+        context['file_create'] = not fname_to_delete
         location = self._storage(cr, uid, context)
         # compute the index_content field
         vals['index_content'] = self._index(cr, SUPERUSER_ID, bin_data, attach.datas_fname, attach.mimetype),
         if location != 'db':
             # create the file
-            fname = self._file_write(cr, uid, value, checksum)
+            fname = self._file_write(cr, uid, value, checksum, context=context)
             vals.update({
                 'store_fname': fname,
                 'db_datas': False
@@ -248,7 +258,7 @@ class ir_attachment(osv.osv):
         # After de-referencing the file in the database, check whether we need
         # to garbage-collect it on the filesystem
         if fname_to_delete:
-            self._file_delete(cr, uid, fname_to_delete)
+            self._file_delete(cr, uid, fname_to_delete, context=context)
         return True
 
     def _compute_checksum(self, bin_data):
@@ -453,7 +463,8 @@ class ir_attachment(osv.osv):
                             if a.store_fname]
         res = super(ir_attachment, self).unlink(cr, uid, ids, context)
         for file_path in to_delete:
-            self._file_delete(cr, uid, file_path)
+            
+            self._file_delete(cr, uid, file_path, context=context)
 
         return res
 

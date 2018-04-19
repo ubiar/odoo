@@ -701,6 +701,7 @@ class BaseModel(object):
                 'required': bool(field['required']),
                 'readonly': bool(field['readonly']),
                 'usuario_calculado': bool(field.get('usuario_calculado')),
+                'help': field.get('usuario_help'),
             }
             # FIXME: ignore field['serialization_field_id']
             if field['ttype'] in ('char', 'text', 'html'):
@@ -2606,6 +2607,7 @@ class BaseModel(object):
                                 ('text', 'char', pg_varchar(f.size), '::%s' % pg_varchar(f.size)),
                                 ('varchar', 'text', 'TEXT', ''),
                                 ('int4', 'float', get_pg_type(f)[1], '::'+get_pg_type(f)[1]),
+                                ('varchar', 'integer', get_pg_type(f)[1], '::'+get_pg_type(f)[1], get_pg_type(f)[1]+' USING '+k+'::'+get_pg_type(f)[1]), # ubiar - se agregó la conversión de char a int
                                 ('date', 'datetime', 'TIMESTAMP', '::TIMESTAMP'),
                                 ('timestamp', 'date', 'date', '::date'),
                                 ('numeric', 'float', get_pg_type(f)[1], '::'+get_pg_type(f)[1]),
@@ -2625,22 +2627,29 @@ class BaseModel(object):
                                 cr.commit()
                                 _schema.debug("Table '%s': column '%s' (type varchar) changed size from %s to %s",
                                     self._table, k, f_pg_size or 'unlimited', f.size or 'unlimited')
+                            
                             for c in casts:
                                 if (f_pg_type==c[0]) and (f._type==c[1]):
                                     if f_pg_type != f_obj_type:
                                         ok = True
                                         try:
+                                            query_type = c[2] if len(c) == 4 else c[4] # ubiar - para poder convertir de char a int hubo que forzarlo con el USING ::, por eso se agrega esto.
                                             with cr.savepoint():
-                                                cr.execute('ALTER TABLE "%s" ALTER COLUMN "%s" TYPE %s' % (self._table, k, c[2]), log_exceptions=False)
+                                                cr.execute('ALTER TABLE "%s" ALTER COLUMN "%s" TYPE %s' % (self._table, k, query_type), log_exceptions=False)
                                         except psycopg2.NotSupportedError:
-                                            # can't do inplace change -> use a casted temp column
-                                            cr.execute('ALTER TABLE "%s" RENAME COLUMN "%s" TO __temp_type_cast' % (self._table, k))
-                                            cr.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' % (self._table, k, c[2]))
-                                            cr.execute('UPDATE "%s" SET "%s"= __temp_type_cast%s' % (self._table, k, c[3]))
-                                            cr.execute('ALTER TABLE "%s" DROP COLUMN  __temp_type_cast CASCADE' % (self._table,))
-                                        cr.commit()
-                                        _schema.debug("Table '%s': column '%s' changed type from %s to %s",
-                                            self._table, k, c[0], c[1])
+                                            try:
+                                                with cr.savepoint():
+                                                    # can't do inplace change -> use a casted temp column
+                                                    cr.execute('ALTER TABLE "%s" RENAME COLUMN "%s" TO __temp_type_cast' % (self._table, k))
+                                                    cr.execute('ALTER TABLE "%s" ADD COLUMN "%s" %s' % (self._table, k, c[2]))
+                                                    cr.execute('UPDATE "%s" SET "%s"= __temp_type_cast%s' % (self._table, k, c[3]))
+                                                    cr.execute('ALTER TABLE "%s" DROP COLUMN  __temp_type_cast CASCADE' % (self._table,))
+                                            except Exception:
+                                                ok = False
+                                        if ok:
+                                            cr.commit()
+                                            _schema.debug("Table '%s': column '%s' changed type from %s to %s",
+                                                self._table, k, c[0], c[1])
                                     break
 
                             if f_pg_type != f_obj_type:

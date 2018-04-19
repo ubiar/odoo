@@ -381,7 +381,6 @@ class ir_actions_act_window(osv.osv):
         if ids_int:
             ids = [ids]
         results = super(ir_actions_act_window, self).read(cr, uid, ids, fields=fields, context=context, load=load)
-
         if not fields or 'help' in fields:
             for res in results:
                 model = res.get('res_model')

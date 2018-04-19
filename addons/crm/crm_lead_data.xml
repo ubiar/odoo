@@ -70,7 +70,7 @@
         
         <!--  crm categories -->
         <record model="crm.lead.tag" id="categ_oppor1">
-            <field name="name">Product</field>
+            <field name="name">Producto</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor2">
@@ -78,27 +78,27 @@
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor3">
-            <field name="name">Services</field>
+            <field name="name">Servicios</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor4">
-            <field name="name">Information</field>
+            <field name="name">Información</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor5">
-            <field name="name">Design</field>
+            <field name="name">Diseño</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor6">
-            <field name="name">Training</field>
+            <field name="name">Capacitación</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor7">
-            <field name="name">Consulting</field>
+            <field name="name">Consultoría</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
         <record model="crm.lead.tag" id="categ_oppor8">
-            <field name="name">Other</field>
+            <field name="name">Otro</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
 

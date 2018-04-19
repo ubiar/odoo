@@ -183,7 +183,9 @@ class mail_template(osv.osv):
         # try to load the template
         try:
             template = mako_template_env.from_string(tools.ustr(template))
-        except Exception:
+        except Exception as e:
+            if context.get('raise_exception'):
+                raise e
             _logger.info("Failed to load template %r", template, exc_info=True)
             return results
 
@@ -498,7 +500,9 @@ class mail_template(osv.osv):
                 if 'body_html' in fields and template.user_signature:
                     signature = self.pool.get('res.users').browse(cr, uid, uid, context).signature
                     if signature:
-                        values['body_html'] = tools.append_content_to_html(values['body_html'], signature, plaintext=False)
+                        values['body_html'] = '%s\n\n<div>%s</div>' % (values['body_html'], signature)
+                        # No se utiliza mas porque el metodo append_content_to_html modificaba el html y genera que en algunos casos se vea mal
+                        # values['body_html'] = tools.append_content_to_html(values['body_html'], signature, plaintext=False)
                 # add company signature
                 if 'body_html' in fields:
                     user = self.pool.get('res.users').browse(cr, uid, request and request.uid or uid, context)
@@ -511,9 +515,11 @@ class mail_template(osv.osv):
                     sent_by = _('Enviado por %(company)s mediante %(odoo)s')
                     signature_company = '<br /><br /><small>%s</small>' % (sent_by % {
                         'company': company,
-                        'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/'>Advance ERP</a>"
+                        'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/page/advance_erp'>Advance ERP</a>"
                     })
-                    values['body_html'] = tools.append_content_to_html(values['body_html'], signature_company, plaintext=False, container_tag='div')
+                    values['body_html'] = '%s\n\n<div>%s</div>' % (values['body_html'], signature_company)
+                    # No se utiliza mas porque el metodo append_content_to_html modificaba el html y genera que en algunos casos se vea mal
+                    #values['body_html'] = tools.append_content_to_html(values['body_html'], signature_company, plaintext=False, container_tag='div')
                 if values.get('body_html'):
                     values['body'] = tools.html_sanitize(values['body_html'])
                 # technical settings

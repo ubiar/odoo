@@ -51,6 +51,9 @@ class ir_needaction_mixin(osv.AbstractModel):
             :return: domain or False is no action
         """
         return False
+        
+    def get_needaction_domain_get(self, cr, uid, context=None):
+        return self._needaction_domain_get(cr, uid, context=context)
 
     #------------------------------------------------------
     # "Need action" API
