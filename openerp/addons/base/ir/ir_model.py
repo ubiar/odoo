@@ -398,7 +398,7 @@ class ir_model_fields(osv.osv):
             self._check_selection(cr, user, vals['selection'], context=context)
         res = super(ir_model_fields,self).create(cr, user, vals, context)
         if vals.get('state','base') == 'manual':
-            if not vals['name'].startswith('x_'):
+            if not vals['name'].startswith('x_') and not context.get('no_validate_name_x'):
                 raise UserError(_("Custom fields must have a name that starts with 'x_' !"))
 
             if vals.get('relation',False) and not self.pool['ir.model'].search(cr, user, [('model','=',vals['relation'])]):
