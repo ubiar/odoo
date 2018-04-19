@@ -713,7 +713,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
             options = options || {};
 
             var self = this;
-            var timeout = typeof options.timeout === 'number' ? options.timeout : 15000 * orders.length;
+            var timeout = typeof options.timeout === 'number' ? options.timeout : 25000 * orders.length;
 
             // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
             // then we want to notify the user that we are waiting on something )
