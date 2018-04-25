@@ -1090,8 +1090,8 @@ class task(osv.osv):
         if 'stage_id' in vals:
             vals['date_last_stage_update'] = fields.datetime.now()
         # user_id change: update date_start
-        if vals.get('user_id') and 'date_start' not in vals:
-            vals['date_start'] = fields.datetime.now()
+        # if vals.get('user_id') and 'date_start' not in vals:
+        #    vals['date_start'] = fields.datetime.now()
 
         # Overridden to reset the kanban_state to normal whenever
         # the stage (stage_id) of the task changes.
