@@ -1078,8 +1078,9 @@ class stock_picking(osv.osv):
                 if location_dest_id and move.location_dest_id.id != location_dest_id:
                     raise UserError(_('The destination location must be the same for all the moves of the picking.'))
                 location_dest_id = move.location_dest_id.id
-                if location_id and move.location_id.id != location_id:
-                    raise UserError(_('The source location must be the same for all the moves of the picking.'))
+                # Se deshabilita para permitir enviar desde distintas ubicaciones en la misma orden de entrega
+                # if location_id and move.location_id.id != location_id:
+                #     raise UserError(_('The source location must be the same for all the moves of the picking.'))
                 location_id = move.location_id.id
 
         pack_obj = self.pool.get("stock.quant.package")
