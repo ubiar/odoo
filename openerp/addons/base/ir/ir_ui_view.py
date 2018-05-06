@@ -706,6 +706,9 @@ class view(osv.osv):
             if node.get('groups'):
                 can_see = self.user_has_groups(
                     cr, user, groups=node.get('groups'), context=context)
+                if node.get('inverse_groups'):
+                    del(node.attrib['inverse_groups'])
+                    can_see = not can_see
                 if not can_see:
                     node.set('invisible', '1')
                     modifiers['invisible'] = True
