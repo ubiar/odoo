@@ -1348,6 +1348,7 @@ class account_invoice_line(models.Model):
             partner_id=False, fposition_id=False, price_unit=False, currency_id=False,
             company_id=None, date_invoice=None):
         context = self._context
+        date_invoice = self.invoice_id.date_invoice
         company_id = company_id if company_id is not None else context.get('company_id', False)
         self = self.with_context(company_id=company_id, force_company=company_id)
 
