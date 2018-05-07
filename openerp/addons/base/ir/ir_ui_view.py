@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import re
 import collections
 import copy
 import datetime
@@ -860,6 +861,34 @@ class view(osv.osv):
                         node.set('on_change', '1')
 
         return arch
+        
+    def add_extra_domain(self, cr, user, model_name, arch):
+        """ Agrega el domain establecido en domain_add delante del domain
+        """
+        # map each field object to its corresponding nodes in arch
+        field_nodes = collections.defaultdict(list)
+
+        def collect(node, model):
+            if node.tag == 'field':
+                field = model._fields.get(node.get('name'))
+                if field:
+                    field_nodes[field].append(node)
+                    if field.relational:
+                        model = self.pool.get(field.comodel_name)
+            for child in node:
+                collect(child, model)
+
+        collect(arch, self.pool[model_name])
+
+        for field, nodes in field_nodes.iteritems():
+            for node in nodes:
+                if node.get('domain') and node.get('domain_add'):
+                    new_domain = re.sub('( *\] *)', '', node.get('domain_add')) + ", " + re.sub('( *\[ *)', '', node.get('domain'))
+                    node.set('domain', new_domain)
+                if not node.get('domain') and node.get('domain_add'):
+                    node.set('domain', node.get('domain_add'))
+
+        return arch
 
     def _disable_workflow_buttons(self, cr, user, model, node):
         """ Set the buttons in node to readonly if the user can't activate them. """
@@ -918,6 +947,8 @@ class view(osv.osv):
             fields = Model.fields_get(cr, user, None, context)
 
         node = self.add_on_change(cr, user, model, node)
+        #node = self.add_extra_domain(cr, user, model, node) # UBIAR: Activar esto para poder sumar pedazos de dominio al heredar vistas!
+        
         fields_def = self.postprocess(cr, user, model, node, view_id, False, fields, context=context)
         node = self._disable_workflow_buttons(cr, user, model, node)
         if node.tag in ('kanban', 'tree', 'form', 'gantt'):
