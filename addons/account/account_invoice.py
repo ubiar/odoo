@@ -26,6 +26,7 @@ from openerp import models, fields, api, _
 from openerp.exceptions import UserError, RedirectWarning, Warning
 from openerp.tools import float_compare
 import openerp.addons.decimal_precision as dp
+from openerp.http import request
 
 # mapping invoice type to journal type
 TYPE2JOURNAL = {
@@ -1238,6 +1239,11 @@ class account_invoice_line(models.Model):
     def _compute_price(self):
         price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
         precio_unitario_con_iva = False
+        if request and request.context:
+            if 'alicuota_iva' in self:
+                request.context['alicuota_iva'] = self.alicuota_iva
+            if 'precio_unitario_con_iva' in self:
+                request.context['precio_unitario_con_iva'] = self.precio_unitario_con_iva
         taxes = self.invoice_line_tax_id.with_context(precio_unitario_con_iva=self.invoice_id.precio_unitario_con_iva).compute_all(price, self.quantity,
                                                      product=self.product_id,
                                                      partner=self.invoice_id.partner_id)
@@ -1342,6 +1348,7 @@ class account_invoice_line(models.Model):
             partner_id=False, fposition_id=False, price_unit=False, currency_id=False,
             company_id=None, date_invoice=None):
         context = self._context
+        date_invoice = self.invoice_id.date_invoice
         company_id = company_id if company_id is not None else context.get('company_id', False)
         self = self.with_context(company_id=company_id, force_company=company_id)
 

@@ -1078,8 +1078,9 @@ class stock_picking(osv.osv):
                 if location_dest_id and move.location_dest_id.id != location_dest_id:
                     raise UserError(_('The destination location must be the same for all the moves of the picking.'))
                 location_dest_id = move.location_dest_id.id
-                if location_id and move.location_id.id != location_id:
-                    raise UserError(_('The source location must be the same for all the moves of the picking.'))
+                # Se deshabilita para permitir enviar desde distintas ubicaciones en la misma orden de entrega
+                # if location_id and move.location_id.id != location_id:
+                #     raise UserError(_('The source location must be the same for all the moves of the picking.'))
                 location_id = move.location_id.id
 
         pack_obj = self.pool.get("stock.quant.package")
@@ -1115,7 +1116,9 @@ class stock_picking(osv.osv):
 
         # Go through all remaining reserved quants and group by product, package, lot, owner, source location and dest location
         for quant, dest_location_id in quants_suggested_locations.items():
-            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id)
+            # Se agrego para que agrupe por quant.reservation_id (stock.move) porque al tener udv y udm puede ser que la relacion de estas del mismo producto
+            # sean distintas y al agruparlas generaba inconsistencias
+            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id, quant.reservation_id) 
             if qtys_grouped.get(key):
                 qtys_grouped[key] += quant.qty
             else:
@@ -1415,6 +1418,8 @@ class stock_picking(osv.osv):
     def do_enter_transfer_details(self, cr, uid, picking, context=None):
         if not context:
             context = {}
+            
+        context = context.copy()
 
         context.update({
             'active_model': self._name,
