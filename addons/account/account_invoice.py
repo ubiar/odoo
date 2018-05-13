@@ -134,7 +134,7 @@ class account_invoice(models.Model):
             if line.currency_id == self.currency_id:
                 line_amount = line.amount_residual_currency if line.currency_id else line.amount_residual
             else:
-                from_currency = line.company_id.currency_id.with_context(date=line.date)
+                from_currency = line.company_id.currency_id.with_context(date=line.date, currency_rate=line.invoice.cotizacion)
                 line_amount = from_currency.compute(line.amount_residual, self.currency_id)
             # For partially reconciled lines, split the residual amount
             if line.reconcile_partial_id:
@@ -313,6 +313,7 @@ class account_invoice(models.Model):
         compute=_fnc_commercial_partner_id, store=True, readonly=True,
         help="The commercial entity that will be used on Journal Entries for this invoice")
     precio_unitario_con_iva = fields.Boolean('Los precios unitarios son con I.V.A.')
+    cotizacion = fields.Float('Cotización', size=15, digits=(12,2), required=True, default=1)
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type)', 
@@ -675,7 +676,7 @@ class account_invoice(models.Model):
                     ref = self.number
                 if not self.journal_id.analytic_journal_id:
                     raise UserError(_("You have to define an analytic journal on the '%s' journal!") % (self.journal_id.name,))
-                currency = self.currency_id.with_context(date=self.date_invoice)
+                currency = self.currency_id.with_context(date=self.date_invoice, currency_rate=self.cotizacion)
                 il['analytic_lines'] = [(0,0, {
                     'name': il['name'],
                     'date': self.date_invoice,
@@ -742,7 +743,7 @@ class account_invoice(models.Model):
         total_currency = 0
         for line in invoice_move_lines:
             if self.currency_id != company_currency:
-                currency = self.currency_id.with_context(date=self.date_invoice or fields.Date.context_today(self))
+                currency = self.currency_id.with_context(date=self.date_invoice or fields.Date.context_today(self), currency_rate=self.cotizacion)
                 line['currency_id'] = currency.id
                 line['amount_currency'] = line['price']
                 line['price'] = currency.compute(line['price'], company_currency)
@@ -860,6 +861,7 @@ class account_invoice(models.Model):
             if totlines:
                 res_amount_currency = total_currency
                 ctx['date'] = date_invoice
+                ctx['currency_rate'] = inv.cotizacion
                 for i, t in enumerate(totlines):
                     if inv.currency_id != company_currency:
                         amount_currency = company_currency.with_context(ctx).compute(t[1], inv.currency_id)
@@ -1256,7 +1258,7 @@ class account_invoice_line(models.Model):
             comp_cur = self.invoice_id.company_id.currency_id
 
             if inv_cur != comp_cur:
-                inv_cur = inv_cur.with_context(date=self.invoice_id.date_invoice)
+                inv_cur = inv_cur.with_context(date=self.invoice_id.date_invoice, currency_rate=self.invoice_id.cotizacion)
                 price_subtotal_signed = inv_cur.compute(price_subtotal_signed, comp_cur)
 
             sign = -1 if self.invoice_id.type in ['in_invoice', 'out_refund'] else 1
@@ -1448,7 +1450,7 @@ class account_invoice_line(models.Model):
     @api.model
     def move_line_get(self, invoice_id):
         inv = self.env['account.invoice'].browse(invoice_id)
-        currency = inv.currency_id.with_context(date=inv.date_invoice)
+        currency = inv.currency_id.with_context(date=inv.date_invoice, currency_rate=inv.cotizacion)
         company_currency = inv.company_id.currency_id
 
         res = []
@@ -1563,7 +1565,7 @@ class account_invoice_tax(models.Model):
         company = self.env['res.company'].browse(company_id)
         if currency_id and company.currency_id:
             currency = self.env['res.currency'].browse(currency_id)
-            currency = currency.with_context(date=date_invoice or fields.Date.context_today(self))
+            currency = currency.with_context(date=date_invoice or fields.Date.context_today(self), currency_rate=self.invoice_id.cotizacion)
             base = currency.compute(base * factor, company.currency_id, round=False)
         return {'value': {'base_amount': base}}
 
@@ -1572,7 +1574,7 @@ class account_invoice_tax(models.Model):
         company = self.env['res.company'].browse(company_id)
         if currency_id and company.currency_id:
             currency = self.env['res.currency'].browse(currency_id)
-            currency = currency.with_context(date=date_invoice or fields.Date.context_today(self))
+            currency = currency.with_context(date=date_invoice or fields.Date.context_today(self), currency_id=self.invoice_id.cotizacion)
             amount = currency.compute(amount, company.currency_id, round=False)
         return {'value': {'tax_amount': amount}}
 
@@ -1595,7 +1597,7 @@ class account_invoice_tax(models.Model):
     @api.v8
     def compute(self, invoice):
         tax_grouped = {}
-        currency = invoice.currency_id.with_context(date=invoice.date_invoice or fields.Date.context_today(invoice))
+        currency = invoice.currency_id.with_context(date=invoice.date_invoice or fields.Date.context_today(invoice), currency_rate=invoice.cotizacion)
         company_currency = invoice.company_id.currency_id
         res_a = self.compute_a(invoice)
         for line in invoice.invoice_line:
