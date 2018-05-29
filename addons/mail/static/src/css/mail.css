@@ -1,7 +1,6 @@
 /* ------------ TOPBAR MAIL BUTTON --------------- */
 .oe_topbar_item.oe_topbar_compose_full_email *{
     position: relative;
-    color: white;
 }
 
 /* ------------ MAIL WIDGET --------------- */

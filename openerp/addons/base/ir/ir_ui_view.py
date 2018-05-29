@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import re
 import collections
 import copy
 import datetime
@@ -706,6 +707,9 @@ class view(osv.osv):
             if node.get('groups'):
                 can_see = self.user_has_groups(
                     cr, user, groups=node.get('groups'), context=context)
+                if node.get('inverse_groups'):
+                    del(node.attrib['inverse_groups'])
+                    can_see = not can_see
                 if not can_see:
                     node.set('invisible', '1')
                     modifiers['invisible'] = True
@@ -860,6 +864,34 @@ class view(osv.osv):
                         node.set('on_change', '1')
 
         return arch
+        
+    def add_extra_domain(self, cr, user, model_name, arch):
+        """ Agrega el domain establecido en domain_add delante del domain
+        """
+        # map each field object to its corresponding nodes in arch
+        field_nodes = collections.defaultdict(list)
+
+        def collect(node, model):
+            if node.tag == 'field':
+                field = model._fields.get(node.get('name'))
+                if field:
+                    field_nodes[field].append(node)
+                    if field.relational:
+                        model = self.pool.get(field.comodel_name)
+            for child in node:
+                collect(child, model)
+
+        collect(arch, self.pool[model_name])
+
+        for field, nodes in field_nodes.iteritems():
+            for node in nodes:
+                if node.get('domain') and node.get('domain_add'):
+                    new_domain = re.sub('( *\] *)', '', node.get('domain_add')) + ", " + re.sub('( *\[ *)', '', node.get('domain'))
+                    node.set('domain', new_domain)
+                if not node.get('domain') and node.get('domain_add'):
+                    node.set('domain', node.get('domain_add'))
+
+        return arch
 
     def _disable_workflow_buttons(self, cr, user, model, node):
         """ Set the buttons in node to readonly if the user can't activate them. """
@@ -918,6 +950,8 @@ class view(osv.osv):
             fields = Model.fields_get(cr, user, None, context)
 
         node = self.add_on_change(cr, user, model, node)
+        #node = self.add_extra_domain(cr, user, model, node) # UBIAR: Activar esto para poder sumar pedazos de dominio al heredar vistas!
+        
         fields_def = self.postprocess(cr, user, model, node, view_id, False, fields, context=context)
         node = self._disable_workflow_buttons(cr, user, model, node)
         if node.tag in ('kanban', 'tree', 'form', 'gantt'):
@@ -1241,6 +1275,20 @@ class view(osv.osv):
             # only validate the views that are still existing...
             xmlid_filter = "AND md.name IN %s"
             names = tuple(name for (xmod, name), (model, res_id) in self.pool.model_data_reference_ids.items() if xmod == module and model == self._name)
+            # Elimino las vistas que ya no se encuentran en el modulo para que no generen errores al actualizar
+            where_names = 'AND md.name not in (%s)' % str(list(names))[1:-1] if names else ''
+            cr.execute('''
+                DELETE FROM ir_ui_view WHERE id IN (
+                    SELECT 
+                        v.id 
+                    FROM 
+                        ir_ui_view v
+                        LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                    WHERE 
+                        md.module = '%s'
+                        %s
+                )
+            ''' % (module, where_names))
             if not names:
                 # no views for this module, nothing to validate
                 return
@@ -1252,7 +1300,7 @@ class view(osv.osv):
                          {0}
                     GROUP BY coalesce(v.inherit_id, v.id)
                    """.format(xmlid_filter), params)
-
-        for vid, in cr.fetchall():
+        view_ids = [r[0] for r in cr.fetchall()]
+        for vid in view_ids:
             if not self._check_xml(cr, uid, [vid]):
                 self.raise_view_error(cr, uid, "Can't validate view", vid)
