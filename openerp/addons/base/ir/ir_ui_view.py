@@ -1275,6 +1275,20 @@ class view(osv.osv):
             # only validate the views that are still existing...
             xmlid_filter = "AND md.name IN %s"
             names = tuple(name for (xmod, name), (model, res_id) in self.pool.model_data_reference_ids.items() if xmod == module and model == self._name)
+            # Elimino las vistas que ya no se encuentran en el modulo para que no generen errores al actualizar
+            where_names = 'AND md.name not in (%s)' % str(list(names))[1:-1] if names else ''
+            cr.execute('''
+                DELETE FROM ir_ui_view WHERE id IN (
+                    SELECT 
+                        v.id 
+                    FROM 
+                        ir_ui_view v
+                        LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                    WHERE 
+                        md.module = '%s'
+                        %s
+                )
+            ''' % (module, where_names))
             if not names:
                 # no views for this module, nothing to validate
                 return
@@ -1286,7 +1300,7 @@ class view(osv.osv):
                          {0}
                     GROUP BY coalesce(v.inherit_id, v.id)
                    """.format(xmlid_filter), params)
-
-        for vid, in cr.fetchall():
+        view_ids = [r[0] for r in cr.fetchall()]
+        for vid in view_ids:
             if not self._check_xml(cr, uid, [vid]):
                 self.raise_view_error(cr, uid, "Can't validate view", vid)
