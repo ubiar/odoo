@@ -92,7 +92,7 @@ Dashboard for CRM will include:
         'res_partner_view.xml',
 
         'res_config_view.xml',
-        'base_partner_merge_view.xml',
+        # 'base_partner_merge_view.xml', # Ubiar: Se comenta ya que se remplaza con otro item
 
         'sales_team_view.xml',
         'views/crm.xml',
