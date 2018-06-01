@@ -1118,7 +1118,7 @@ class stock_picking(osv.osv):
         for quant, dest_location_id in quants_suggested_locations.items():
             # Se agrego para que agrupe por quant.reservation_id (stock.move) porque al tener udv y udm puede ser que la relacion de estas del mismo producto
             # sean distintas y al agruparlas generaba inconsistencias
-            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id, quant.reservation_id) 
+            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id, quant.reservation_id.id) 
             if qtys_grouped.get(key):
                 qtys_grouped[key] += quant.qty
             else:
@@ -1379,7 +1379,7 @@ class stock_picking(osv.osv):
             'restrict_partner_id': op.owner_id,
             }
         return res
-
+        
     def _create_extra_moves(self, cr, uid, picking, context=None):
         '''This function creates move lines on a picking, at the time of do_transfer, based on
         unexpected product transfers (or exceeding quantities) found in the pack operations.
@@ -1394,7 +1394,14 @@ class stock_picking(osv.osv):
                     vals = self._prepare_values_extra_move(cr, uid, op, product, remaining_qty, context=context)
                     moves.append(move_obj.create(cr, uid, vals, context=context))
         if moves:
-            move_obj.action_confirm(cr, uid, moves, context=context)
+            if context and context.get('check_stock'):
+                for m in move_obj.browse(cr, uid, moves, context=context):
+                    m.action_confirm()
+                    m.action_assign()
+                    if m.state != "assigned":
+                        raise UserError(_('No dispone de stock suficiente del producto "%s" en la ubicación "%s" para realizar la transferencia') % (m.product_id.name_get()[0][1], m.location_id.name_get()[0][1]))
+            else:
+                move_obj.action_confirm(cr, uid, moves, context=context)
         return moves
 
     def rereserve_pick(self, cr, uid, ids, context=None):
