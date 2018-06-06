@@ -2136,8 +2136,8 @@ class account_tax(osv.osv):
         for r in tex:
             totalin += r.get('amount', 0.0)
             taxes += r.get('amount', 0.0)
-        totalin = round(totalin, precision)
-        taxes = round(taxes, precision)
+        totalin = round(totalin, tax_compute_precision)
+        taxes = round(taxes, tax_compute_precision)
         return {
             'total': totalin - taxes,
             'total_included': totalin,
@@ -2189,7 +2189,11 @@ class account_tax(osv.osv):
         for tax in taxes:
             if (tax.type=='fixed') and not tax.include_base_amount:
                 cur_price_unit -= tax.amount
-
+        
+        precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
+        if taxes and taxes[0].company_id.tax_calculation_rounding_method == 'round_globally':
+            precision += 5
+        
         for tax in taxes:
             if tax.type=='percent':
                 if tax.include_base_amount:
@@ -2212,8 +2216,8 @@ class account_tax(osv.osv):
                 todo = 0
             else:
                 todo = 1
-            # Ubiar -> Importante no aplicar el redondeo por unidad ya que al ser muchas unidades da mal porque pierde los decimales
-            #amount = round(amount, self.pool.get('decimal.precision').precision_get(cr, uid, 'Account'))
+            
+            amount = round(amount, precision)
             res.append({
                 'id': tax.id,
                 'todo': todo,
