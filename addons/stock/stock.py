@@ -1075,8 +1075,8 @@ class stock_picking(osv.osv):
             if move.product_uom.id != move.product_id.uom_id.id and move.product_uom.factor > product_uom[move.product_id.id].factor:
                 product_uom[move.product_id.id] = move.product_uom
             if not move.scrapped:
-                if location_dest_id and move.location_dest_id.id != location_dest_id:
-                    raise UserError(_('The destination location must be the same for all the moves of the picking.'))
+                # if location_dest_id and move.location_dest_id.id != location_dest_id:
+                #     raise UserError(_('The destination location must be the same for all the moves of the picking.'))
                 location_dest_id = move.location_dest_id.id
                 # Se deshabilita para permitir enviar desde distintas ubicaciones en la misma orden de entrega
                 # if location_id and move.location_id.id != location_id:
