@@ -1039,6 +1039,24 @@ class account_move_line(osv.osv):
         r = cr.fetchall()
         #TODO: move this check to a constraint in the account_move_reconcile object
         if len(r) != 1:
+            if ids:
+                cr.execute('''
+                    SELECT 
+                    	count(*), 
+                    	string_agg(cuenta.name, ', ')
+                    FROM (
+                    	SELECT 
+                    		cuenta.name
+                    	FROM 
+                    		account_move_line aml
+                    		LEFT JOIN account_account cuenta ON aml.account_id = cuenta.id
+                    	WHERE aml.id IN (%s)
+                    	GROUP BY cuenta.name
+                    ) AS cuenta
+                ''' % str(list(ids))[1:-1])
+                r = cr.fetchone()
+                if r[0] > 1:
+                    raise UserError(_('Entries are not of the same account %s! (Move codes %s)') % (r[1], str(ids)))
             raise UserError(_('Entries are not of the same account or already reconciled ! (Move codes %s)') % str(ids))
         if not unrec_lines:
             raise UserError(_('Entry is already reconciled.'))
@@ -1133,7 +1151,7 @@ class account_move_line(osv.osv):
         if lines and lines[0]:
             partner_id = lines[0].partner_id and lines[0].partner_id.id or False
             if partner_id and not partner_obj.has_something_to_reconcile(cr, uid, partner_id, context=context):
-                partner_obj.mark_as_reconciled(cr, uid, [partner_id], context=context)
+                partner_obj.mark_as_reconciled(cr, SUPERUSER_ID, [partner_id], context=context)
         return r_id
 
     def view_header_get(self, cr, user, view_id, view_type, context=None):

@@ -1111,11 +1111,12 @@ class stock_picking(osv.osv):
             if move.product_uom.id != move.product_id.uom_id.id and move.product_uom.factor > product_uom[move.product_id.id].factor:
                 product_uom[move.product_id.id] = move.product_uom
             if not move.scrapped:
-                if location_dest_id and move.location_dest_id.id != location_dest_id:
-                    raise UserError(_('The destination location must be the same for all the moves of the picking.'))
+                # if location_dest_id and move.location_dest_id.id != location_dest_id:
+                #     raise UserError(_('The destination location must be the same for all the moves of the picking.'))
                 location_dest_id = move.location_dest_id.id
-                if location_id and move.location_id.id != location_id:
-                    raise UserError(_('The source location must be the same for all the moves of the picking.'))
+                # Se deshabilita para permitir enviar desde distintas ubicaciones en la misma orden de entrega
+                # if location_id and move.location_id.id != location_id:
+                #     raise UserError(_('The source location must be the same for all the moves of the picking.'))
                 location_id = move.location_id.id
 
         pack_obj = self.pool.get("stock.quant.package")
@@ -1151,7 +1152,9 @@ class stock_picking(osv.osv):
 
         # Go through all remaining reserved quants and group by product, package, lot, owner, source location and dest location
         for quant, dest_location_id in quants_suggested_locations.items():
-            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id)
+            # Se agrego para que agrupe por quant.reservation_id (stock.move) porque al tener udv y udm puede ser que la relacion de estas del mismo producto
+            # sean distintas y al agruparlas generaba inconsistencias
+            key = (quant.product_id.id, quant.package_id.id, quant.lot_id.id, quant.owner_id.id, quant.location_id.id, dest_location_id, quant.reservation_id.id) 
             if qtys_grouped.get(key):
                 qtys_grouped[key] += quant.qty
             else:
@@ -1413,7 +1416,7 @@ class stock_picking(osv.osv):
             'restrict_partner_id': op.owner_id,
             }
         return res
-
+        
     def _create_extra_moves(self, cr, uid, picking, context=None):
         '''This function creates move lines on a picking, at the time of do_transfer, based on
         unexpected product transfers (or exceeding quantities) found in the pack operations.
@@ -1428,7 +1431,14 @@ class stock_picking(osv.osv):
                     vals = self._prepare_values_extra_move(cr, uid, op, product, remaining_qty, context=context)
                     moves.append(move_obj.create(cr, uid, vals, context=context))
         if moves:
-            move_obj.action_confirm(cr, uid, moves, context=context)
+            if context and context.get('check_stock'):
+                for m in move_obj.browse(cr, uid, moves, context=context):
+                    m.action_confirm()
+                    m.action_assign()
+                    if m.state != "assigned":
+                        raise UserError(_('No dispone de stock suficiente del producto "%s" en la ubicación "%s" para realizar la transferencia') % (m.product_id.name_get()[0][1], m.location_id.name_get()[0][1]))
+            else:
+                move_obj.action_confirm(cr, uid, moves, context=context)
         return moves
 
     def rereserve_pick(self, cr, uid, ids, context=None):
@@ -1452,6 +1462,8 @@ class stock_picking(osv.osv):
     def do_enter_transfer_details(self, cr, uid, picking, context=None):
         if not context:
             context = {}
+            
+        context = context.copy()
 
         context.update({
             'active_model': self._name,

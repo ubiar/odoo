@@ -1283,6 +1283,8 @@ class account_voucher(osv.osv):
                 'debit': 0.0,
                 'date': voucher.date
             }
+            if 'fecha_vencimiento' in line:
+                move_line['date_maturity'] = line.fecha_vencimiento
             if amount < 0:
                 amount = -amount
                 if line.type == 'dr':
