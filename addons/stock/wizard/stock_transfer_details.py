@@ -146,11 +146,19 @@ class stock_transfer_details_items(models.TransientModel):
     @api.multi
     def split_quantities(self):
         for det in self:
-            if det.quantity>1:
-                det.quantity = (det.quantity-1)
-                new_id = det.copy(context=self.env.context)
-                new_id.quantity = 1
-                new_id.packop_id = False
+            if det.quantity > 1:
+                if det.product_id.tracking == "serial":
+                    for x in range(1, int(det.quantity)):
+                        det.quantity = 1
+                        new_id = det.copy(context=self.env.context)
+                        new_id.quantity = 1
+                        new_id.packop_id = False
+                else:
+                    det.quantity = (det.quantity-1)
+                    new_id = det.copy(context=self.env.context)
+                    new_id.quantity = 1
+                    new_id.packop_id = False
+                    
         if self and self[0]:
             return self[0].transfer_id.wizard_view()
 

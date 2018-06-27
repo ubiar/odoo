@@ -25,3 +25,4 @@ import stock_change_product_qty
 import make_procurement_product
 import orderpoint_procurement
 import stock_transfer_details
+import stock_lot_split
