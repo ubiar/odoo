@@ -404,7 +404,7 @@
                             <field name="comment" class="oe_inline" placeholder="Additional notes..."/>
                         </page>
                         <page string="Other Info">
-                            <group col="4">
+                            <group col="4" name="group_a_oi">
                                 <group>
                                     <field name="company_id" on_change="onchange_company_id(company_id,partner_id,type,invoice_line,currency_id)" options="{'no_create': True}" groups="base.group_multi_company"/>
                                     <field name="user_id" groups="base.group_user" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'account.group_account_invoice']}"/>
