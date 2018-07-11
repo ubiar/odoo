@@ -4323,7 +4323,13 @@ msgstr ""
 #: code:addons/account/account_move_line.py:965
 #, python-format
 msgid "Entries are not of the same account or already reconciled ! (Move codes %s)"
-msgstr "Asientos no son de la misma cuenta o ya están conciliados ! (Código de movimientos %s)"
+msgstr "Los movimientos ya están conciliados ! (Código de movimientos %s)"
+
+#. module: account
+#: code:addons/account/account_move_line.py:965
+#, python-format
+msgid "Entries are not of the same account %s! (Move codes %s)"
+msgstr "Los movimientos no son de la misma cuenta %s! (Código de movimientos %s)"
 
 #. module: account
 #: model:ir.model,name:account.model_account_statement_from_invoice_lines

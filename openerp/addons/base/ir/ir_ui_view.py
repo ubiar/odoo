@@ -720,10 +720,18 @@ class view(osv.osv):
                 can_edit = self.user_has_groups(
                     cr, user, groups=node.get('groups_editable'), context=context)
                 if not can_edit:
-                    node.set('readonly', '1')
-                    modifiers['readonly'] = True
+                    # Si llega groups_editable_attrs en True, no borro el attrs ni lo hago readonly, dejo lo que sea que tenga
+                    if not node.get('groups_editable_attrs'):
+                        node.set('readonly', '1')
+                        modifiers['readonly'] = True
+                        if 'attrs' in node.attrib:
+                            del(node.attrib['attrs']) #avoid making field editable later
+                # Si llega groups_editable_attrs me aseguro que siempre pueda editar, independientemente de algún readonly o attrs de una vista
+                elif can_edit and node.get('groups_editable_attrs'):
+                    node.set('readonly', '0')
+                    modifiers['readonly'] = False
                     if 'attrs' in node.attrib:
-                        del(node.attrib['attrs']) #avoid making field editable later
+                        del(node.attrib['attrs'])
                 del(node.attrib['groups_editable'])
             return True
 
