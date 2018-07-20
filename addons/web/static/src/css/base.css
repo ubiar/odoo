@@ -2529,6 +2529,7 @@
 .openerp .oe_list .oe_list_content .oe_group_header {
   background-color: #ededed;
   background: url(/web/static/src/img/background-linear-gradient-grupos.png) repeat;
+  background-size: contain;
 }
 .openerp .oe_list_content {
   width: 100%;
