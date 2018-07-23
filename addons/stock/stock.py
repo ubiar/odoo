@@ -1269,7 +1269,7 @@ class stock_picking(osv.osv):
             qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
             if prod2move_ids.get(product_id):
                 cantidad_move_filtrados = 0
-                while prod2move_ids[product_id] and qtyassign_cmp > 0 and len(prod2move_ids[product_id]) <= cantidad_move_filtrados:
+                while prod2move_ids[product_id] and qtyassign_cmp > 0 and len(prod2move_ids[product_id]) > cantidad_move_filtrados:
                     qty_on_link = _create_link_for_index(operation_id, 0, product_id, qty_to_assign, quant_id=False)
                     qty_to_assign -= qty_on_link
                     qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
