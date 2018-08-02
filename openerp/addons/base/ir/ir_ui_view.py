@@ -727,10 +727,11 @@ class view(osv.osv):
                         if 'attrs' in node.attrib:
                             del(node.attrib['attrs']) #avoid making field editable later
                 # Si llega groups_editable_attrs me aseguro que siempre pueda editar, independientemente de algún readonly o attrs de una vista
-                elif can_edit and node.get('groups_editable_attrs') and 'attrs' in node.attrib:
+                elif can_edit and node.get('groups_editable_attrs'):
                     node.set('readonly', '0')
                     modifiers['readonly'] = False
-                    del(node.attrib['attrs'])
+                    if 'attrs' in node.attrib:
+                        del(node.attrib['attrs'])
                 del(node.attrib['groups_editable'])
             return True
 

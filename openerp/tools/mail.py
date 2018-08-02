@@ -42,7 +42,7 @@ _logger = logging.getLogger(__name__)
 # HTML Sanitizer
 #----------------------------------------------------------
 
-tags_to_kill = ["script", "head", "meta", "title", "link", "style", "frame", "iframe", "base", "object", "embed"]
+tags_to_kill = ["script", "head", "meta", "title", "link", "style", "frame", "base", "object"]
 tags_to_remove = ['html', 'body']
 
 # allow new semantic HTML5 tags
@@ -95,7 +95,8 @@ def html_sanitize(src, silent=True, strict=False, strip_style=False):
             })
     else:
         kwargs['safe_attrs_only'] = False    # keep oe-data attributes + style
-        kwargs['frames'] = False,            # do not remove frames (embbed video in CMS blogs)
+        kwargs['frames'] = False            # do not remove frames (embbed video in CMS blogs)
+        kwargs['embedded'] = False            # do not remove frames (embbed video in CMS blogs)
 
     try:
         # some corner cases make the parser crash (such as <SCRIPT/XSS SRC=\"http://ha.ckers.org/xss.js\"></SCRIPT> in test_mail)
