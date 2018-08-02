@@ -109,7 +109,6 @@ def _hasclass(context, *cls):
     return node_classes.issuperset(cls)
 
 def get_view_arch_from_file(filename, xmlid):
-
     doc = etree.parse(filename)
     node = None
     for n in doc.xpath('//*[@id="%s"] | //*[@id="%s"]' % (xmlid, xmlid.split('.')[1])):
@@ -173,7 +172,10 @@ class view(osv.osv):
                 key = 'install_mode_data'
                 if context and key in context:
                     imd = context[key]
-                    if self._model._name == imd['model'] and (not view.xml_id or view.xml_id == imd['xml_id']):
+                    xmlid = imd['xml_id']
+                    if '.' not in xmlid and view.xml_id:
+                        xmlid = '%s.%s' % (view.xml_id.split('.')[0], xmlid)
+                    if self._model._name == imd['model'] and (not view.xml_id or view.xml_id == xmlid):
                         # we store the relative path to the resource instead of the absolute path, if found
                         # (it will be missing e.g. when importing data-only modules using base_import_module)
                         path_info = get_resource_from_path(imd['xml_file'])
