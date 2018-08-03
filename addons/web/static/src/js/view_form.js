@@ -3954,7 +3954,7 @@ instance.web.form.Many2OneButton = instance.web.form.AbstractField.extend({
             this.$button.remove();
         }
         this.string = '';
-        this.node.attrs.icon = this.get('value') ? '/web/static/src/img/icons/gtk-yes.png' : '/web/static/src/img/icons/gtk-no.png';
+        this.node.attrs.icon = this.get('value') ? '/web/static/src/img/icons/gtk-edit.png' : '/web/static/src/img/icons/gtk-file.png';
         this.$button = $(QWeb.render('WidgetButton', {'widget': this}));
         this.$button.addClass('oe_link').css({'padding':'4px'});
         this.$el.append(this.$button);
