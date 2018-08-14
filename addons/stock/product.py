@@ -419,7 +419,7 @@ class product_template(osv.osv):
         'loc_rack': fields.char('Rack', size=16),
         'loc_row': fields.char('Row', size=16),
         'loc_case': fields.char('Case', size=16),
-        'tracking': fields.selection(selection=[('serial', 'Número de Serie Único'), ('lot', 'Lotes'), ('none', 'Sin Tracking')], string="Tracking", required=True),
+        'tracking': fields.selection(selection=[('none', 'Sin Tracking'), ('serial', 'Número de Serie Único'), ('lot', 'Lotes')], string="Tracking", required=True),
         # sum of product variant qty
         # 'reception_count': fields.function(_product_available, multi='qty_available',
         #     fnct_search=_search_product_quantity, type='float', string='Quantity On Hand'),

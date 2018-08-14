@@ -3970,7 +3970,11 @@ instance.web.form.Many2OneButton = instance.web.form.AbstractField.extend({
             {title: this.string}
         );
         this.popup.on('create_completed', self, function(r) {
+            
             self.set_value(r);
+        });
+        this.popup.on('closed', self, function(r) {
+            self.field_manager.do_onchange();
         });
     },
     set_value: function(value_) {

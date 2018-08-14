@@ -4677,7 +4677,7 @@ msgstr "Secuencia"
 #: field:stock.production.lot,name:0
 #: field:stock.return.picking.line,lot_id:0
 msgid "Serial Number"
-msgstr "Nº de serie"
+msgstr "Lote/Nº de Serie"
 
 #. module: stock
 #: field:stock.inventory.line,prodlot_name:0
