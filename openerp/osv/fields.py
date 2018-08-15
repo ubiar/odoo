@@ -819,6 +819,13 @@ class one2many(_column):
         with rec.env.norecompute():
             _table = obj._table
             for act in values:
+                
+                # UBIAR: En caso de recibir un cuarto comando, lo paso al contexto
+                # para mantener la funcionalidad del ref_hash que se utiliza desde las aplicaciones moviles
+                if len(act) == 4 and type(act[3] == type({})):
+                    context = context.copy()
+                    context.update(act[3])
+                    
                 if act[0] == 0:
                     act[2][self._fields_id] = id
                     id_new = obj.create(cr, user, act[2], context=context)
