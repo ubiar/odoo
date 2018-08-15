@@ -1233,11 +1233,12 @@ class stock_picking(osv.osv):
             self.pool.get('stock.move').do_unreserve(cr, uid, moves_to_unreserve, context=context)
 
     def recompute_remaining_qty(self, cr, uid, picking, context=None):
-        def _create_link_for_index(operation_id, index, product_id, qty_to_assign, quant_id=False):
+        context = context and context.copy() or {}
+        def _create_link_for_index(operation_id, index, product_id, qty_to_assign, quant_id=False, context=None):
             move_dict = prod2move_ids[product_id][index]
             ops = op_obj.browse(cr, uid, operation_id, context)
             if ops.reservation_id and ops.reservation_id != move_dict['move']:
-                cantidad_move_filtrados += 1
+                context['cantidad_move_filtrados'] += 1
                 return 0
             qty_on_link = min(move_dict['remaining_qty'], qty_to_assign)
             self.pool.get('stock.move.operation.link').create(cr, uid, {'move_id': move_dict['move'].id, 'operation_id': operation_id, 'qty': qty_on_link, 'reserved_quant_id': quant_id}, context=context)
@@ -1247,19 +1248,20 @@ class stock_picking(osv.osv):
                 move_dict['remaining_qty'] -= qty_on_link
             return qty_on_link
 
-        def _create_link_for_quant(operation_id, quant, qty):
+        def _create_link_for_quant(operation_id, quant, qty, context):
             """create a link for given operation and reserved move of given quant, for the max quantity possible, and returns this quantity"""
             if not quant.reservation_id.id:
-                return _create_link_for_product(operation_id, quant.product_id.id, qty)
+                return _create_link_for_product(operation_id, quant.product_id.id, qty, context=context)
             qty_on_link = 0
             for i in range(0, len(prod2move_ids[quant.product_id.id])):
                 if prod2move_ids[quant.product_id.id][i]['move'].id != quant.reservation_id.id:
                     continue
-                qty_on_link = _create_link_for_index(operation_id, i, quant.product_id.id, qty, quant_id=quant.id)
+                context['cantidad_move_filtrados'] = 0
+                qty_on_link = _create_link_for_index(operation_id, i, quant.product_id.id, qty, quant_id=quant.id, context=context)
                 break
             return qty_on_link
 
-        def _create_link_for_product(operation_id, product_id, qty):
+        def _create_link_for_product(operation_id, product_id, qty, context):
             '''method that creates the link between a given operation and move(s) of given product, for the given quantity.
             Returns True if it was possible to create links for the requested quantity (False if there was not enough quantity on stock moves)'''
             qty_to_assign = qty
@@ -1268,9 +1270,9 @@ class stock_picking(osv.osv):
             rounding = product.uom_id.rounding
             qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
             if prod2move_ids.get(product_id):
-                cantidad_move_filtrados = 0
-                while prod2move_ids[product_id] and qtyassign_cmp > 0 and len(prod2move_ids[product_id]) > cantidad_move_filtrados:
-                    qty_on_link = _create_link_for_index(operation_id, 0, product_id, qty_to_assign, quant_id=False)
+                context['cantidad_move_filtrados'] = 0
+                while prod2move_ids[product_id] and qtyassign_cmp > 0 and len(prod2move_ids[product_id]) > context['cantidad_move_filtrados']:
+                    qty_on_link = _create_link_for_index(operation_id, 0, product_id, qty_to_assign, quant_id=False, context=context)
                     qty_to_assign -= qty_on_link
                     qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
             return qtyassign_cmp == 0
@@ -1286,7 +1288,7 @@ class stock_picking(osv.osv):
         # Se cuentan los moves que se van filtrando cuando la operacion tiene un reservation_id
         # ya que si no quedaria bucleando por siempre, no se realiza de otra forma para no modificar
         # mucho la logica del sistema
-        cantidad_move_filtrados = 0
+        context['cantidad_move_filtrados'] = 0
         #make a dictionary giving for each product, the moves and related quantity that can be used in operation links
         for move in [x for x in picking.move_lines if x.state not in ('done', 'cancel')]:
             if not prod2move_ids.get(move.product_id.id):
@@ -1316,7 +1318,7 @@ class stock_picking(osv.osv):
                     if quant.reservation_id:
                         #avoid quants being counted twice
                         quants_in_package_done.add(quant.id)
-                        qty_on_link = _create_link_for_quant(ops.id, quant, quant.qty)
+                        qty_on_link = _create_link_for_quant(ops.id, quant, quant.qty, context=context)
                         remaining_qty_on_quant -= qty_on_link
                     if remaining_qty_on_quant:
                         still_to_do.append((ops, quant.product_id.id, remaining_qty_on_quant))
@@ -1347,7 +1349,7 @@ class stock_picking(osv.osv):
                         
                         if flag:
                             max_qty_on_link = min(quant.qty, qty_to_assign)
-                            qty_on_link = _create_link_for_quant(ops.id, quant, max_qty_on_link)
+                            qty_on_link = _create_link_for_quant(ops.id, quant, max_qty_on_link, context=context)
                             qty_to_assign -= qty_on_link
                 qty_assign_cmp = float_compare(qty_to_assign, 0, precision_rounding=ops.product_id.uom_id.rounding)
                 if qty_assign_cmp > 0:
@@ -1355,11 +1357,11 @@ class stock_picking(osv.osv):
                     #all the quants (because they leave no choice on their related move and needs to be processed with higher priority)
                     still_to_do += [(ops, ops.product_id.id, qty_to_assign)]
                     need_rereserve = True
-
+        
         #2) then, process the remaining part
         all_op_processed = True
         for ops, product_id, remaining_qty in still_to_do:
-            all_op_processed = _create_link_for_product(ops.id, product_id, remaining_qty) and all_op_processed
+            all_op_processed = _create_link_for_product(ops.id, product_id, remaining_qty, context=context) and all_op_processed
         return (need_rereserve, all_op_processed)
 
     def picking_recompute_remaining_quantities(self, cr, uid, picking, context=None):
