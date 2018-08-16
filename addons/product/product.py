@@ -588,7 +588,7 @@ class product_template(osv.osv):
         'is_product_variant': fields.function( _is_product_variant, type='boolean', string='Is product variant'),
 
         'attribute_line_ids': fields.one2many('product.attribute.line', 'product_tmpl_id', 'Product Attributes'),
-        'product_variant_ids': fields.one2many('product.product', 'product_tmpl_id', 'Products', required=True),
+        'product_variant_ids': fields.one2many('product.product', 'product_tmpl_id', 'Products', required=True, context={'active_test': False}),
         'product_variant_count': fields.function( _get_product_variant_count, type='integer', string='# of Product Variants'),
 
         # related to display product product information if is_product_variant
