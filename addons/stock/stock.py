@@ -2447,6 +2447,20 @@ class stock_move(osv.osv):
                 qty_already_assigned = move.reserved_availability
                 qty = move.product_qty - qty_already_assigned
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain[move.id], prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=context)
+                # Si utiliza lotes indivisibles no importa la cantidad de stock si no la cantidad de ventas
+                # o sea se pretenden reservar 3 cajas independientemente de la cantidad que haya adentro
+                if move.product_id.tracking == 'lote_indivisible':
+                    product_uos_qty = int(qty * (move.product_uos_qty / move.product_uom_qty))
+                    domain = main_domain[move.id]
+                    if move.restrict_partner_id:
+                        domain += [('owner_id', '=', move.restrict_partner_id.id)]
+                    if move.restrict_lot_id:
+                        domain += [('lot_id', 'in', [move.restrict_lot_id.id, False])]
+                    quants = []
+                    for quant in move.env['stock.quant'].search(domain, limit=product_uos_qty):
+                        quants.append([quant, quant.qty])
+                    if len(quants) == product_uos_qty:
+                        move.state = 'assigned'
                 quant_obj.quants_reserve(cr, uid, quants, move, context=context)
 
         #force assignation of consumable products and incoming from supplier/inventory/production
