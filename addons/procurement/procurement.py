@@ -237,6 +237,7 @@ class procurement_order(osv.osv):
                 else:
                     raise
         if done_ids:
+            done_ids = self.search(cr, uid, [('id', 'in', done_ids)], context=context)
             self.write(cr, uid, done_ids, {'state': 'done'}, context=context)
         return done_ids
 

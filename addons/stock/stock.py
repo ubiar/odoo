@@ -2451,7 +2451,7 @@ class stock_move(osv.osv):
                 # o sea se pretenden reservar 3 cajas independientemente de la cantidad que haya adentro
                 if move.product_id.tracking == 'lote_indivisible':
                     product_uos_qty = int(qty * (move.product_uos_qty / move.product_uom_qty))
-                    domain = main_domain[move.id]
+                    domain = main_domain[move.id] + [('product_id', '=', move.product_id.id), ('location_id', 'child_of', move.location_id.id)]
                     if move.restrict_partner_id:
                         domain += [('owner_id', '=', move.restrict_partner_id.id)]
                     if move.restrict_lot_id:

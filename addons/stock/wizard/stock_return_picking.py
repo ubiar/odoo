@@ -82,21 +82,25 @@ class stock_return_picking(osv.osv_memory):
                 validar_trazabilidad = True
                 if 'validar_trazabilidad' in move.product_id.categ_id:
                     validar_trazabilidad = move.product_id.categ_id.validar_trazabilidad
-                if validar_trazabilidad:
+                if validar_trazabilidad or move.product_id.tracking != 'none':
                     quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 else:
                     # Se suda porque puede ser que no tengo stock de quants de su sucursal en la ubicacion de clientes y como no se valida trasabilidad no importa
                     quant_search = quant_obj.search(cr, SUPERUSER_ID, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 for quant in quant_obj.browse(cr, SUPERUSER_ID, quant_search, context=context):
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
-                        qty += quant.qty
+                        if quant.lot_id:
+                            result1.append({'product_id': move.product_id.id, 'quantity': quant.qty, 'move_id': move.id, 'lot_id': quant.lot_id.id})
+                        else:
+                            qty += quant.qty
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
                 
                 if not validar_trazabilidad:
                     cantidad_restante = move.product_qty - move.cantidad_devuelta
                     if qty > cantidad_restante:
                         qty = cantidad_restante
-                result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
+                if qty:
+                    result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
 
             if len(result1) == 0:
                 raise UserError(_("No products to return (only lines in Done state and not fully returned yet can be returned)!"))
@@ -173,7 +177,7 @@ class stock_return_picking(osv.osv_memory):
                     'procure_method': 'make_to_stock',
                     'restrict_lot_id': data_get.lot_id.id,
                     'move_dest_id': move_dest_id,
-                    'devolucion_no_validar_trazabilidad': 'validar_trazabilidad' in data_get.product_id.categ_id and not data_get.product_id.categ_id.validar_trazabilidad,
+                    'devolucion_no_validar_trazabilidad': 'validar_trazabilidad' in data_get.product_id.categ_id and not data_get.product_id.categ_id.validar_trazabilidad and move.product_id.tracking == 'none',
                 })
 
         if not returned_lines:
