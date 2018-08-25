@@ -4482,8 +4482,8 @@ class stock_move_operation_link(osv.osv):
             #if not given any information about package, we don't open boxes
             domain.append(('package_id', '=', False))
         #if lot info is given, we restrict choice to this lot otherwise we can take any
-        # if op.lot_id:
-        #     domain.append(('lot_id', '=', op.lot_id.id))
+        if op.lot_id:
+            domain.append(('lot_id', '=', op.lot_id.id))
         #if owner info is given, we restrict to this owner otherwise we restrict to no owner
         if op.owner_id:
             domain.append(('owner_id', '=', op.owner_id.id))
