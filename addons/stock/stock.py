@@ -1326,6 +1326,11 @@ class stock_picking(osv.osv):
                     qty_on_link = _create_link_for_index(operation_id, 0, product_id, qty_to_assign, quant_id=False, context=context)
                     qty_to_assign -= qty_on_link
                     qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
+            ops = op_obj.browse(cr, uid, operation_id, context)
+            # Si creo un quant y esta utilizando lotes indivisibles se toma como que la asignacion es total
+            # ya que el resto no se debe esperar de recepcionar en otro picking
+            if context.get('tipo_transferencia_stock') == 'compras' and ops.product_id.tracking == 'lote_indivisible' and qty_to_assign < qty:
+                return True
             return qtyassign_cmp == 0
 
         uom_obj = self.pool.get('product.uom')
@@ -1413,6 +1418,7 @@ class stock_picking(osv.osv):
         all_op_processed = True
         for ops, product_id, remaining_qty in still_to_do:
             all_op_processed = _create_link_for_product(ops.id, product_id, remaining_qty, context=context) and all_op_processed
+        
         return (need_rereserve, all_op_processed)
 
     def picking_recompute_remaining_quantities(self, cr, uid, picking, context=None):
@@ -1538,6 +1544,13 @@ class stock_picking(osv.osv):
                 #split move lines if needed
                 toassign_move_ids = []
                 for move in picking.move_lines:
+                    # Si esta todo procesado y utiliza lotes indivisibles se ajusta la diferencia de stock que se esperaba ya que puede ser
+                    # que cada lote tenga menos cantida de lo esperado pero se recibio la cantidad total de los lotes
+                    if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and all_op_processed and move.remaining_qty:
+                        move.write_sql({
+                            'product_qty': move.product_qty - move.remaining_qty,
+                            'product_uom_qty': move.product_uom_qty - move.remaining_qty,
+                        })
                     remaining_qty = move.remaining_qty
                     if move.state in ('done', 'cancel'):
                         #ignore stock moves cancelled or already done
