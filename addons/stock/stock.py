@@ -1281,11 +1281,11 @@ class stock_picking(osv.osv):
             if ops.reservation_id and ops.reservation_id != move_dict['move']:
                 context['cantidad_move_filtrados'] += 1
                 return 0
-            # Si se esta generando un lote indivisible no importa que la cantidad del move sea x ya que
-            # esta es estimada en la orden de compra, la que importa es la que se ingreso en el transfer detail
+            # Si se esta generando o transfiriendo un lote indivisible no importa que la cantidad del move sea x ya que
+            # esta es estimada en la orden de compra o nota de venta, la que importa es la que se ingreso en el transfer detail
             # entonces si le falta cantidad al move se agrega
             move = move_dict['move']
-            if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and move_dict['remaining_qty'] < qty_to_assign:
+            if move.product_id.tracking == 'lote_indivisible' and move_dict['remaining_qty'] < qty_to_assign:
                 move.write_sql({
                     'product_qty': move.product_qty + qty_to_assign - move_dict['remaining_qty'],
                     'product_uom_qty': move.product_uom_qty + qty_to_assign - move_dict['remaining_qty'],
