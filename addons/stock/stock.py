@@ -1240,6 +1240,10 @@ class stock_picking(osv.osv):
                     continue
                 move_quants = move.reserved_quant_ids
                 picking_quants += move_quants
+                # Si tiene lote indivisible y ya reservo la misma cantidad que las udv no importa si hay diferencia con el stock
+                # ya que los lotes pueden pesar distinto
+                if move.product_id.tracking == 'lote_indivisible' and round(len(move.reserved_quant_ids), 2) == round(move.product_uos_qty, 2):
+                    continue
                 forced_qty = (move.state == 'assigned') and move.product_qty - sum([x.qty for x in move_quants]) or 0
                 #if we used force_assign() on the move, or if the move is incoming, forced_qty > 0
                 if float_compare(forced_qty, 0, precision_rounding=move.product_id.uom_id.rounding) > 0:
@@ -1277,6 +1281,16 @@ class stock_picking(osv.osv):
             if ops.reservation_id and ops.reservation_id != move_dict['move']:
                 context['cantidad_move_filtrados'] += 1
                 return 0
+            # Si se esta generando o transfiriendo un lote indivisible no importa que la cantidad del move sea x ya que
+            # esta es estimada en la orden de compra o nota de venta, la que importa es la que se ingreso en el transfer detail
+            # entonces si le falta cantidad al move se agrega
+            move = move_dict['move']
+            if move.product_id.tracking == 'lote_indivisible' and move_dict['remaining_qty'] < qty_to_assign:
+                move.write_sql({
+                    'product_qty': move.product_qty + qty_to_assign - move_dict['remaining_qty'],
+                    'product_uom_qty': move.product_uom_qty + qty_to_assign - move_dict['remaining_qty'],
+                })
+                move_dict['remaining_qty'] += qty_to_assign - move_dict['remaining_qty']
             qty_on_link = min(move_dict['remaining_qty'], qty_to_assign)
             self.pool.get('stock.move.operation.link').create(cr, uid, {'move_id': move_dict['move'].id, 'operation_id': operation_id, 'qty': qty_on_link, 'reserved_quant_id': quant_id}, context=context)
             if move_dict['remaining_qty'] == qty_on_link:
@@ -1312,6 +1326,11 @@ class stock_picking(osv.osv):
                     qty_on_link = _create_link_for_index(operation_id, 0, product_id, qty_to_assign, quant_id=False, context=context)
                     qty_to_assign -= qty_on_link
                     qtyassign_cmp = float_compare(qty_to_assign, 0.0, precision_rounding=rounding)
+            ops = op_obj.browse(cr, uid, operation_id, context)
+            # Si creo un quant y esta utilizando lotes indivisibles se toma como que la asignacion es total
+            # ya que el resto no se debe esperar de recepcionar en otro picking
+            if context.get('tipo_transferencia_stock') == 'compras' and ops.product_id.tracking == 'lote_indivisible' and qty_to_assign < qty:
+                return True
             return qtyassign_cmp == 0
 
         uom_obj = self.pool.get('product.uom')
@@ -1399,6 +1418,7 @@ class stock_picking(osv.osv):
         all_op_processed = True
         for ops, product_id, remaining_qty in still_to_do:
             all_op_processed = _create_link_for_product(ops.id, product_id, remaining_qty, context=context) and all_op_processed
+        
         return (need_rereserve, all_op_processed)
 
     def picking_recompute_remaining_quantities(self, cr, uid, picking, context=None):
@@ -1524,6 +1544,13 @@ class stock_picking(osv.osv):
                 #split move lines if needed
                 toassign_move_ids = []
                 for move in picking.move_lines:
+                    # Si esta todo procesado y utiliza lotes indivisibles se ajusta la diferencia de stock que se esperaba ya que puede ser
+                    # que cada lote tenga menos cantida de lo esperado pero se recibio la cantidad total de los lotes
+                    if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and all_op_processed and move.remaining_qty:
+                        move.write_sql({
+                            'product_qty': move.product_qty - move.remaining_qty,
+                            'product_uom_qty': move.product_uom_qty - move.remaining_qty,
+                        })
                     remaining_qty = move.remaining_qty
                     if move.state in ('done', 'cancel'):
                         #ignore stock moves cancelled or already done
@@ -2412,7 +2439,7 @@ class stock_move(osv.osv):
 
                 #we always keep the quants already assigned and try to find the remaining quantity on quants not assigned only
                 main_domain[move.id] = [('reservation_id', '=', False), ('qty', '>', 0)]
-
+                
                 #if the move is preceeded, restrict the choice of quants in the ones moved previously in original move
                 ancestors = self.find_move_ancestors(cr, uid, move, context=context)
                 if move.state == 'waiting' and not ancestors:
@@ -4455,8 +4482,8 @@ class stock_move_operation_link(osv.osv):
             #if not given any information about package, we don't open boxes
             domain.append(('package_id', '=', False))
         #if lot info is given, we restrict choice to this lot otherwise we can take any
-        # if op.lot_id:
-        #     domain.append(('lot_id', '=', op.lot_id.id))
+        if op.lot_id:
+            domain.append(('lot_id', '=', op.lot_id.id))
         #if owner info is given, we restrict to this owner otherwise we restrict to no owner
         if op.owner_id:
             domain.append(('owner_id', '=', op.owner_id.id))
