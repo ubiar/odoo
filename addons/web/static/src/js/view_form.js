@@ -3495,12 +3495,12 @@ instance.web.form.CompletionFieldMixin = {
         var pop = new instance.web.form.SelectCreatePopup(this);
         pop.select_element(
             self.field.relation,
-            {
+            _.extend(this.options || {}, {
                 title: (view === 'search' ? _t("Search: ") : _t("Create: ")) + this.string,
                 initial_ids: ids ? _.map(ids, function(x) {return x[0];}) : undefined,
                 initial_view: view,
                 disable_multiple_selection: true
-            },
+            }),
             self.build_domain(),
             new instance.web.CompoundContext(self.build_context(), context || {})
         );
@@ -4369,6 +4369,9 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
     commit_value: function() {
         return this.save_any_view();
     },
+    is_false: function () {
+        return _(this.dataset.ids).isEmpty();
+    },
     save_any_view: function() {
         var view = this.get_active_view();
         if (view) {
@@ -4427,7 +4430,7 @@ instance.web.form.One2ManyViewManager = instance.web.ViewManager.extend({
                 });
             },
             write_function: function(id, data, options) {
-                return self.o2m.dataset.write(id, data, {}).done(function() {
+                return self.o2m.dataset.write(id, data, options).done(function() {
                     self.o2m.reload_current_view();
                 });
             },
@@ -4554,8 +4557,8 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         var pop = new instance.web.form.FormOpenPopup(self);
         pop.show_element(self.o2m.field.relation, id, self.o2m.build_context(), {
             title: _t("Open: ") + self.o2m.string,
-            write_function: function(id, data) {
-                return self.o2m.dataset.write(id, data, {}).done(function() {
+            write_function: function(id, data, options) {
+                return self.o2m.dataset.write(id, data, options).done(function() {
                     self.o2m.reload_current_view();
                 });
             },
@@ -5197,7 +5200,7 @@ instance.web.form.FieldMany2ManyKanban = instance.web.form.AbstractField.extend(
             pop.show_element(self.field.relation, id, self.build_context(), {
                 title: _t("Open: ") + self.string,
                 write_function: function(id, data, options) {
-                    return self.dataset.write(id, data, {}).done(function() {
+                    return self.dataset.write(id, data, options).done(function() {
                         self.render_value();
                     });
                 },
