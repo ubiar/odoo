@@ -2407,7 +2407,7 @@ class BaseModel(object):
     # checked version: for direct m2o starting from ``self``
     def _m2o_add_foreign_key_checked(self, source_field, dest_model, ondelete):
         assert self.is_transient() or not dest_model.is_transient(), \
-            'Many2One relationships from non-transient Model to TransientModel are forbidden'
+            'Many2One relationships from non-transient Model to TransientModel are forbidden (%s.%s)' % (self._table, source_field)
         if self.is_transient() and not dest_model.is_transient():
             # TransientModel relationships to regular Models are annoying
             # usually because they could block deletion due to the FKs.

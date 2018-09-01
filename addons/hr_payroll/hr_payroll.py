@@ -21,6 +21,7 @@
 ##############################################################################
 
 import time
+from openerp.addons import funciones
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -315,6 +316,7 @@ class hr_payslip(osv.osv):
     def process_sheet(self, cr, uid, ids, context=None):
         return self.write(cr, uid, ids, {'paid': True, 'state': 'done'}, context=context)
 
+    ### REDEFINIDO EN ADVANCE ####
     def hr_verify_sheet(self, cr, uid, ids, context=None):
         self.compute_sheet(cr, uid, ids, context)
         return self.write(cr, uid, ids, {'state': 'verify'}, context=context)
@@ -373,6 +375,7 @@ class hr_payslip(osv.osv):
         contract_ids = contract_obj.search(cr, uid, clause_final, context=context)
         return contract_ids
 
+    ### REDEFINIDO EN ADVANCE ####
     def compute_sheet(self, cr, uid, ids, context=None):
         slip_line_pool = self.pool.get('hr.payslip.line')
         sequence_obj = self.pool.get('ir.sequence')
@@ -380,7 +383,6 @@ class hr_payslip(osv.osv):
             number = payslip.number or sequence_obj.next_by_code(cr, uid, 'salary.slip')
             #delete old payslip lines
             old_slipline_ids = slip_line_pool.search(cr, uid, [('slip_id', '=', payslip.id)], context=context)
-#            old_slipline_ids
             if old_slipline_ids:
                 slip_line_pool.unlink(cr, uid, old_slipline_ids, context=context)
             if payslip.contract_id:
@@ -471,6 +473,7 @@ class hr_payslip(osv.osv):
                         res += [inputs]
         return res
 
+    ### REDEFINIDO EN ADVANCE ###
     def get_payslip_lines(self, cr, uid, contract_ids, payslip_id, context):
         def _sum_salary_rule_category(localdict, category, amount):
             if category.parent_id:
@@ -910,7 +913,8 @@ class hr_payslip_line(osv.osv):
     _inherit = 'hr.salary.rule'
     _description = 'Payslip Line'
     _order = 'contract_id, sequence'
-
+    
+    # ESTO NO SE USA EN ADVANCE
     def _calculate_total(self, cr, uid, ids, name, args, context):
         if not ids: return {}
         res = {}
@@ -926,7 +930,7 @@ class hr_payslip_line(osv.osv):
         'rate': fields.float('Rate (%)', digits_compute=dp.get_precision('Payroll Rate')),
         'amount': fields.float('Amount', digits_compute=dp.get_precision('Payroll')),
         'quantity': fields.float('Quantity', digits_compute=dp.get_precision('Payroll')),
-        'total': fields.function(_calculate_total, method=True, type='float', string='Total', digits_compute=dp.get_precision('Payroll'), store=True),
+        'total': fields.function(_calculate_total, method=True, type='float', string='Total', digits_compute=dp.get_precision('Payroll'), store=True), # ADVANCE LO PISA
     }
 
     _defaults = {
