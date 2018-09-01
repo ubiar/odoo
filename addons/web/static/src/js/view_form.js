@@ -4169,6 +4169,7 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
                     _.extend(view.options, {
                         deletable: null,
                         reorderable: false,
+                        editable_if: false,
                     });
                 }
             } else if (view.view_type === "form") {

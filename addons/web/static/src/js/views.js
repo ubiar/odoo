@@ -758,10 +758,10 @@ instance.web.ViewManager =  instance.web.Widget.extend({
             View = this.registry.get_object(view.type),
             options = _.clone(view.options),
             view_loaded = $.Deferred();
-	var mode_edit = true;
-	if (typeof self.flags === typeof {} && 'mode' in self.flags && self.flags['mode'] === 'readonly'){
-	    mode_edit = false;
-	}
+    	var mode_edit = true;
+    	if (typeof self.flags === typeof {} && 'mode' in self.flags && self.flags['mode'] === 'readonly'){
+    	    mode_edit = false;
+    	}
         if (mode_edit && view.type === "form" && ((this.action && (this.action.target === 'new' || this.action.target === 'inline'))
                 || (view_options && view_options.mode === 'edit'))) {
             options.initial_mode = 'edit';

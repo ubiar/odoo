@@ -10,6 +10,7 @@
 
     // editability status of list rows
     instance.web.ListView.prototype.defaults.editable = null;
+    instance.web.ListView.prototype.defaults.editable_if = null;
 
     // TODO: not sure second @lends on existing item is correct, to check
     instance.web.ListView.include(/** @lends instance.web.ListView# */{
@@ -18,7 +19,7 @@
             this._super.apply(this, arguments);
 
             this.saving_mutex = new $.Mutex();
-
+            
             this._force_editability = null;
             this._context_editable = false;
             this.editor = this.make_editor();
@@ -107,6 +108,11 @@
                 || this._context_editable
                 || this.options.editable);
         },
+        editable_if: function(record) {
+            var editable_if = !this.options.disable_editable_mode && this.options.editable_if;
+            if (!record) return editable_if;
+            return (record && editable_if) ? py.PY_isTrue(py.evaluate(this.options.editable_if, record.attributes)) : this.editable();
+        },
         /**
          * Replace do_search to handle editability process
          */
@@ -137,9 +143,17 @@
         },
         load_list: function (data, grouped) {
             var self = this;
+            if (this.fields_view.arch.attrs.editable_if && this.options.editable_if !== false) {
+                try{
+                    this.options.editable_if = py.parse(py.tokenize(this.fields_view.arch.attrs.editable_if));
+                }catch(e){
+                    console.warn("Error al parsear editable_if");
+                }
+            }
             // tree/@editable takes priority on everything else if present.
             var result = this._super(data, grouped);
-
+            
+            
             // In case current editor was started previously, also has to run
             // when toggling from editable to non-editable in case form widgets
             // have setup global behaviors expecting themselves to exist
@@ -147,7 +161,7 @@
             this.editor.destroy();
             // Editor is not restartable due to formview not being restartable
             this.editor = this.make_editor();
-
+            
             if (this.editable()) {
                 this.$el.addClass('oe_list_editable');
                 // FIXME: any hook available to ensure this is only done once?
@@ -811,10 +825,13 @@
 
     instance.web.ListView.List.include(/** @lends instance.web.ListView.List# */{
         row_clicked: function (event) {
-            if (!this.view.editable() || ! this.view.is_action_enabled('edit')) {
+            var record_id = $(event.currentTarget).data('id');
+            var click_on_edit_if = ($(event.target) && $(event.target)[0] && $(event.target)[0].name == "edit_if");
+            var row_is_editable = this.view.editable_if(record_id ? this.records.get(record_id) : null);
+            
+            if (!this.view.editable() || (!row_is_editable && click_on_edit_if) || !this.view.is_action_enabled('edit')) {
                 return this._super.apply(this, arguments);
             }
-            var record_id = $(event.currentTarget).data('id');
             return this.view.start_edition(
                 record_id ? this.records.get(record_id) : null, {
                 focus_field: $(event.target).not(".oe_readonly").data('field')
