@@ -2766,6 +2766,8 @@ class stock_move(osv.osv):
             'origin_returned_move_id': move.origin_returned_move_id.id,
         }
         defaults = self.split_defaults(cr, uid, move, qty, defaults)
+        if 'product_uos_qty' in defaults.keys():
+            uos_qty = defaults['product_uos_qty']
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
