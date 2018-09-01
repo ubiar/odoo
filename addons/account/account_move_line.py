@@ -1061,7 +1061,7 @@ class account_move_line(osv.osv):
         if not unrec_lines:
             raise UserError(_('Entry is already reconciled.'))
         account = account_obj.browse(cr, uid, account_id, context=context)
-        if not account.reconcile:
+        if not account.reconcile and not context.get('no_validar_cuenta_conciliable'):
             raise UserError(_('The account %s is not defined to be reconciled !') % (account.name_get()[0][1],))
         if r[0][1] != None:
             raise UserError(_('Some entries are already reconciled.'))
