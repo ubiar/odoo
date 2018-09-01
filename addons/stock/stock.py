@@ -1546,7 +1546,7 @@ class stock_picking(osv.osv):
                 for move in picking.move_lines:
                     # Si esta todo procesado y utiliza lotes indivisibles se ajusta la diferencia de stock que se esperaba ya que puede ser
                     # que cada lote tenga menos cantida de lo esperado pero se recibio la cantidad total de los lotes
-                    if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and all_op_processed and move.remaining_qty:
+                    if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and all_op_processed and move.remaining_qty and len(move.linked_move_operation_ids) == move.product_uop_qty:
                         move.write_sql({
                             'product_qty': move.product_qty - move.remaining_qty,
                             'product_uom_qty': move.product_uom_qty - move.remaining_qty,
@@ -2753,10 +2753,12 @@ class stock_move(osv.osv):
         #HALF-UP rounding as only rounding errors will be because of propagation of error from default UoM
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
         uos_qty = uom_qty * move.product_uos_qty / move.product_uom_qty
+        uop_qty = uom_qty * move.product_uop_qty / move.product_uom_qty
 
         defaults = {
             'product_uom_qty': uom_qty,
             'product_uos_qty': uos_qty,
+            'product_uop_qty': uop_qty,
             'procure_method': 'make_to_stock',
             'restrict_lot_id': restrict_lot_id,
             'restrict_partner_id': restrict_partner_id,
@@ -2768,6 +2770,8 @@ class stock_move(osv.osv):
         defaults = self.split_defaults(cr, uid, move, qty, defaults)
         if 'product_uos_qty' in defaults.keys():
             uos_qty = defaults['product_uos_qty']
+        if 'product_uop_qty' in defaults.keys():
+            uop_qty = defaults['product_uop_qty']
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
@@ -2777,6 +2781,7 @@ class stock_move(osv.osv):
         self.write(cr, uid, [move.id], {
             'product_uom_qty': move.product_uom_qty - uom_qty,
             'product_uos_qty': move.product_uos_qty - uos_qty,
+            'product_uop_qty': move.product_uop_qty - uop_qty,
         }, context=ctx)
 
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
