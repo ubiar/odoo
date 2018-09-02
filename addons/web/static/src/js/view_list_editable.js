@@ -111,7 +111,7 @@
         editable_if: function(record) {
             var editable_if = !this.options.disable_editable_mode && this.options.editable_if;
             if (!record) return editable_if;
-            return (record && editable_if) ? py.PY_isTrue(py.evaluate(this.options.editable_if, record.attributes)) : this.editable();
+            return (record && editable_if) ? !py.PY_isTrue(py.evaluate(this.options.editable_if, record.attributes)) : this.editable();
         },
         /**
          * Replace do_search to handle editability process
