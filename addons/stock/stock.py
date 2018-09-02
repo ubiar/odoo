@@ -1017,7 +1017,6 @@ class stock_picking(osv.osv):
         backorder_move_ids = [x.id for x in backorder_moves if x.state not in ('done', 'cancel', context.get('backorder_state', False))]
         if 'do_only_split' in context and context['do_only_split']:
             backorder_move_ids = [x.id for x in backorder_moves if x.id not in context.get('split', [])]
-
         if backorder_move_ids:
             backorder_id = self.copy(cr, uid, picking.id, {
                 'name': '/',
@@ -1285,7 +1284,7 @@ class stock_picking(osv.osv):
             # esta es estimada en la orden de compra o nota de venta, la que importa es la que se ingreso en el transfer detail
             # entonces si le falta cantidad al move se agrega
             move = move_dict['move']
-            if move.product_id.tracking == 'lote_indivisible' and move_dict['remaining_qty'] < qty_to_assign:
+            if move.product_id.tracking == 'lote_indivisible' and move.lot_ids and move_dict['remaining_qty'] < qty_to_assign:
                 move.write_sql({
                     'product_qty': move.product_qty + qty_to_assign - move_dict['remaining_qty'],
                     'product_uom_qty': move.product_uom_qty + qty_to_assign - move_dict['remaining_qty'],
