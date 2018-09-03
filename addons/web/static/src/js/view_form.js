@@ -4014,6 +4014,7 @@ instance.web.form.AddAnItemList = instance.web.ListView.List.extend({
         }).length;
         if (this.options.selectable) { columns++; }
         if (this.options.deletable) { columns++; }
+        if (this.options.editable_if) { columns++; }
 
         var $cell = $('<td>', {
             colspan: columns,
