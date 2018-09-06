@@ -689,7 +689,7 @@
 </tr>
 
 <table t-name="ListView" class="oe_list_content">
-    <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0)"/>
+    <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0) + (options.editable_if ? 1 : 0)"/>
     <thead>
         <tr t-if="(!!options.action_buttons and !options.$buttons) or (!!options.pager and !options.$pager)">
             <th t-att-colspan="columns_count">
@@ -713,6 +713,7 @@
                     <t t-if="column.tag !== 'button'"><t t-esc="column.string"/></t>
                 </div></th>
             </t>
+            <th t-if="options.editable_if" class="oe_list_record_edit"  width="13px"/>
             <th t-if="options.deletable" class="oe_list_record_delete" width="13px"/>
         </tr>
     </thead>
@@ -722,6 +723,7 @@
             <td t-foreach="aggregate_columns" t-as="column" class="oe_list_footer oe_number"
                 t-att-data-field="column.id" t-att-title="column.label">
             </td>
+            <td t-if="options.editable_if" class="oe_list_record_edit"  width="13px"/>
             <td t-if="options.deletable" class="oe_list_record_delete"/>
         </tr>
     </tfoot>
@@ -763,6 +765,11 @@
             t-att-data-field="column.id"
             ><t t-raw="render_cell(record, column)"/></td>
     </t>
+    <td t-if="options.editable_if" class='oe_list_record_edit' width="13px">
+        <t t-if="!view.editable_if(record)">
+            <button type="button" name="edit_if" class="oe_i">E</button>
+        </t>
+    </td>
     <td t-if="options.deletable" class='oe_list_record_delete' width="13px">
         <button type="button" name="delete" class="oe_i">d</button>
     </td>

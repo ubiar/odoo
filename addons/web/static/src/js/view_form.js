@@ -4017,6 +4017,7 @@ instance.web.form.AddAnItemList = instance.web.ListView.List.extend({
         }).length;
         if (this.options.selectable) { columns++; }
         if (this.options.deletable) { columns++; }
+        if (this.options.editable_if) { columns++; }
 
         var $cell = $('<td>', {
             colspan: columns,
@@ -4172,6 +4173,7 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
                     _.extend(view.options, {
                         deletable: null,
                         reorderable: false,
+                        editable_if: false,
                     });
                 }
             } else if (view.view_type === "form") {

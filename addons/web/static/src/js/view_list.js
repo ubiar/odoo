@@ -1159,6 +1159,9 @@ instance.web.ListView.List = instance.web.Class.extend( /** @lends instance.web.
             }
             cells.push('<td title="' + column.string + '">&nbsp;</td>');
         });
+        if (this.options.editable_if){
+            cells.push('<td class="oe_list_record_edit"><button type="button" style="visibility: hidden;"> </button></td>');
+        }
         if (this.options.deletable) {
             cells.push('<td class="oe_list_record_delete"><button type="button" style="visibility: hidden"> </button></td>');
         }
