@@ -191,7 +191,7 @@
                 t-att-data-menu="menu['id']"
                 t-att-data-action-model="menu['action'] and menu['action'].split(',')[0] or ''"
                 t-att-data-action-id="menu['action'] and menu['action'].split(',')[1] or ''">
-                <span class="oe_menu_text">
+                <span t-att-class="'oe_menu_text' + (' de_usuario' if menu['menu_de_usuario'] else '')">
                     <t t-esc="menu['name']"/>
                 </span>
             </a>

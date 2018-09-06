@@ -815,6 +815,10 @@
   line-height: 1.1em;
   margin-top: 3px;
 }
+.openerp .oe_secondary_submenu .oe_menu_text.de_usuario {
+  /*text-shadow: 0 0 3px #FF0000;*/
+  font-style: italic;
+}
 .openerp .oe_secondary_submenu .oe_menu_text {
   white-space: nowrap;
   overflow: hidden;
@@ -1829,6 +1833,9 @@
   display: block;
   min-width: 150px;
   font-weight: bold !important;
+}
+.openerp .oe_form td.oe_form_group_cell_label label.de_usuario {
+  font-style: italic !important;
 }
 .openerp .oe_form td.oe_form_group_cell + .oe_form_group_cell {
   padding: 2px 0 2px 8px;

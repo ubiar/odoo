@@ -1400,7 +1400,7 @@ instance.web.form.FormRenderingEngine = instance.web.form.FormRenderingEngineInt
         });
         if (found)
             return;
-
+        
         var $label = $('<label/>').attr({
             'for' : name,
             "modifiers": JSON.stringify({invisible: field_modifiers.invisible}),
@@ -1408,6 +1408,9 @@ instance.web.form.FormRenderingEngine = instance.web.form.FormRenderingEngineInt
             "help": $field.attr('help'),
             "class": $field.attr('class'),
         });
+        
+        if (name && name.substr(0,2) == "x_") $label.addClass("de_usuario");
+        
         $label.insertBefore($field);
         if (field_colspan > 1) {
             $field.attr('colspan', field_colspan - 1);
