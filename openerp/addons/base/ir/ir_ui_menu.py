@@ -302,7 +302,7 @@ class ir_ui_menu(osv.osv):
         """ Chequea si el menuitem es de usuario o de sistema
         """
         for obj in self:
-            obj.menu_de_usuario = self._es_menu_de_usuario(obj)
+            obj.menu_de_usuario = self.sudo()._es_menu_de_usuario(obj.sudo())
 
     def get_needaction_data(self, cr, uid, ids, context=None):
         """ Return for each menu entry of ids :
