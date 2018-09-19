@@ -1287,6 +1287,19 @@ class view(osv.osv):
             names = tuple(name for (xmod, name), (model, res_id) in self.pool.model_data_reference_ids.items() if xmod == module and model == self._name)
             # Elimino las vistas que ya no se encuentran en el modulo para que no generen errores al actualizar
             where_names = 'AND md.name not in (%s)' % str(list(names))[1:-1] if names else ''
+            # Desactivo y desasocio las vistas que hereden de las que se van a eliminar para que no generen errores al actualizar
+            cr.execute('''
+                UPDATE ir_ui_view SET inherit_id = NULL, mode = 'primary', active = False WHERE inherit_id IN (
+                    SELECT 
+                        v.id 
+                    FROM 
+                        ir_ui_view v
+                        LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                    WHERE 
+                        md.module = '%s'
+                        %s
+                )
+            ''' % (module, where_names))
             cr.execute('''
                 DELETE FROM ir_ui_view WHERE id IN (
                     SELECT 
