@@ -739,7 +739,6 @@ class account_voucher(osv.osv):
             # Ubiar - Modificado para que traiga las FC/ND de Proovedor en Recibos y las FC/ND de Cliente en Pagos
             domain_base = [('state','=','valid'), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')]
             ids = move_line_pool.search(cr, uid, [('account_id.type', '=', account_type)] + domain_base, context=context)
-            voucher = self.browse(cr, uid, ids[0], context)
             if context.get('default_subtipo') == 'base':
                 if account_type == 'receivable':
                     ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable'), ('tipo', '=', 'haber')] + domain_base, context=context)
