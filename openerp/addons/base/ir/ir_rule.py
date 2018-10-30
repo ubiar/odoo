@@ -139,7 +139,7 @@ class ir_rule(osv.osv):
                     if group in user.groups_id:
                         if rule.force_and:
                             global_domains.append(dom)
-                        else:
+                        elif not context.get('disable_all_group_rules'):
                             group_domains.setdefault(group, []).append(dom)
                 if not rule.groups:
                     global_domains.append(dom)

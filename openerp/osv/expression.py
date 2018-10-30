@@ -927,7 +927,8 @@ class expression(object):
 
                 if right is not False:
                     if isinstance(right, basestring):
-                        ids2 = [x[0] for x in comodel.name_search(cr, uid, right, [], operator, context=context, limit=None)]
+                        # Se suda porque tiene que poder buscar por el campo relacionado aunque no tenga acceso
+                        ids2 = [x[0] for x in comodel.name_search(cr, 1, right, [], operator, context=context, limit=None)]
                         if ids2:
                             operator = 'in'
                     elif isinstance(right, collections.Iterable):
@@ -968,7 +969,8 @@ class expression(object):
                     call_null_m2m = True
                     if right is not False:
                         if isinstance(right, basestring):
-                            res_ids = [x[0] for x in comodel.name_search(cr, uid, right, [], operator, context=context)]
+                            # Se suda porque tiene que poder buscar por el campo relacionado aunque no tenga acceso
+                            res_ids = [x[0] for x in comodel.name_search(cr, 1, right, [], operator, context=context)]
                             if res_ids:
                                 operator = 'in'
                         else:
@@ -1017,7 +1019,8 @@ class expression(object):
                             operator = dict_op[operator]
                         elif isinstance(right, list) and operator in ['!=', '=']:  # for domain (FIELD,'=',['value1','value2'])
                             operator = dict_op[operator]
-                        res_ids = [x[0] for x in comodel.name_search(cr, uid, right, [], operator, limit=None, context=c)]
+                        # Se suda porque tiene que poder buscar por el campo relacionado aunque no tenga acceso
+                        res_ids = [x[0] for x in comodel.name_search(cr, 1, right, [], operator, limit=None, context=c)]
                         if operator in NEGATIVE_TERM_OPERATORS:
                             res_ids.append(False)  # TODO this should not be appended if False was in 'right'
                         return left, 'in', res_ids
