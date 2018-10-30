@@ -736,13 +736,14 @@ class account_voucher(osv.osv):
                 account_type = 'receivable'
 
         if not context.get('move_line_ids', False):
-            # Ubiar - Modificado para que traiga las FC/ND/RC de Proovedor en Recibos y las FC/ND/RC de Cliente en Pagos
+            # Ubiar - Modificado para que traiga las FC/ND de Proovedor en Recibos y las FC/ND de Cliente en Pagos
             domain_base = [('state','=','valid'), ('reconcile_id', '=', False), ('partner_id', '=', partner_id), ('cancelada', '=', False), '|', ('reconcile_partial_id', '=', False), ('reconcile_partial_id.type', '!=', 'pago_programado')]
             ids = move_line_pool.search(cr, uid, [('account_id.type', '=', account_type)] + domain_base, context=context)
-            if account_type == 'receivable':
-                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable')] + domain_base, context=context)
-            else:
-                ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable')] + domain_base, context=context)
+            if context.get('default_subtipo') == 'base':
+                if account_type == 'receivable':
+                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable'), ('tipo', '=', 'haber')] + domain_base, context=context)
+                else:
+                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable'), ('tipo', '=', 'debe')] + domain_base, context=context)
         else:
             ids = context['move_line_ids']
         invoice_id = context.get('invoice_id', False)
