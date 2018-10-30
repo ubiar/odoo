@@ -109,6 +109,7 @@ class ir_rule(osv.osv):
 
     @tools.ormcache()
     def _compute_domain(self, cr, uid, model_name, mode="read", context=None):
+        context = context or {}
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
