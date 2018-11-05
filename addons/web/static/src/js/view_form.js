@@ -4560,6 +4560,16 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
     do_activate_record: function(index, id) {
         var self = this;
         var pop = new instance.web.form.FormOpenPopup(self);
+        var dataset_ids = self.o2m.dataset.ids;
+        if (this.options && this.options.editable_if){
+            var dataset_ids_sin_editables = [];
+            _.each(dataset_ids, function(r_id){
+                if (!self.editable_if(self.records.get(r_id))){
+                    dataset_ids_sin_editables.push(r_id);
+                }
+            });
+            dataset_ids = dataset_ids_sin_editables;
+        }
         pop.show_element(self.o2m.field.relation, id, self.o2m.build_context(), {
             title: _t("Open: ") + self.o2m.string,
             write_function: function(id, data, options) {
@@ -4575,7 +4585,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
             },
             form_view_options: {'not_interactible_on_create':true},
             readonly: !this.is_action_enabled('edit') || self.o2m.get("effective_readonly"),
-            dataset_ids: self.o2m.dataset.ids,
+            dataset_ids: dataset_ids,
         });
     },
     do_button_action: function (name, id, callback) {
