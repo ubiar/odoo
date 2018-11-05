@@ -4574,7 +4574,8 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
                 return self.o2m.dataset.read_ids.apply(self.o2m.dataset, arguments);
             },
             form_view_options: {'not_interactible_on_create':true},
-            readonly: !this.is_action_enabled('edit') || self.o2m.get("effective_readonly")
+            readonly: !this.is_action_enabled('edit') || self.o2m.get("effective_readonly"),
+            dataset_ids: self.o2m.dataset.ids,
         });
     },
     do_button_action: function (name, id, callback) {
@@ -5062,7 +5063,8 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         pop.show_element(this.dataset.model, id, this.m2m_field.build_context(), {
             title: _t("Open: ") + this.m2m_field.string,
             alternative_form_view: this.m2m_field.field.views ? this.m2m_field.field.views["form"] : undefined,
-            readonly: this.getParent().get("effective_readonly")
+            readonly: this.getParent().get("effective_readonly"),
+            dataset_ids: self.dataset.ids,
         });
         pop.on('write_completed', self, self.reload_content);
     },
@@ -5363,8 +5365,8 @@ instance.web.form.AbstractFormPopup = instance.web.Widget.extend({
     setup_form_view: function() {
         var self = this;
         if (this.row_id) {
-            this.dataset.ids = [this.row_id];
-            this.dataset.index = 0;
+            this.dataset.ids = this.options.dataset_ids ? this.options.dataset_ids : [this.row_id];
+            this.dataset.index = this.options.dataset_ids ? _.indexOf(this.options.dataset_ids, this.row_id) : 0;
         } else {
             this.dataset.index = null;
         }
@@ -5407,6 +5409,25 @@ instance.web.form.AbstractFormPopup = instance.web.Widget.extend({
                 self.view_form.trigger('on_button_cancel');
                 self.check_exit();
             });
+            
+            if (self.options.dataset_ids){
+                self.$buttonpane.append(self.view_form.$pager);
+                self.view_form.$pager.css('float', 'right');
+                self.view_form.can_be_discarded = function(){ return true; };
+                var pager_action_backup = self.view_form.execute_pager_action;
+                self.view_form.execute_pager_action = function(action) {
+                    var ret = $.Deferred();
+                    $.when(self.view_form.save()).done(function() {
+                        self.view_form.reload_mutex.exec(function() {
+                            $.when(pager_action_backup.apply(self.view_form, [action])).done(function(){
+                                ret.resolve();
+                            });
+                        });
+                    });
+                    return ret;
+                };
+            }
+            
             self.view_form.do_show();
         });
     },
