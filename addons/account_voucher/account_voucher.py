@@ -741,9 +741,9 @@ class account_voucher(osv.osv):
             ids = move_line_pool.search(cr, uid, [('account_id.type', '=', account_type)] + domain_base, context=context)
             if context.get('default_subtipo') == 'base':
                 if account_type == 'receivable':
-                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable'), ('tipo', '=', 'haber')] + domain_base, context=context)
+                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'payable')] + domain_base, context=context)
                 else:
-                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable'), ('tipo', '=', 'debe')] + domain_base, context=context)
+                    ids += move_line_pool.search(cr, uid, [('account_id.type', '=', 'receivable')] + domain_base, context=context)
         else:
             ids = context['move_line_ids']
         invoice_id = context.get('invoice_id', False)
