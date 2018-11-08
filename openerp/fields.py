@@ -1228,6 +1228,16 @@ class Date(Field):
     def to_string(value):
         """ Convert a :class:`date` value into the format expected by the ORM. """
         return value.strftime(DATE_FORMAT)
+        
+    @staticmethod
+    def to_export(self, value):
+        """ Convert a :class:`date` value into the format expected by the ORM. """
+        if not value:
+            return ''
+        if type(value) == str:
+            value = Date.from_string(value)
+        d_format = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1).date_format or DATE_FORMAT
+        return value.strftime(d_format)
 
     def convert_to_cache(self, value, record, validate=True):
         if not value:
@@ -1296,6 +1306,20 @@ class Datetime(Field):
     def to_string(value):
         """ Convert a :class:`datetime` value into the format expected by the ORM. """
         return value.strftime(DATETIME_FORMAT)
+        
+    @staticmethod
+    def to_export(self, value):
+        """ Convert a :class:`date` value into the format expected by the ORM. """
+        if not value:
+            return ''
+        if type(value) == str:
+            value = Datetime.from_string(value)
+        d_format = DATETIME_FORMAT
+        lang = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1)
+        if lang:
+            d_format = '%s %s' % (lang.date_format, lang.time_format)
+        value = Datetime.context_timestamp(self, value)
+        return value.strftime(d_format)
 
     def convert_to_cache(self, value, record, validate=True):
         if not value:
