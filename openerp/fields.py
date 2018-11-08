@@ -30,7 +30,7 @@ import logging
 import pytz
 import xmlrpclib
 
-from openerp.tools import float_round, frozendict, html_sanitize, ustr, OrderedSet
+from openerp.tools import float_round, frozendict, html_sanitize, ustr, OrderedSet, config
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from openerp.exceptions import UserError
@@ -877,9 +877,16 @@ class Field(object):
         for field in self.computed_fields:
             records._cache[field] = field.null(records.env)
             records.env.computed[field].update(records._ids)
+        if config.get('log_level') == 'debug_function_fields':
+            import time
+            inicio = time.time()
         self.compute(records)
+        if config.get('log_level') == 'debug_function_fields':
+            from openerp.addons import funciones
+            funciones.utils.imprimir_tiempo('Tiempo en procesar calculo de los campos %s de %s' % (', '.join([f.name for f in self.computed_fields]), field.model_name), inicio)
         for field in self.computed_fields:
             records.env.computed[field].difference_update(records._ids)
+            
 
     def compute_value(self, records):
         """ Invoke the compute method on ``records``; the results are in cache. """
