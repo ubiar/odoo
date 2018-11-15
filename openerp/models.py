@@ -3326,7 +3326,7 @@ class BaseModel(object):
             try:
                 values = {'id': record.id}
                 for name, field in name_fields:
-                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record.id]})
+                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
                 result.append(values)
             except MissingError:
                 pass
