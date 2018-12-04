@@ -28,7 +28,7 @@ from openerp.tools.misc import find_in_path
 from openerp.tools.translate import _
 from openerp.addons.web.http import request
 from openerp.tools.safe_eval import safe_eval as eval
-from openerp.exceptions import UserError
+from openerp.exceptions import UserError, Warning
 
 import re
 import time
@@ -500,7 +500,11 @@ class Report(osv.Model):
         report_obj = self.pool['ir.actions.report.xml']
         qwebtypes = ['qweb-pdf', 'qweb-html']
         conditions = [('report_type', 'in', qwebtypes), ('report_name', '=', report_name)]
-        idreport = report_obj.search(cr, uid, conditions)[0]
+        reportes = report_obj.search(cr, uid, conditions)
+        if not reportes:
+            raise Warning(_("No se encontró el reporte adjunto de la plantilla de mail %s. Puede encontrarse desactivado.") % report_name)
+        else:
+            idreport = reportes[0]
         return report_obj.browse(cr, uid, idreport)
 
     def _build_wkhtmltopdf_args(self, paperformat, specific_paperformat_args=None):
