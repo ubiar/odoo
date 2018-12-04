@@ -30,7 +30,7 @@ import logging
 import pytz
 import xmlrpclib
 
-from openerp.tools import float_round, frozendict, html_sanitize, ustr, OrderedSet
+from openerp.tools import float_round, frozendict, html_sanitize, ustr, OrderedSet, config
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from openerp.exceptions import UserError
@@ -877,9 +877,16 @@ class Field(object):
         for field in self.computed_fields:
             records._cache[field] = field.null(records.env)
             records.env.computed[field].update(records._ids)
+        if config.get('log_level') == 'debug_function_fields':
+            import time
+            inicio = time.time()
         self.compute(records)
+        if config.get('log_level') == 'debug_function_fields':
+            from openerp.addons import funciones
+            funciones.utils.imprimir_tiempo('Tiempo en procesar calculo de los campos %s de %s' % (', '.join([f.name for f in self.computed_fields]), field.model_name), inicio)
         for field in self.computed_fields:
             records.env.computed[field].difference_update(records._ids)
+            
 
     def compute_value(self, records):
         """ Invoke the compute method on ``records``; the results are in cache. """
@@ -1228,6 +1235,16 @@ class Date(Field):
     def to_string(value):
         """ Convert a :class:`date` value into the format expected by the ORM. """
         return value.strftime(DATE_FORMAT)
+        
+    @staticmethod
+    def to_export(self, value):
+        """ Convert a :class:`date` value into the format expected by the ORM. """
+        if not value:
+            return ''
+        if type(value) == str:
+            value = Date.from_string(value)
+        d_format = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1).date_format or DATE_FORMAT
+        return value.strftime(d_format)
 
     def convert_to_cache(self, value, record, validate=True):
         if not value:
@@ -1296,6 +1313,20 @@ class Datetime(Field):
     def to_string(value):
         """ Convert a :class:`datetime` value into the format expected by the ORM. """
         return value.strftime(DATETIME_FORMAT)
+        
+    @staticmethod
+    def to_export(self, value):
+        """ Convert a :class:`date` value into the format expected by the ORM. """
+        if not value:
+            return ''
+        if type(value) == str:
+            value = Datetime.from_string(value)
+        d_format = DATETIME_FORMAT
+        lang = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1)
+        if lang:
+            d_format = '%s %s' % (lang.date_format, lang.time_format)
+        value = Datetime.context_timestamp(self, value)
+        return value.strftime(d_format)
 
     def convert_to_cache(self, value, record, validate=True):
         if not value:

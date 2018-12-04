@@ -487,12 +487,19 @@ class mail_thread(osv.AbstractModel):
     def message_track(self, cr, uid, ids, tracked_fields, initial_values, context=None):
 
         def convert_for_display(value, col_info):
-            if not value and col_info['type'] == 'boolean':
-                return 'False'
+            if col_info['type'] == 'boolean':
+                if value:
+                    return _('Si')
+                else:
+                    return _('No')
             if not value:
-                return ''
+                return _('Vacío')
+            if col_info['type'] == 'binary':
+                return _('Archivo')
             if col_info['type'] == 'many2one':
                 return value.name_get()[0][1]
+            if col_info['type'] in ['one2many', 'many2many']:
+                return ', '.join([val.name_get()[0][1] for val in value])
             if col_info['type'] == 'selection':
                 return dict(col_info['selection'])[value]
             return value
@@ -676,14 +683,13 @@ class mail_thread(osv.AbstractModel):
         # the parameters to encode for the query and fragment part of url
         query = {'db': cr.dbname}
         fragment = {
-            'login': partner.user_ids[0].login,
+            'login': partner.user_ids[0].login.encode('utf-8'),
             'action': 'mail.action_mail_redirect',
         }
         if mail.notification:
             fragment['message_id'] = mail.mail_message_id.id
         elif mail.model and mail.res_id:
             fragment.update(model=mail.model, res_id=mail.res_id)
-
         return "/web?%s#%s" % (urlencode(query), urlencode(fragment))
 
     #------------------------------------------------------

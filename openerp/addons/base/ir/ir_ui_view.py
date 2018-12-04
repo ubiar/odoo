@@ -109,7 +109,6 @@ def _hasclass(context, *cls):
     return node_classes.issuperset(cls)
 
 def get_view_arch_from_file(filename, xmlid):
-
     doc = etree.parse(filename)
     node = None
     for n in doc.xpath('//*[@id="%s"] | //*[@id="%s"]' % (xmlid, xmlid.split('.')[1])):
@@ -173,7 +172,10 @@ class view(osv.osv):
                 key = 'install_mode_data'
                 if context and key in context:
                     imd = context[key]
-                    if self._model._name == imd['model'] and (not view.xml_id or view.xml_id == imd['xml_id']):
+                    xmlid = imd['xml_id']
+                    if '.' not in xmlid and view.xml_id:
+                        xmlid = '%s.%s' % (view.xml_id.split('.')[0], xmlid)
+                    if self._model._name == imd['model'] and (not view.xml_id or view.xml_id == xmlid):
                         # we store the relative path to the resource instead of the absolute path, if found
                         # (it will be missing e.g. when importing data-only modules using base_import_module)
                         path_info = get_resource_from_path(imd['xml_file'])
@@ -720,10 +722,18 @@ class view(osv.osv):
                 can_edit = self.user_has_groups(
                     cr, user, groups=node.get('groups_editable'), context=context)
                 if not can_edit:
-                    node.set('readonly', '1')
-                    modifiers['readonly'] = True
+                    # Si llega groups_editable_attrs en True, no borro el attrs ni lo hago readonly, dejo lo que sea que tenga
+                    if not node.get('groups_editable_attrs'):
+                        node.set('readonly', '1')
+                        modifiers['readonly'] = True
+                        if 'attrs' in node.attrib:
+                            del(node.attrib['attrs']) #avoid making field editable later
+                # Si llega groups_editable_attrs me aseguro que siempre pueda editar, independientemente de algún readonly o attrs de una vista
+                elif can_edit and node.get('groups_editable_attrs'):
+                    node.set('readonly', '0')
+                    modifiers['readonly'] = False
                     if 'attrs' in node.attrib:
-                        del(node.attrib['attrs']) #avoid making field editable later
+                        del(node.attrib['attrs'])
                 del(node.attrib['groups_editable'])
             return True
 
@@ -1275,6 +1285,33 @@ class view(osv.osv):
             # only validate the views that are still existing...
             xmlid_filter = "AND md.name IN %s"
             names = tuple(name for (xmod, name), (model, res_id) in self.pool.model_data_reference_ids.items() if xmod == module and model == self._name)
+            # Elimino las vistas que ya no se encuentran en el modulo para que no generen errores al actualizar
+            where_names = 'AND md.name not in (%s)' % str(list(names))[1:-1] if names else ''
+            # Desactivo y desasocio las vistas que hereden de las que se van a eliminar para que no generen errores al actualizar
+            cr.execute('''
+                UPDATE ir_ui_view SET inherit_id = NULL, mode = 'primary', active = False WHERE inherit_id IN (
+                    SELECT 
+                        v.id 
+                    FROM 
+                        ir_ui_view v
+                        LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                    WHERE 
+                        md.module = '%s'
+                        %s
+                )
+            ''' % (module, where_names))
+            cr.execute('''
+                DELETE FROM ir_ui_view WHERE id IN (
+                    SELECT 
+                        v.id 
+                    FROM 
+                        ir_ui_view v
+                        LEFT JOIN ir_model_data md ON (md.model = 'ir.ui.view' AND md.res_id = v.id)
+                    WHERE 
+                        md.module = '%s'
+                        %s
+                )
+            ''' % (module, where_names))
             if not names:
                 # no views for this module, nothing to validate
                 return
@@ -1286,7 +1323,7 @@ class view(osv.osv):
                          {0}
                     GROUP BY coalesce(v.inherit_id, v.id)
                    """.format(xmlid_filter), params)
-
-        for vid, in cr.fetchall():
+        view_ids = [r[0] for r in cr.fetchall()]
+        for vid in view_ids:
             if not self._check_xml(cr, uid, [vid]):
                 self.raise_view_error(cr, uid, "Can't validate view", vid)

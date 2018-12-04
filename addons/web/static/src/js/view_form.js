@@ -1400,7 +1400,7 @@ instance.web.form.FormRenderingEngine = instance.web.form.FormRenderingEngineInt
         });
         if (found)
             return;
-
+        
         var $label = $('<label/>').attr({
             'for' : name,
             "modifiers": JSON.stringify({invisible: field_modifiers.invisible}),
@@ -1408,6 +1408,9 @@ instance.web.form.FormRenderingEngine = instance.web.form.FormRenderingEngineInt
             "help": $field.attr('help'),
             "class": $field.attr('class'),
         });
+        
+        if (name && name.substr(0,2) == "x_") $label.addClass("de_usuario");
+        
         $label.insertBefore($field);
         if (field_colspan > 1) {
             $field.attr('colspan', field_colspan - 1);
@@ -3495,12 +3498,12 @@ instance.web.form.CompletionFieldMixin = {
         var pop = new instance.web.form.SelectCreatePopup(this);
         pop.select_element(
             self.field.relation,
-            {
+            _.extend(this.options || {}, {
                 title: (view === 'search' ? _t("Search: ") : _t("Create: ")) + this.string,
                 initial_ids: ids ? _.map(ids, function(x) {return x[0];}) : undefined,
                 initial_view: view,
                 disable_multiple_selection: true
-            },
+            }),
             self.build_domain(),
             new instance.web.CompoundContext(self.build_context(), context || {})
         );
@@ -3954,7 +3957,7 @@ instance.web.form.Many2OneButton = instance.web.form.AbstractField.extend({
             this.$button.remove();
         }
         this.string = '';
-        this.node.attrs.icon = this.get('value') ? '/web/static/src/img/icons/gtk-yes.png' : '/web/static/src/img/icons/gtk-no.png';
+        this.node.attrs.icon = this.get('value') ? '/web/static/src/img/icons/gtk-edit.png' : '/web/static/src/img/icons/gtk-file.png';
         this.$button = $(QWeb.render('WidgetButton', {'widget': this}));
         this.$button.addClass('oe_link').css({'padding':'4px'});
         this.$el.append(this.$button);
@@ -3970,7 +3973,11 @@ instance.web.form.Many2OneButton = instance.web.form.AbstractField.extend({
             {title: this.string}
         );
         this.popup.on('create_completed', self, function(r) {
+            
             self.set_value(r);
+        });
+        this.popup.on('closed', self, function(r) {
+            self.field_manager.do_onchange();
         });
     },
     set_value: function(value_) {
@@ -4010,6 +4017,7 @@ instance.web.form.AddAnItemList = instance.web.ListView.List.extend({
         }).length;
         if (this.options.selectable) { columns++; }
         if (this.options.deletable) { columns++; }
+        if (this.options.editable_if) { columns++; }
 
         var $cell = $('<td>', {
             colspan: columns,
@@ -4165,6 +4173,7 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
                     _.extend(view.options, {
                         deletable: null,
                         reorderable: false,
+                        editable_if: false,
                     });
                 }
             } else if (view.view_type === "form") {
@@ -4365,6 +4374,9 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
     commit_value: function() {
         return this.save_any_view();
     },
+    is_false: function () {
+        return _(this.dataset.ids).isEmpty();
+    },
     save_any_view: function() {
         var view = this.get_active_view();
         if (view) {
@@ -4423,7 +4435,7 @@ instance.web.form.One2ManyViewManager = instance.web.ViewManager.extend({
                 });
             },
             write_function: function(id, data, options) {
-                return self.o2m.dataset.write(id, data, {}).done(function() {
+                return self.o2m.dataset.write(id, data, options).done(function() {
                     self.o2m.reload_current_view();
                 });
             },
@@ -4548,10 +4560,20 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
     do_activate_record: function(index, id) {
         var self = this;
         var pop = new instance.web.form.FormOpenPopup(self);
+        var dataset_ids = self.o2m.dataset.ids;
+        if (this.options && this.options.editable_if){
+            var dataset_ids_sin_editables = [];
+            _.each(dataset_ids, function(r_id){
+                if (!self.editable_if(self.records.get(r_id))){
+                    dataset_ids_sin_editables.push(r_id);
+                }
+            });
+            dataset_ids = dataset_ids_sin_editables;
+        }
         pop.show_element(self.o2m.field.relation, id, self.o2m.build_context(), {
             title: _t("Open: ") + self.o2m.string,
-            write_function: function(id, data) {
-                return self.o2m.dataset.write(id, data, {}).done(function() {
+            write_function: function(id, data, options) {
+                return self.o2m.dataset.write(id, data, options).done(function() {
                     self.o2m.reload_current_view();
                 });
             },
@@ -4562,7 +4584,8 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
                 return self.o2m.dataset.read_ids.apply(self.o2m.dataset, arguments);
             },
             form_view_options: {'not_interactible_on_create':true},
-            readonly: !this.is_action_enabled('edit') || self.o2m.get("effective_readonly")
+            readonly: !this.is_action_enabled('edit') || self.o2m.get("effective_readonly"),
+            dataset_ids: dataset_ids,
         });
     },
     do_button_action: function (name, id, callback) {
@@ -5050,7 +5073,8 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         pop.show_element(this.dataset.model, id, this.m2m_field.build_context(), {
             title: _t("Open: ") + this.m2m_field.string,
             alternative_form_view: this.m2m_field.field.views ? this.m2m_field.field.views["form"] : undefined,
-            readonly: this.getParent().get("effective_readonly")
+            readonly: this.getParent().get("effective_readonly"),
+            dataset_ids: self.dataset.ids,
         });
         pop.on('write_completed', self, self.reload_content);
     },
@@ -5193,7 +5217,7 @@ instance.web.form.FieldMany2ManyKanban = instance.web.form.AbstractField.extend(
             pop.show_element(self.field.relation, id, self.build_context(), {
                 title: _t("Open: ") + self.string,
                 write_function: function(id, data, options) {
-                    return self.dataset.write(id, data, {}).done(function() {
+                    return self.dataset.write(id, data, options).done(function() {
                         self.render_value();
                     });
                 },
@@ -5351,8 +5375,8 @@ instance.web.form.AbstractFormPopup = instance.web.Widget.extend({
     setup_form_view: function() {
         var self = this;
         if (this.row_id) {
-            this.dataset.ids = [this.row_id];
-            this.dataset.index = 0;
+            this.dataset.ids = this.options.dataset_ids ? this.options.dataset_ids : [this.row_id];
+            this.dataset.index = this.options.dataset_ids ? _.indexOf(this.options.dataset_ids, this.row_id) : 0;
         } else {
             this.dataset.index = null;
         }
@@ -5395,6 +5419,25 @@ instance.web.form.AbstractFormPopup = instance.web.Widget.extend({
                 self.view_form.trigger('on_button_cancel');
                 self.check_exit();
             });
+            
+            if (self.options.dataset_ids){
+                self.$buttonpane.append(self.view_form.$pager);
+                self.view_form.$pager.css('float', 'right');
+                self.view_form.can_be_discarded = function(){ return true; };
+                var pager_action_backup = self.view_form.execute_pager_action;
+                self.view_form.execute_pager_action = function(action) {
+                    var ret = $.Deferred();
+                    $.when(self.view_form.save()).done(function() {
+                        self.view_form.reload_mutex.exec(function() {
+                            $.when(pager_action_backup.apply(self.view_form, [action])).done(function(){
+                                ret.resolve();
+                            });
+                        });
+                    });
+                    return ret;
+                };
+            }
+            
             self.view_form.do_show();
         });
     },

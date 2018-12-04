@@ -293,6 +293,17 @@ class ir_ui_menu(osv.osv):
                     res[menu.id] = True
         return res
 
+    @api.model
+    def _es_menu_de_usuario(self, menu_id):
+        xml_id = self.env['ir.model.data'].search_count([('model', '=', 'ir.ui.menu'), ('res_id', '=', menu_id.id)])
+        return False if xml_id else True
+
+    def _get_menu_de_usuario(self):
+        """ Chequea si el menuitem es de usuario o de sistema
+        """
+        for obj in self:
+            obj.menu_de_usuario = self.sudo()._es_menu_de_usuario(obj.sudo())
+
     def get_needaction_data(self, cr, uid, ids, context=None):
         """ Return for each menu entry of ids :
             - if it uses the needaction mechanism (needaction_enabled)
@@ -371,7 +382,7 @@ class ir_ui_menu(osv.osv):
     @api.cr_uid_context
     @tools.ormcache_context(accepted_keys=('lang',))
     def load_menus_root(self, cr, uid, context=None):
-        fields = ['name', 'sequence', 'parent_id', 'action']
+        fields = ['name', 'sequence', 'parent_id', 'action', 'menu_de_usuario']
         menu_root_ids = self.get_user_roots(cr, uid, context=context)
         menu_roots = self.read(cr, uid, menu_root_ids, fields, context=context) if menu_root_ids else []
         return {
@@ -391,7 +402,7 @@ class ir_ui_menu(osv.osv):
         :return: the menu root
         :rtype: dict('children': menu_nodes)
         """
-        fields = ['name', 'sequence', 'parent_id', 'action']
+        fields = ['name', 'sequence', 'parent_id', 'action', 'menu_de_usuario']
         menu_root_ids = self.get_user_roots(cr, uid, context=context)
         menu_roots = self.read(cr, uid, menu_root_ids, fields, context=context) if menu_root_ids else []
         menu_root = {
@@ -430,7 +441,7 @@ class ir_ui_menu(osv.osv):
         for menu_item in menu_items:
             menu_item.setdefault('children', []).sort(
                 key=operator.itemgetter('sequence'))
-
+                
         return menu_root
 
     _columns = {
@@ -469,6 +480,7 @@ class ir_ui_menu(osv.osv):
                 ('ir.bi.powerbi.consulta', 'ir.bi.powerbi.consulta'),
             ]),
     }
+    menu_de_usuario = openerp.fields.Boolean('Menu de Usuario', compute=_get_menu_de_usuario)
 
     def _rec_message(self, cr, uid, ids, context=None):
         return _('Error ! You can not create recursive Menu.')

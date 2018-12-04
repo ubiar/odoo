@@ -2407,7 +2407,7 @@ class BaseModel(object):
     # checked version: for direct m2o starting from ``self``
     def _m2o_add_foreign_key_checked(self, source_field, dest_model, ondelete):
         assert self.is_transient() or not dest_model.is_transient(), \
-            'Many2One relationships from non-transient Model to TransientModel are forbidden'
+            'Many2One relationships from non-transient Model to TransientModel are forbidden (%s.%s)' % (self._table, source_field)
         if self.is_transient() and not dest_model.is_transient():
             # TransientModel relationships to regular Models are annoying
             # usually because they could block deletion due to the FKs.
@@ -3292,7 +3292,8 @@ class BaseModel(object):
         # check access rights
         self.check_access_rights('read')
         fields = self.check_field_access_rights('read', fields)
-        if self._name == 'res.users': # Como en los usuarios no heredan las reglas, puede que tenga funciones calculadas del partner las cuales darian error de permisos
+        # Como en los usuarios no heredan las reglas, puede que tenga funciones calculadas del partner las cuales darian error de permisos
+        if self._name in ['res.users', 'res.sucursal', 'res.subcompania']:
             self = self.sudo()
             
         if self._context.get('_fast_read_ubiar') and fields:
@@ -3325,7 +3326,7 @@ class BaseModel(object):
             try:
                 values = {'id': record.id}
                 for name, field in name_fields:
-                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record.id]})
+                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
                 result.append(values)
             except MissingError:
                 pass

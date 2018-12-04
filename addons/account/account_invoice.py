@@ -872,7 +872,7 @@ class account_invoice(models.Model):
                     res_amount_currency -= amount_currency or 0
                     if i + 1 == len(totlines):
                         amount_currency += res_amount_currency
-
+                    name = t[2] if len(t) == 3 else name
                     iml.append({
                         'type': 'dest',
                         'name': name,

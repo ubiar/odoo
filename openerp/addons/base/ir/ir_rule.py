@@ -109,6 +109,7 @@ class ir_rule(osv.osv):
 
     @tools.ormcache()
     def _compute_domain(self, cr, uid, model_name, mode="read", context=None):
+        context = context or {}
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
@@ -139,7 +140,7 @@ class ir_rule(osv.osv):
                     if group in user.groups_id:
                         if rule.force_and:
                             global_domains.append(dom)
-                        else:
+                        elif not context.get('disable_all_group_rules'):
                             group_domains.setdefault(group, []).append(dom)
                 if not rule.groups:
                     global_domains.append(dom)

@@ -386,7 +386,8 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         var col_name = $column.data('id');
         var field = this.fields_view.fields[col_name];
         // test whether the field is sortable
-        if (field && !field.sortable) {
+        // Ubiar, si no esta en un item de menu se ordena con JS y no importa si el campo es calculado
+        if (field && this.options.action && !field.sortable) {
             return false;
         }
         this.dataset.sort(col_name);
@@ -1127,8 +1128,8 @@ instance.web.ListView.List = instance.web.Class.extend( /** @lends instance.web.
                                    _(names).pluck(1).join(', '));
                         record.set(column.id, ids);
                     });
-                // temp empty value
-                record.set(column.id, false);
+                // temporary empty display name
+                record.set(column.id + '__display', false);
             }
         }
         return column.format(record.toForm().data, {
@@ -1159,6 +1160,9 @@ instance.web.ListView.List = instance.web.Class.extend( /** @lends instance.web.
             }
             cells.push('<td title="' + column.string + '">&nbsp;</td>');
         });
+        if (this.options.editable_if){
+            cells.push('<td class="oe_list_record_edit"><button type="button" style="visibility: hidden;"> </button></td>');
+        }
         if (this.options.deletable) {
             cells.push('<td class="oe_list_record_delete"><button type="button" style="visibility: hidden"> </button></td>');
         }
@@ -2396,7 +2400,7 @@ instance.web.list.Handle = instance.web.list.Column.extend({
 instance.web.list.Many2OneButton = instance.web.list.Column.extend({
     _format: function (row_data, options) {
         this.has_value = !!row_data[this.id].value;
-        this.icon = this.has_value ? 'gtk-yes' : 'gtk-no';
+        this.icon = this.has_value ? 'gtk-edit' : 'gtk-file';
         this.string = this.has_value ? _t('View') : _t('Create');
         return QWeb.render('Many2OneButton.cell', {
             'widget': this,

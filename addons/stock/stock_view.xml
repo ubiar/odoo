@@ -697,10 +697,15 @@
                         <page string="Operations" attrs="{'invisible': ['|', ('state','!=','done'), ('pack_operation_ids','=',[])]}">
                             <field name="pack_operation_ids" context="{'default_picking_id': active_id, 'default_location_id': location_id, 'default_location_dest_id': location_dest_id}">
                                 <tree editable="top">
+                                    <field name="fresh_record" invisible="1"/>
+                                    <field name="state" invisible="1"/>
+                                    <field name="lots_visible" invisible="1"/>
                                     <field name="package_id" groups="stock.group_tracking_lot"/>
                                     <field name="product_id" on_change="product_id_change(product_id, product_uom_id, product_qty)"/>
                                     <field name="product_uom_id" groups="product.group_uom"/>
-                                    <field name="lot_id" domain="[('product_id','=?', product_id)]" context="{'product_id': product_id}" groups="stock.group_production_lot"/>
+                                    <field name="lot_id" domain="[('product_id','=', product_id)]" context="{'product_id': product_id}" groups="stock.group_production_lot" attrs="{'readonly': [('fresh_record', '=', False)]}"/>
+                                    <button name="split_lot" string="Lot Split" type="object" icon="STOCK_INDENT" groups="stock.group_production_lot"
+                                            attrs="{'invisible': ['|', ('lots_visible', '=', False), ('state', 'not in', ['confirmed', 'assigned', 'waiting', 'partially_available'])]}"/>
                                     <field name="picking_id" invisible="1"/>
                                     <field name="owner_id" groups="stock.group_tracking_owner"/>
                                     <field name="product_qty" attrs="{'required': [('product_id', '!=', False)]}"/>
@@ -1360,8 +1365,15 @@
                         </group>
                         <separator string="Locations"/>
                         <group>
-                            <field name="default_location_src_id" attrs="{'required': [('code', '=', 'internal')]}"/>
-                            <field name="default_location_dest_id" attrs="{'required': [('code', 'in', ('internal', 'incoming'))]}"/>
+                            <group string="Lotes y Empaquetado">
+                                <field name="show_entire_packs" groups="stock.group_tracking_lot"/>
+                                <field name="use_create_lots" groups="stock.group_production_lot"/>
+                                <field name="use_existing_lots" groups="stock.group_production_lot"/>
+                            </group>
+                            <group string="Locations">
+                                <field name="default_location_src_id" attrs="{'required': [('code', '=', 'internal')]}"/>
+                                <field name="default_location_dest_id" attrs="{'required': [('code', 'in', ('internal', 'incoming'))]}"/>
+                            </group>
                         </group>
                     </sheet>
                 </form>

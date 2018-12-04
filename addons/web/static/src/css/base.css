@@ -815,6 +815,10 @@
   line-height: 1.1em;
   margin-top: 3px;
 }
+.openerp .oe_secondary_submenu .oe_menu_text.de_usuario {
+  /*text-shadow: 0 0 3px #FF0000;*/
+  font-style: italic;
+}
 .openerp .oe_secondary_submenu .oe_menu_text {
   white-space: nowrap;
   overflow: hidden;
@@ -1830,6 +1834,9 @@
   min-width: 150px;
   font-weight: bold !important;
 }
+.openerp .oe_form td.oe_form_group_cell_label label.de_usuario {
+  font-style: italic !important;
+}
 .openerp .oe_form td.oe_form_group_cell + .oe_form_group_cell {
   padding: 2px 0 2px 8px;
 }
@@ -2512,6 +2519,9 @@
 .openerp .oe_list.oe_cannot_delete .oe_list_record_delete {
   display: none !important;
 }
+.openerp .oe_list.oe_list_editable.oe_editing .oe_edition .oe_list_record_edit button{
+  visibility: hidden !important;
+}
 .openerp .oe_list .oe_form .oe_form_nosheet {
   margin: 0;
   padding: 0;
@@ -2529,6 +2539,7 @@
 .openerp .oe_list .oe_list_content .oe_group_header {
   background-color: #ededed;
   background: url(/web/static/src/img/background-linear-gradient-grupos.png) repeat;
+  background-size: contain;
 }
 .openerp .oe_list_content {
   width: 100%;

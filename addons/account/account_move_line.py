@@ -1039,11 +1039,29 @@ class account_move_line(osv.osv):
         r = cr.fetchall()
         #TODO: move this check to a constraint in the account_move_reconcile object
         if len(r) != 1:
+            if ids:
+                cr.execute('''
+                    SELECT 
+                    	count(*), 
+                    	string_agg(cuenta.name, ', ')
+                    FROM (
+                    	SELECT 
+                    		cuenta.name
+                    	FROM 
+                    		account_move_line aml
+                    		LEFT JOIN account_account cuenta ON aml.account_id = cuenta.id
+                    	WHERE aml.id IN (%s)
+                    	GROUP BY cuenta.name
+                    ) AS cuenta
+                ''' % str(list(ids))[1:-1])
+                r = cr.fetchone()
+                if r[0] > 1:
+                    raise UserError(_('Entries are not of the same account %s! (Move codes %s)') % (r[1], str(ids)))
             raise UserError(_('Entries are not of the same account or already reconciled ! (Move codes %s)') % str(ids))
         if not unrec_lines:
             raise UserError(_('Entry is already reconciled.'))
         account = account_obj.browse(cr, uid, account_id, context=context)
-        if not account.reconcile:
+        if not account.reconcile and not context.get('no_validar_cuenta_conciliable'):
             raise UserError(_('The account %s is not defined to be reconciled !') % (account.name_get()[0][1],))
         if r[0][1] != None:
             raise UserError(_('Some entries are already reconciled.'))

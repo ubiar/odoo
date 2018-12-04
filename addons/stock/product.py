@@ -25,6 +25,7 @@ from openerp.tools.safe_eval import safe_eval as eval
 import openerp.addons.decimal_precision as dp
 from openerp.tools.float_utils import float_round
 from openerp.exceptions import UserError
+from openerp import SUPERUSER_ID
 
 class product_product(osv.osv):
     _inherit = "product.product"
@@ -339,6 +340,17 @@ class product_product(osv.osv):
         template_obj = self.pool.get("product.template")
         templ_ids = list(set([x.product_tmpl_id.id for x in self.browse(cr, uid, ids, context=context)]))
         return template_obj.action_view_routes(cr, uid, templ_ids, context=context)
+    
+    def onchange_tracking(self, cr, uid, ids, tracking, context=None):
+        if not tracking or tracking == 'none':
+            return {}
+        unassigned_quants = self.pool['stock.quant'].search_count(cr, uid, [('product_id','in', ids), ('lot_id','=', False), ('location_id.usage','=', 'internal')], context=context)
+        if unassigned_quants:
+            return {'warning' : {
+                    'title': _('Warning!'),
+                    'message' : _("You have products in stock that have no lot number.  You can assign serial numbers by doing an inventory.  ")
+            }}
+        return {}
 
 class product_template(osv.osv):
     _name = 'product.template'
@@ -408,10 +420,7 @@ class product_template(osv.osv):
         'loc_rack': fields.char('Rack', size=16),
         'loc_row': fields.char('Row', size=16),
         'loc_case': fields.char('Case', size=16),
-        'track_incoming': fields.boolean('Track Incoming Lots', help="Forces to specify a Serial Number for all moves containing this product and coming from a Supplier Location"),
-        'track_outgoing': fields.boolean('Track Outgoing Lots', help="Forces to specify a Serial Number for all moves containing this product and going to a Customer Location"),
-        'track_all': fields.boolean('Full Lots Traceability', help="Forces to specify a Serial Number on each and every operation related to this product"),
-        
+        'tracking': fields.selection(selection=[('none', 'Sin Tracking'), ('serial', 'Número de Serie Único'), ('lot', 'Lotes')], string="Tracking", required=True),
         # sum of product variant qty
         # 'reception_count': fields.function(_product_available, multi='qty_available',
         #     fnct_search=_search_product_quantity, type='float', string='Quantity On Hand'),
@@ -432,6 +441,7 @@ class product_template(osv.osv):
 
     _defaults = {
         'sale_delay': 7,
+        'tracking': 'none',
     }
 
     def action_view_routes(self, cr, uid, ids, context=None):
@@ -448,6 +458,12 @@ class product_template(osv.osv):
         result['domain'] = "[('id','in',[" + ','.join(map(str, route_ids)) + "])]"
         return result
 
+    def onchange_tracking(self, cr, uid, ids, tracking, context=None):
+        if not tracking:
+            return {}
+        product_product = self.pool['product.product']
+        variant_ids = product_product.search(cr, uid, [('product_tmpl_id', 'in', ids)], context=context)
+        return product_product.onchange_tracking(cr, uid, variant_ids, tracking, context=context)
 
     def _get_products(self, cr, uid, ids, context=None):
         products = []
@@ -499,7 +515,7 @@ class product_template(osv.osv):
             for product in self.browse(cr, uid, ids, context=context):
                 old_uom = product.uom_id
                 if old_uom != new_uom:
-                    if self.pool.get('stock.move').search(cr, uid, [('product_id', 'in', [x.id for x in product.product_variant_ids]), ('state', '=', 'done')], limit=1, context=context):
+                    if self.pool.get('stock.move').search(cr, SUPERUSER_ID, [('product_id', 'in', [x.id for x in product.product_variant_ids]), ('state', '=', 'done')], limit=1, context=context):
                         raise UserError(_("You can not change the unit of measure of a product that has already been used in a done stock move. If you need to change the unit of measure, you may deactivate this product."))
         return super(product_template, self).write(cr, uid, ids, vals, context=context)
 

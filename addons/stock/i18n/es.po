@@ -4677,7 +4677,7 @@ msgstr "Secuencia"
 #: field:stock.production.lot,name:0
 #: field:stock.return.picking.line,lot_id:0
 msgid "Serial Number"
-msgstr "Nº de serie"
+msgstr "Lote/Nº de Serie"
 
 #. module: stock
 #: field:stock.inventory.line,prodlot_name:0
@@ -6235,3 +6235,9 @@ msgstr "⇒ Actualizar"
 
 #~ msgid "Warehouse Management"
 #~ msgstr "Gestión de almacenes"
+
+#. module: stock
+#: code:addons/stock/product.py:519
+#, python-format
+msgid "You can not change the unit of measure of a product that has already been used in a done stock move. If you need to change the unit of measure, you may deactivate this product."
+msgstr "No puede cambiar la unidad de medida de un producto que ya ha sido utilizado en un movimiento de stock. Si necesita cambiar la unidad de medida, puede desactivar este producto."

@@ -256,4 +256,7 @@ class mail_notification(osv.Model):
             return True
 
         # browse as SUPERUSER_ID because of access to res_partner not necessarily allowed
-        self._notify_email(cr, SUPERUSER_ID, new_notif_ids, message_id, force_send, user_signature, context=context)
+        ctx = context.copy()
+        if ctx.get('default_state'):
+            del ctx['default_state']
+        self._notify_email(cr, SUPERUSER_ID, new_notif_ids, message_id, force_send, user_signature, context=ctx)

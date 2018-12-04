@@ -107,7 +107,7 @@ class stock_move(osv.osv):
     def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
         return self.pool.get('account.invoice.line').create(cr, uid, invoice_line_vals, context=context)
 
-    def _get_price_unit_invoice(self, cr, uid, move_line, type, context=None):
+    def _get_price_unit_invoice(self, cr, uid, move_line, partner, type, context=None):
         """ Gets price unit for invoice
         @param move_line: Stock move lines
         @param type: Type of invoice
@@ -119,11 +119,11 @@ class stock_move(osv.osv):
             return move_line.price_unit
         else:
             # If partner given, search price in its sale pricelist
-            if move_line.partner_id and move_line.partner_id.property_product_pricelist:
+            if partner and move_line.partner_id.property_product_pricelist:
                 pricelist_obj = self.pool.get("product.pricelist")
-                pricelist = move_line.partner_id.property_product_pricelist.id
+                pricelist = partner.property_product_pricelist.id
                 price = pricelist_obj.price_get(cr, uid, [pricelist],
-                        move_line.product_id.id, move_line.product_uom_qty, move_line.partner_id.id, {
+                        move_line.product_id.id, move_line.product_uom_qty, partner.id, {
                             'uom': move_line.product_uom.id,
                             'date': move_line.date,
                             })[pricelist]
@@ -160,7 +160,7 @@ class stock_move(osv.osv):
             'product_id': move.product_id.id,
             'uos_id': uos_id,
             'quantity': quantity,
-            'price_unit': self._get_price_unit_invoice(cr, uid, move, inv_type),
+            'price_unit': self._get_price_unit_invoice(cr, uid, move, partner, inv_type),
             'invoice_line_tax_id': [(6, 0, taxes_ids)],
             'discount': 0.0,
             'account_analytic_id': False,
@@ -318,7 +318,7 @@ class stock_picking(osv.osv):
                 if not invoice.origin or invoice_vals['origin'] not in invoice.origin.split(', '):
                     invoice_origin = filter(None, [invoice.origin, invoice_vals['origin']])
                     invoice.write({'origin': ', '.join(invoice_origin)})
-
+            
             invoice_line_vals = move_obj._get_invoice_line_vals(cr, uid, move, partner, inv_type, context=context)
             invoice_line_vals['invoice_id'] = invoices[key]
             invoice_line_vals['origin'] = origin
