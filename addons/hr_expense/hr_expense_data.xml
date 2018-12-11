@@ -2,6 +2,7 @@
 <openerp>
     <data noupdate="1">
         <!-- notify all employees of module installation -->
+        <!-- desactivado por ubiar para que no se le envie el email a los usuarios
         <record model="mail.message" id="module_install_notification">
             <field name="model">mail.group</field>
             <field name="res_id" ref="mail.group_all_employees"/>
@@ -11,6 +12,7 @@
             <field name="body"><![CDATA[<p>Manage your employees' expenses, after due validation by their manager and the accountant, then generate and pay the corresponding invoices.</p>
 <p>This feature is also linked to analytic accounting and compatible with timesheet invoices, so you will be able to automatically re-invoice project-related expenses to your customers.</p>]]></field>
         </record>
+        -->
 
         <!-- Resource: product.uom.categ -->
         <record id="cat_expense" model="product.category">
