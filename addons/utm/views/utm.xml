@@ -67,7 +67,7 @@
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
-                Click to define a new medium.
+                Click para definir un nuevo Canal.
               </p>
             </field>
         </record>
@@ -102,7 +102,7 @@
             <field name="view_mode">tree,form</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
-                Click to define a new source.
+                Click para definir un nuevo Origen.
               </p>
             </field>
         </record>
