@@ -609,6 +609,7 @@ class purchase_order(osv.osv):
             'invoice_line_tax_id': [(6, 0, [x.id for x in order_line.taxes_id])],
             'account_analytic_id': order_line.account_analytic_id.id or False,
             'purchase_line_id': order_line.id,
+            'asset_id': order_line.asset_id and order_line.asset_id.id or False,
         }
 
     def _prepare_invoice(self, cr, uid, order, line_ids, context=None):
