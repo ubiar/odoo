@@ -10,7 +10,7 @@ Enable UTM trackers in shared links.
     'data': [
         'security/ir.model.access.csv',
         'views/utm.xml',
-        'utm_data.xml'
+        # 'utm_data.xml' Comentado por Ubiar
     ],
     'demo': [],
     'auto_install': True,

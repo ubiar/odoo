@@ -71,7 +71,7 @@
         <record model="ir.ui.view" id="crm_stage_form">
             <field name="name">crm.stage.form</field>
             <field name="model">crm.stage</field>
-            <field name="priority" eval="1"/>
+            <field name="priority" eval="16"/>
             <field name="arch" type="xml">
                 <form string="Stage">
                     <group>

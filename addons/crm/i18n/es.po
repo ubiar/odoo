@@ -2908,7 +2908,7 @@ msgstr ""
 #. module: crm
 #: model:res.groups,name:crm.group_scheduled_calls
 msgid "Show Scheduled Calls Menu"
-msgstr "Mostrar el menú de llamadas programadas"
+msgstr "Mostrar Menu de Llamadas"
 
 #. module: crm
 #: view:crm.lead.report:crm.view_report_crm_lead_filter

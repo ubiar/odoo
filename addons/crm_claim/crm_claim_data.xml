@@ -2,9 +2,7 @@
 <openerp>
     <data noupdate="1">
 
-        <!--
-        Claims Categories
-        -->
+        <!-- Claims Categories -->
         
         <record model="crm.claim.category" id="categ_claim1">
             <field name="name">Reclamos de Hecho</field>
@@ -20,22 +18,19 @@
             <field name="name">Reclamos de Política</field>
             <field name="team_id" ref="sales_team.team_sales_department"/>
         </record>
-    
-        <!--
-        Case Category2
-        -->
+
+        <!-- Comentado por Ubiar -->
+        <!-- Case Category2 -->
         
-        <record model="utm.campaign" id="claim_source1">
-            <field name="name">Corrective</field>
-        </record>
+        <!--<record model="utm.campaign" id="claim_source1">-->
+        <!--    <field name="name">Corrective</field>-->
+        <!--</record>-->
         
-        <record model="utm.campaign" id="claim_source2">
-            <field name="name">Preventive</field>
-        </record>
+        <!--<record model="utm.campaign" id="claim_source2">-->
+        <!--    <field name="name">Preventive</field>-->
+        <!--</record>-->
     
-        <!--
-        Case Stage
-        -->
+        <!-- Case Stage -->
         
         <record model="crm.claim.stage" id="stage_claim1">
             <field name="name">New</field>
@@ -57,7 +52,6 @@
             <field name="sequence">29</field>
             <field name="case_default" eval="True"/>
         </record>
-        
 
     </data>
 </openerp>
