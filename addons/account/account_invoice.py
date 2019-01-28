@@ -1612,7 +1612,7 @@ class account_invoice_tax(models.Model):
                     'amount': tax['amount'],
                     'manual': False,
                     'sequence': tax['sequence'],
-                    'base': currency.round(tax['price_unit'] * line['quantity']),
+                    'base': tax['price_unit'] * line['quantity'],
                 }
                 
                 if invoice.type in ('out_invoice','in_invoice'):
