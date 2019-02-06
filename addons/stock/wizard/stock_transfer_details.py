@@ -74,7 +74,7 @@ class stock_transfer_details(models.TransientModel):
 
     @api.one
     def do_detailed_transfer(self):
-        processed_ids = []
+        processed_ids = self._context.get('processed_ids') or []
         # Create new and update existing pack operations
         for lstits in [self.item_ids, self.packop_ids]:
             for prod in lstits:
@@ -100,7 +100,7 @@ class stock_transfer_details(models.TransientModel):
         # Delete the others
         packops = self.env['stock.pack.operation'].search(['&', ('picking_id', '=', self.picking_id.id), '!', ('id', 'in', processed_ids)])
         packops.unlink()
-
+        
         # Execute the transfer of the picking
         self.picking_id.do_transfer()
 
