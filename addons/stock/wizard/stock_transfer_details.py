@@ -95,7 +95,7 @@ class stock_transfer_details(models.TransientModel):
                     processed_ids.append(prod.packop_id.id)
                 else:
                     pack_datas['picking_id'] = self.picking_id.id
-                    prod.packop_id = self.env['stock.pack.operation'].create(pack_datas)
+                    prod.packop_id = self.env['stock.pack.operation'].with_context(no_recompute=True).create(pack_datas)
                     processed_ids.append(prod.packop_id.id)
         # Delete the others
         packops = self.env['stock.pack.operation'].search(['&', ('picking_id', '=', self.picking_id.id), '!', ('id', 'in', processed_ids)])
