@@ -2170,6 +2170,10 @@ class stock_move(osv.osv):
         #propagation of quantity change
         if vals.get('product_uom_qty'):
             propagated_changes_dict['product_uom_qty'] = vals['product_uom_qty']
+        if vals.get('product_uos_qty'):
+            propagated_changes_dict['product_uos_qty'] = vals['product_uos_qty']
+        if vals.get('product_uop_qty'):
+            propagated_changes_dict['product_uop_qty'] = vals['product_uop_qty']
         if vals.get('product_uom_id'):
             propagated_changes_dict['product_uom_id'] = vals['product_uom_id']
         #propagation of expected date:
