@@ -450,8 +450,9 @@ class stock_quant(osv.osv):
         if domain is None:
             domain = []
         quants = [(None, qty)]
+        context = context or {}
         #don't look for quants in location that are of type production, supplier or inventory.
-        if location.usage in ['inventory', 'production', 'supplier']:
+        if location.usage in ['inventory', 'production', 'supplier'] and not context.get('returned_move'):
             return quants
         res_qty = qty
         if restrict_lot_id:
