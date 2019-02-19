@@ -2774,7 +2774,7 @@ class stock_move(osv.osv):
             'move_dest_id': move.move_dest_id.id,
             'origin_returned_move_id': move.origin_returned_move_id.id,
         }
-        defaults = self.split_defaults(cr, uid, move, qty, defaults)
+        defaults = self.split_defaults(cr, uid, move, qty, defaults, context=context)
         if 'product_uos_qty' in defaults.keys():
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():
