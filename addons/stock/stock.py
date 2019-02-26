@@ -450,8 +450,9 @@ class stock_quant(osv.osv):
         if domain is None:
             domain = []
         quants = [(None, qty)]
+        context = context or {}
         #don't look for quants in location that are of type production, supplier or inventory.
-        if location.usage in ['inventory', 'production', 'supplier']:
+        if location.usage in ['inventory', 'production', 'supplier'] and not context.get('returned_move'):
             return quants
         res_qty = qty
         if restrict_lot_id:
@@ -2170,6 +2171,10 @@ class stock_move(osv.osv):
         #propagation of quantity change
         if vals.get('product_uom_qty'):
             propagated_changes_dict['product_uom_qty'] = vals['product_uom_qty']
+        if vals.get('product_uos_qty'):
+            propagated_changes_dict['product_uos_qty'] = vals['product_uos_qty']
+        if vals.get('product_uop_qty'):
+            propagated_changes_dict['product_uop_qty'] = vals['product_uop_qty']
         if vals.get('product_uom_id'):
             propagated_changes_dict['product_uom_id'] = vals['product_uom_id']
         #propagation of expected date:
@@ -2770,7 +2775,7 @@ class stock_move(osv.osv):
             'move_dest_id': move.move_dest_id.id,
             'origin_returned_move_id': move.origin_returned_move_id.id,
         }
-        defaults = self.split_defaults(cr, uid, move, qty, defaults)
+        defaults = self.split_defaults(cr, uid, move, qty, defaults, context=context)
         if 'product_uos_qty' in defaults.keys():
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():
