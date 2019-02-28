@@ -321,6 +321,7 @@ class stock_move(osv.osv):
         for move in self.browse(cr, uid, ids, context=context):
             #adapt standard price on outgoing moves if the product cost_method is 'real', so that a return
             #or an inventory loss is made using the last value used for an outgoing valuation.
-            if move.product_id.cost_method == 'real' and move.location_dest_id.usage != 'internal':
+            # UBIAR se agrega el filtro para que no actualice si los productos se valorizan al recibir
+            if move.product_id.cost_method == 'real' and move.location_dest_id.usage != 'internal' and move.product_id.actualizar_costo == 'outgoing':
                 #store the average price of the move on the move and product form
                 self._store_average_cost_price(cr, uid, move, context=context)
