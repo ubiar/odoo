@@ -450,8 +450,9 @@ class stock_quant(osv.osv):
         if domain is None:
             domain = []
         quants = [(None, qty)]
+        context = context or {}
         #don't look for quants in location that are of type production, supplier or inventory.
-        if location.usage in ['inventory', 'production', 'supplier']:
+        if location.usage in ['inventory', 'production', 'supplier'] and not context.get('returned_move'):
             return quants
         res_qty = qty
         if restrict_lot_id:
@@ -1352,8 +1353,13 @@ class stock_picking(osv.osv):
                 prod2move_ids[move.product_id.id].append({'move': move, 'remaining_qty': move.product_qty})
 
         need_rereserve = False
+        # Ubiar: filtro las operaciones procesadas para que no las recalcule, al parecer odoo
+        # no tenia implementado este campo
+        operations = []
+        for op in picking.pack_operation_ids:
+            if op.processed != 'true':
+                operations.append(op)
         #sort the operations in order to give higher priority to those with a package, then a serial number
-        operations = picking.pack_operation_ids
         operations = sorted(operations, key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
         #delete existing operations to start again from scratch
         links = link_obj.search(cr, uid, [('operation_id', 'in', [x.id for x in operations])], context=context)
@@ -2165,6 +2171,10 @@ class stock_move(osv.osv):
         #propagation of quantity change
         if vals.get('product_uom_qty'):
             propagated_changes_dict['product_uom_qty'] = vals['product_uom_qty']
+        if vals.get('product_uos_qty'):
+            propagated_changes_dict['product_uos_qty'] = vals['product_uos_qty']
+        if vals.get('product_uop_qty'):
+            propagated_changes_dict['product_uop_qty'] = vals['product_uop_qty']
         if vals.get('product_uom_id'):
             propagated_changes_dict['product_uom_id'] = vals['product_uom_id']
         #propagation of expected date:
@@ -2582,7 +2592,6 @@ class stock_move(osv.osv):
         #Sort operations according to entire packages first, then package + lot, package only, lot only
         operations = list(operations)
         operations.sort(key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
-
         for ops in operations:
             if ops.picking_id:
                 pickings.add(ops.picking_id.id)
@@ -2766,7 +2775,7 @@ class stock_move(osv.osv):
             'move_dest_id': move.move_dest_id.id,
             'origin_returned_move_id': move.origin_returned_move_id.id,
         }
-        defaults = self.split_defaults(cr, uid, move, qty, defaults)
+        defaults = self.split_defaults(cr, uid, move, qty, defaults, context=context)
         if 'product_uos_qty' in defaults.keys():
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():

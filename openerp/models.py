@@ -3326,7 +3326,7 @@ class BaseModel(object):
             try:
                 values = {'id': record.id}
                 for name, field in name_fields:
-                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record.id]})
+                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
                 result.append(values)
             except MissingError:
                 pass
@@ -4204,6 +4204,8 @@ class BaseModel(object):
         # add missing defaults, and drop fields that may not be set by user
         vals = self._add_missing_default_values(vals)
         for field in itertools.chain(MAGIC_COLUMNS, ('parent_left', 'parent_right')):
+            if field == 'id' and self._context.get('create_force_id'):
+                continue
             vals.pop(field, None)
 
         # split up fields into old-style and pure new-style ones
@@ -4249,7 +4251,7 @@ class BaseModel(object):
                 tocreate[v] = {}
             else:
                 tocreate[v] = {'id': vals[self._inherits[v]]}
-
+        
         updates = [
             # list of column assignments defined as tuples like:
             #   (column_name, format_string, column_value)
@@ -4258,7 +4260,10 @@ class BaseModel(object):
             # statement below.
             ('id', "nextval('%s')" % self._sequence),
         ]
-
+        
+        if context.get('create_force_id') and vals.get('id'):
+            updates = []
+        
         upd_todo = []
         unknown_fields = []
         for v in vals.keys():

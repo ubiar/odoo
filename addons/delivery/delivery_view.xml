@@ -21,70 +21,82 @@
             <field name="model">delivery.carrier</field>
             <field name="arch" type="xml">
                 <form string="Carrier">
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
-                        <h1>
-                            <field name="name"/>
-                        </h1>
-                    </div>
-                    <group>
-                        <field name="active"/>
-                    </group>
-                    <group name="general">
-                        <group string="General Information">
-                            <field name="partner_id"/>
-                            <field name="product_id"/>
-                            <field name="delivery_type"/>
+                    <header>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" string="Transporte"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group name="grupo_1">
+                                
+                            </group>
+                            <group name="grupo_2">
+                                <field name="active"/>
+                            </group>
                         </group>
-                        <group string="Pricing Information" name='pricing_info' attrs="{'invisible':[('delivery_type','!=','grid')]}">
-                            <field name="normal_price" attrs="{'readonly':[('use_detailed_pricelist', '=', True)]}"/>
-                            <label for="free_if_more_than"/>
-                            <div>
-                                <field name="free_if_more_than" attrs="{'readonly':[('use_detailed_pricelist', '=', True)]}"/>
-                                <field name="amount" attrs="{'required':[('free_if_more_than','&lt;&gt;',False)], 'invisible':[('free_if_more_than','=',False)]}"/>
-                            </div>
-                            <field name="use_detailed_pricelist"/>
+                        <group name="general">
+                            <group string="General Information">
+                                <field name="delivery_type" invisible="1"/>
+                                <field name="partner_id"/>
+                                <field name="product_id"/>
+                            </group>
+                            <group string="Pricing Information" name='pricing_info' attrs="{'invisible':[('delivery_type','!=','grid')]}">
+                                <field name="normal_price" attrs="{'readonly':[('use_detailed_pricelist', '=', True)]}"/>
+                                <label for="free_if_more_than" class="oe_inline"/>
+                                <div>
+                                    <field name="free_if_more_than" attrs="{'readonly':[('use_detailed_pricelist', '=', True)]}" class="oe_inline"/>
+                                    <field name="amount" attrs="{'required':[('free_if_more_than','&lt;&gt;',False)], 'invisible':[('free_if_more_than','=',False)]}" class="oe_inline"/>
+                                </div>
+                                <field name="use_detailed_pricelist"/>
+                            </group>
                         </group>
-                    </group>
-
-                    <field name="pricelist_ids" attrs="{'invisible':[('use_detailed_pricelist','=',False)]}" mode="tree">
-                        <tree string="Delivery grids">
-                              <field name="sequence"/>
-                              <field name="name"/>
-                        </tree>
-                        <form string="Delivery grids">
-                             <group>
-                                <group>
-                                    <field name="name"/>
-                                </group>
-                                <group>
-                                    <field name="active"/>
-                                    <field name="sequence"/>
-                                </group>
-                             </group>
-                             <notebook>
-                                <page string="Grid definition">
-                                   <field name="line_ids"/>
-                                </page>
-                                <page string="Destination">
+    
+                        <field name="pricelist_ids" attrs="{'invisible':[('use_detailed_pricelist','=',False)]}" mode="tree">
+                            <tree string="Delivery grids">
+                                  <field name="sequence"/>
+                                  <field name="name"/>
+                            </tree>
+                            <form string="Delivery grids">
+                                 <group>
                                     <group>
-                                        <group>
-                                            <field name="country_ids" widget="many2many_tags"/>
-                                            <field name="state_ids" widget="many2many_tags"/>
-                                        </group>
-                                        <group>
-                                            <label for="zip_from" string="Zip"/>
-                                            <div>
-                                                <field name="zip_from" class="oe_inline"/>
-                                                -
-                                                <field name="zip_to" class="oe_inline"/>
-                                            </div>
-                                        </group>
+                                        <field name="name"/>
                                     </group>
-                                </page>
-                            </notebook>
-                        </form>
-                   </field>
+                                    <group>
+                                        <field name="active"/>
+                                        <field name="sequence"/>
+                                    </group>
+                                 </group>
+                                 <notebook>
+                                    <page string="Grid definition">
+                                       <field name="line_ids"/>
+                                    </page>
+                                    <page string="Destination">
+                                        <group>
+                                            <group>
+                                                <field name="country_ids" widget="many2many_tags"/>
+                                                <field name="state_ids" widget="many2many_tags"/>
+                                            </group>
+                                            <group>
+                                                <label for="zip_from" string="Zip"/>
+                                                <div>
+                                                    <field name="zip_from" class="oe_inline"/>
+                                                    -
+                                                    <field name="zip_to" class="oe_inline"/>
+                                                </div>
+                                            </group>
+                                        </group>
+                                    </page>
+                                </notebook>
+                            </form>
+                       </field>
+                    </sheet>
+                    <footer>
+        
+                    </footer>
                 </form>
             </field>
         </record>

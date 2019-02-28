@@ -159,28 +159,28 @@
                                     </group>
                                 </form>
                             </field>
+                            <separator string="Depreciation Information" colspan="4"/>
+                            <group>
+                                <group>
+                                    <field name="method" widget="radio" attrs="{'invisible': [('type','=','sale')]}"/>
+                                    <field name="method_progress_factor" attrs="{'invisible':[('method','=','linear')], 'required':[('method','=','degressive')]}"/>
+                                    <label for="method_time"/>
+                                    <div>
+                                        <field name="method_time"/>
+                                    </div>
+                                    <field name="prorata" attrs="{'invisible': [('method_time','=','end')]}"/>
+                                </group>
+                                <group>
+                                    <field name="method_number" attrs="{'invisible':[('method_time','=','end')], 'required':[('method_time','=','number')]}"/>
+                                    <field name="method_period"/>
+                                    <field name="method_end" attrs="{'required': [('method_time','=','end')], 'invisible':[('method_time','=','number')]}"/>
+                                </group>
+                            </group>
                         </page>
                         <page string="History">
                             <field name="history_ids" readonly="1"/>
                         </page>
                     </notebook>
-                    <separator string="Depreciation Information" colspan="4"/>
-                    <group>
-                        <group>
-                            <field name="method" widget="radio" attrs="{'invisible': [('type','=','sale')]}"/>
-                            <field name="method_progress_factor" attrs="{'invisible':[('method','=','linear')], 'required':[('method','=','degressive')]}"/>
-                            <label for="method_time"/>
-                            <div>
-                                <field name="method_time"/>
-                            </div>
-                            <field name="prorata" attrs="{'invisible': [('method_time','=','end')]}"/>
-                        </group>
-                        <group>
-                            <field name="method_number" attrs="{'invisible':[('method_time','=','end')], 'required':[('method_time','=','number')]}"/>
-                            <field name="method_period"/>
-                            <field name="method_end" attrs="{'required': [('method_time','=','end')], 'invisible':[('method_time','=','number')]}"/>
-                        </group>
-                    </group>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
