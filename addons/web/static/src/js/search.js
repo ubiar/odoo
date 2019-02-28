@@ -224,7 +224,8 @@ my.InputView = instance.web.Widget.extend({
         range.collapse(false);
         sel.addRange(range);
     },
-    onPaste: function () {
+    onPaste: function (e) {
+        var plain_data = e.originalEvent.clipboardData.getData("text/plain").trim().replace(/(\r\n|\n|\r)/gm, ' | ');
         this.el.normalize();
         // In MSIE and Webkit, it is possible to get various representations of
         // the clipboard data at this point e.g.
@@ -245,6 +246,7 @@ my.InputView = instance.web.Widget.extend({
         setTimeout(function () {
             // Read text content (ignore pasted HTML)
             var data = this.$el.text();
+            data = plain_data;
             if (!data)
                 return;
             // paste raw text back in
@@ -559,6 +561,30 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
      * @param {Object} ui.item selected completion item
      */
     select_completion: function (e, ui) {
+        if (ui && ui.item && ui.item.facet && ui.item.facet.values) {
+            var new_values = [];
+            _.each(ui.item.facet.values, function(v){
+                if (_.isString(v.value)) {
+                    _.each(String(v.value).split("|"), function(vs){
+                        var valor = vs.trim();
+                        if (valor && valor.length > 0){
+                            var new_value = _.clone(v);
+                            new_value.value = valor;
+                            new_value.label = valor;
+                            new_values.push(new_value);
+                        }
+                    });
+                }else{
+                    new_values.push(v);
+                }
+            });
+            if (new_values.length > 0){
+                ui.item.facet.values = new_values;
+            }else{
+                e.preventDefault();
+                return;
+            }
+        }
         e.preventDefault();
         var input_index = _(this.input_subviews).indexOf(
             this.subviewForRoot(
@@ -2335,7 +2361,7 @@ instance.web.search.AutoComplete = instance.web.Widget.extend({
     select_item: function (ev) {
         if (this.current_result.facet) {
             this.select(ev, {item: {facet: this.current_result.facet}});
-            this.close();
+            this.close();   
         }
     },
     show: function () {
