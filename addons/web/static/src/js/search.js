@@ -1477,6 +1477,12 @@ instance.web.search.FilterMenu = instance.web.Widget.extend({
                 this.commit_search();
             }
         },
+        'paste .searchview_extended_prop_value input': function (ev) {
+            var plain_data = ev.originalEvent.clipboardData.getData("text/plain").trim().replace(/(\r\n|\n|\r)/gm, ' | ');
+            setTimeout(function () {
+                $(ev.currentTarget).val(plain_data);
+            }.bind(this), 0);
+        },
     },
     init: function (parent, filters, fields_def) {
         var self = this;

@@ -1285,6 +1285,8 @@
 .openerp .oe_searchview .oe-autocomplete ul li {
   padding-left: 20px;
   text-shadow: 0 0 0 white;
+  max-height: 37px;
+  overflow: hidden;
 }
 .openerp .oe_searchview .oe-autocomplete ul li span:first-child {
   margin-right: 5px;
@@ -1432,6 +1434,7 @@
 .openerp .oe-search-options .dropdown-menu > li {
   position: relative;
   white-space: nowrap;
+  max-width: 500px;
 }
 .openerp .oe-search-options .dropdown-menu li.oe-filter-condition {
   white-space: normal;
