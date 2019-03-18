@@ -1876,7 +1876,7 @@ class stock_move(osv.osv):
         uom_obj = self.pool.get('product.uom')
         res = dict.fromkeys(ids, '')
         for move in self.browse(cr, uid, ids, context=context):
-            if move.state in ('draft', 'done', 'cancel') or move.location_id.usage != 'internal':
+            if move.state in ('done', 'cancel') or move.location_id.usage != 'internal':
                 res[move.id] = ''  # 'not applicable' or 'n/a' could work too
                 continue
             total_available = min(move.product_qty, move.reserved_availability + move.availability)
