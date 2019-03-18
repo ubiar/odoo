@@ -1581,7 +1581,10 @@ class stock_picking(osv.osv):
                     context = dict(context, split=todo_move_ids)
             self._create_backorder(cr, uid, picking, context=context)
             if toassign_move_ids:
-                stock_move_obj.action_assign(cr, uid, toassign_move_ids, context=context)
+                if 'reserva_parcial' in picking and picking.reserva_parcial:
+                    stock_move_obj.action_confirm(cr, uid, toassign_move_ids, context=context)
+                else:
+                    stock_move_obj.action_assign(cr, uid, toassign_move_ids, context=context)
         return True
 
     @api.cr_uid_ids_context
