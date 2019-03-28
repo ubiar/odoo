@@ -97,7 +97,7 @@ class barcode_nomenclature(osv.osv):
             "base_code": barcode,
             "match": False,
         }
-
+        
         barcode = barcode.replace("\\", "\\\\").replace("{", '\{').replace("}", "\}").replace(".", "\.")
         numerical_content = re.search("[{][N]*[D]*[}]", pattern) # look for numerical content in pattern
 
@@ -155,6 +155,10 @@ class barcode_nomenclature(osv.osv):
 
             match = self.match_pattern(cur_barcode, rule['pattern'])
             if match['match']:
+                if match.get('codigo_producto'):
+                    parsed_result['codigo_producto'] = match['codigo_producto']
+                if match.get('codigo_lote'):
+                    parsed_result['codigo_lote'] = match['codigo_lote']
                 if rule['type'] == 'alias':
                     barcode = rule['alias']
                     parsed_result['code'] = barcode
