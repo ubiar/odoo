@@ -499,6 +499,7 @@ class mail_thread(osv.AbstractModel):
             if col_info['type'] == 'many2one':
                 return value.name_get()[0][1]
             if col_info['type'] in ['one2many', 'many2many']:
+                value = value.search([('id', 'in', list(value._ids))]) # Puede ser que se haya eliminado y no exista mas
                 return ', '.join([val.name_get()[0][1] for val in value])
             if col_info['type'] == 'selection':
                 return dict(col_info['selection'])[value]
