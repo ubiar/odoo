@@ -105,6 +105,10 @@ instance.web.Dialog = instance.web.Widget.extend({
         } else if (this.template) {
             this._super();
         }
+        var self = this;
+        setTimeout(function(){
+            $(self.$buttons).find("button").focus();
+        }, 100);
     },
     /**
         Opens the popup. Inits the dialog if it is not already inited.
