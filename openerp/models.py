@@ -1301,6 +1301,7 @@ class BaseModel(object):
                 try:
                     check(self)
                 except ValidationError, e:
+                    _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
                     raise
                 except Exception, e:
                     _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
