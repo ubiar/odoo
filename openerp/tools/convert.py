@@ -896,7 +896,7 @@ def convert_sql_import(cr, fp):
                 if new_query:
                     cr.execute(new_query)
         else:
-            query = (' '.join(query_sub.split())).decode('ascii', 'ignore').strip()
+            query = _((' '.join(query_sub.split()))).strip()
             cr.execute(query)
         return None
     queries = query.split(';')
