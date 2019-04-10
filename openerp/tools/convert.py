@@ -896,8 +896,9 @@ def convert_sql_import(cr, fp):
                 if new_query:
                     cr.execute(new_query)
         else:
-            query = _((' '.join(query_sub.split()))).strip()
+            query = _((' '.join(query_sub.split())).replace('\xef\xbb\xbf', '')).strip()
             cr.execute(query)
+            
         return None
     queries = query.split(';')
     for query in queries:
