@@ -50,6 +50,11 @@ def float_round(value, precision_digits=None, precision_rounding=None, rounding_
     rounding_factor = _float_check_precision(precision_digits=precision_digits,
                                              precision_rounding=precision_rounding)
     if rounding_factor == 0 or value == 0: return 0.0
+    
+    # Fix UBIAR: Si el metodo de redondeo es UP solia pasar que el entero que llegaba era 12.0000000000012 y devolvia 13
+    # cuando en realidad era 12.0, para evitar estos casos se redondea a 8 decimales
+    if rounding_method == 'UP':
+        value = round(value, 8)
 
     # NORMALIZE - ROUND - DENORMALIZE
     # In order to easily support rounding to arbitrary 'steps' (e.g. coin values),
