@@ -658,6 +658,10 @@ class mrp_production(osv.osv):
         product_obj = self.pool.get('product.product')
         if 'product_id' in values and not 'product_uom' in values:
             values['product_uom'] = product_obj.browse(cr, uid, values.get('product_id'), context=context).uom_id.id
+        if 'product_id' in values and not 'product_uos' in values:
+            product_uos_id = product_obj.browse(cr, uid, values.get('product_id'), context=context).uos_id.id
+            if values.get('product_uom') != product_uos_id:
+                values['product_uos'] = product_uos_id
         return super(mrp_production, self).create(cr, uid, values, context=context)
 
     def unlink(self, cr, uid, ids, context=None):
@@ -701,8 +705,9 @@ class mrp_production(osv.osv):
             routing_id = bom_point.routing_id.id or False
         product_uom_id = product.uom_id and product.uom_id.id or False
         result['value'] = {'product_uos_qty': 0, 'product_uos': False, 'product_uom': product_uom_id, 'bom_id': bom_id, 'routing_id': routing_id}
-        if product.uos_id.id:
-            result['value']['product_uos_qty'] = product_qty * product.uos_coeff
+        if product.uos_id.id and product.uos_id != product.uom_id and product.uos_coeff:
+            result['value']['product_uos_qty'] = 1
+            result['value']['product_qty'] = 1 / product.uos_coeff
             result['value']['product_uos'] = product.uos_id.id
         return result
 

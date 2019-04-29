@@ -48,7 +48,7 @@ class mrp_product_produce(osv.osv_memory):
                                         "and it will finish the production order when total ordered quantities are produced."),
         'lot_id': fields.many2one('stock.production.lot', 'Lot'), #Should only be visible when it is consume and produce mode
         'consume_lines': fields.one2many('mrp.product.produce.line', 'produce_id', 'Products Consumed'),
-        'tracking': fields.related('product_id', 'tracking', type='selection', selection=[('serial', 'Número de Serie Único'), ('lot', 'Lotes'), ('none', 'Sin Tracking')]),
+        'tracking': fields.related('product_id', 'tracking', type='selection', selection=[('serial', 'Número de Serie'), ('lot', 'Lotes'), ('lote_indivisible', 'Lotes Indivisibles'), ('none', 'Sin Tracking')]),
     }
 
     def on_change_qty(self, cr, uid, ids, product_qty, consume_lines, context=None):
