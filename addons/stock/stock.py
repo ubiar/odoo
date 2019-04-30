@@ -2793,7 +2793,15 @@ class stock_move(osv.osv):
             'product_uom_qty': move.product_uom_qty - uom_qty,
             'product_uos_qty': move.product_uos_qty - uos_qty,
             'product_uop_qty': move.product_uop_qty - uop_qty,
+            
         }, context=ctx)
+        
+        if hasattr(move, 'reserva_serie_ids'):
+            self.write(cr, uid, [move.id], {
+                'reserva': 0,
+                'reserva_udv': 0,
+            }, context=ctx)
+            move.reserva_serie_ids.unlink()
 
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
             new_move_prop = self.split(cr, uid, move.move_dest_id, qty, context=context)
