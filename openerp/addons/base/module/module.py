@@ -656,10 +656,15 @@ class module(osv.osv):
                 if terp.get('auto_uninstall') and mod.state in ['installed', 'to upgrade']:
                     updated_values['state'] = 'to remove'
                     # Elimino todas las vistas de ese modulo para que no generen conflictos
+                    def eliminar_vistas(view_ids):
+                        for view in self.pool.get('ir.ui.view').browse(cr, uid, view_ids):
+                            inherit_view_ids = self.pool.get('ir.ui.view').search(cr, uid, [('inherit_id', '=', view.id)])
+                            if inherit_view_ids:
+                                eliminar_vistas(inherit_view_ids)
+                            view.model_data_id.unlink()
+                            view.unlink()
                     view_ids = self.pool.get('ir.ui.view').search(cr, uid, [('model_data_id.module', '=', mod.name)])
-                    for view in self.pool.get('ir.ui.view').browse(cr, uid, view_ids):
-                        view.model_data_id.unlink()
-                        view.unlink()
+                    eliminar_vistas(view_ids)
                     if terp.get('auto_uninstall_copy_to'):
                         new_module = terp.get('auto_uninstall_copy_to')
                         for data_id in self.pool.get('ir.model.data').search(cr, uid, [('module', '=', mod.name)]):
