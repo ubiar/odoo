@@ -1286,7 +1286,8 @@ class account_analytic_account(osv.osv):
         if vals.get('child_ids', False) and context.get('analytic_project_copy', False):
             vals['child_ids'] = []
         analytic_account_id = super(account_analytic_account, self).create(cr, uid, vals, context=context)
-        self.project_create(cr, uid, analytic_account_id, vals, context=context)
+        if vals.get('type') == 'template':
+            self.project_create(cr, uid, analytic_account_id, vals, context=context)
         return analytic_account_id
 
     def write(self, cr, uid, ids, vals, context=None):
