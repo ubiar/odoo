@@ -162,7 +162,9 @@ class ir_ui_menu(osv.osv):
 
     def create(self, cr, uid, values, context=None):
         self.clear_cache()
-        return super(ir_ui_menu, self).create(cr, uid, values, context=context)
+        local_context = dict(context or {})
+        local_context['ir.ui.menu.full_list'] = True
+        return super(ir_ui_menu, self).create(cr, uid, values, context=local_context)
 
     def write(self, cr, uid, ids, values, context=None):
         self.clear_cache()

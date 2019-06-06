@@ -4439,7 +4439,7 @@ class BaseModel(object):
                 if not (model_name, ids, fields2) in done:
                     # Vuelvo a buscar los ids por si se elimino algun registro para evitar
                     # el error One of the documents you are trying to access has been deleted
-                    ids = self.pool[model_name].search(cr, SUPERUSER_ID, [('id', 'in', ids)])
+                    ids = self.pool[model_name].search(cr, SUPERUSER_ID, [('id', 'in', ids)], context=context)
                     self.pool[model_name]._store_set_values(cr, user, ids, fields2, context)
                     done.append((model_name, ids, fields2))
             recs.env.clear_recompute_old()
