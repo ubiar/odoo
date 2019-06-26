@@ -2764,8 +2764,8 @@ class stock_move(osv.osv):
 
         #HALF-UP rounding as only rounding errors will be because of propagation of error from default UoM
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
-        uos_qty = uom_qty * move.product_uos_qty / move.product_uom_qty
-        uop_qty = uom_qty * move.product_uop_qty / move.product_uom_qty
+        uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
+        uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
