@@ -2490,7 +2490,7 @@ class stock_move(osv.osv):
                 # Si utiliza lotes indivisibles no importa la cantidad de stock si no la cantidad de ventas
                 # o sea se pretenden reservar 3 cajas independientemente de la cantidad que haya adentro
                 if move.product_id.tracking == 'lote_indivisible':
-                    product_uos_qty = int(qty * (move.product_uos_qty / move.product_uom_qty))
+                    product_uos_qty = move.product_uos_qty
                     domain = main_domain[move.id] + [('product_id', '=', move.product_id.id), ('location_id', 'child_of', move.location_id.id)]
                     if move.restrict_partner_id:
                         domain += [('owner_id', '=', move.restrict_partner_id.id)]
@@ -2764,8 +2764,8 @@ class stock_move(osv.osv):
 
         #HALF-UP rounding as only rounding errors will be because of propagation of error from default UoM
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
-        uos_qty = uom_qty * move.product_uos_qty / move.product_uom_qty
-        uop_qty = uom_qty * move.product_uop_qty / move.product_uom_qty
+        uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
+        uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
