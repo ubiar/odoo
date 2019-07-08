@@ -78,8 +78,7 @@ class ir_ui_menu(osv.osv):
                 menus = self.with_context(context).search([])
 
                 # first discard all menus with groups the user does not have
-                menus = menus.filtered(
-                    lambda menu: not menu.groups_id or menu.groups_id & groups)
+                menus = self._filter_menu(menus, groups)
 
                 # take apart menus that have an action
                 action_menus = menus.filtered('action')
@@ -163,7 +162,9 @@ class ir_ui_menu(osv.osv):
 
     def create(self, cr, uid, values, context=None):
         self.clear_cache()
-        return super(ir_ui_menu, self).create(cr, uid, values, context=context)
+        local_context = dict(context or {})
+        local_context['ir.ui.menu.full_list'] = True
+        return super(ir_ui_menu, self).create(cr, uid, values, context=local_context)
 
     def write(self, cr, uid, ids, values, context=None):
         self.clear_cache()
@@ -297,6 +298,10 @@ class ir_ui_menu(osv.osv):
     def _es_menu_de_usuario(self, menu_id):
         xml_id = self.env['ir.model.data'].search_count([('model', '=', 'ir.ui.menu'), ('res_id', '=', menu_id.id)])
         return False if xml_id else True
+        
+    @api.model
+    def _filter_menu(self, menus, groups):
+        return menus.filtered(lambda menu: not menu.groups_id or menu.groups_id & groups)
 
     def _get_menu_de_usuario(self):
         """ Chequea si el menuitem es de usuario o de sistema

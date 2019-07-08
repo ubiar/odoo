@@ -1882,7 +1882,8 @@ class stock_move(osv.osv):
             if move.state in ('done', 'cancel') or move.location_id.usage != 'internal':
                 res[move.id] = ''  # 'not applicable' or 'n/a' could work too
                 continue
-            total_available = min(move.product_qty, move.reserved_availability + move.availability)
+            reserved_availability = move.reserved_availability
+            total_available = min(move.product_qty, reserved_availability + move.availability)
             total_available = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, total_available, move.product_uom, context=context)
             info = str(total_available)
             #look in the settings if we need to display the UoM name or not
@@ -1891,10 +1892,10 @@ class stock_move(osv.osv):
                 stock_settings = settings_obj.browse(cr, uid, config_ids[0], context=context)
                 if stock_settings.group_uom:
                     info += ' ' + move.product_uom.name
-            if move.reserved_availability:
-                if move.reserved_availability != total_available:
+            if reserved_availability:
+                if reserved_availability != total_available:
                     #some of the available quantity is assigned and some are available but not reserved
-                    reserved_available = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, move.reserved_availability, move.product_uom, context=context)
+                    reserved_available = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, reserved_availability, move.product_uom, context=context)
                     info += _(' (%s reserved)') % str(reserved_available)
                 else:
                     #all available quantity is assigned
@@ -2489,7 +2490,7 @@ class stock_move(osv.osv):
                 # Si utiliza lotes indivisibles no importa la cantidad de stock si no la cantidad de ventas
                 # o sea se pretenden reservar 3 cajas independientemente de la cantidad que haya adentro
                 if move.product_id.tracking == 'lote_indivisible':
-                    product_uos_qty = int(qty * (move.product_uos_qty / move.product_uom_qty))
+                    product_uos_qty = move.product_uos_qty
                     domain = main_domain[move.id] + [('product_id', '=', move.product_id.id), ('location_id', 'child_of', move.location_id.id)]
                     if move.restrict_partner_id:
                         domain += [('owner_id', '=', move.restrict_partner_id.id)]
@@ -2763,8 +2764,8 @@ class stock_move(osv.osv):
 
         #HALF-UP rounding as only rounding errors will be because of propagation of error from default UoM
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
-        uos_qty = uom_qty * move.product_uos_qty / move.product_uom_qty
-        uop_qty = uom_qty * move.product_uop_qty / move.product_uom_qty
+        uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
+        uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
@@ -2795,13 +2796,6 @@ class stock_move(osv.osv):
             'product_uop_qty': move.product_uop_qty - uop_qty,
             
         }, context=ctx)
-        
-        if hasattr(move, 'reserva_serie_ids'):
-            self.write(cr, uid, [move.id], {
-                'reserva': 0,
-                'reserva_udv': 0,
-            }, context=ctx)
-            move.reserva_serie_ids.unlink()
 
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
             new_move_prop = self.split(cr, uid, move.move_dest_id, qty, context=context)

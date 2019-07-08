@@ -21,10 +21,9 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-               <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form[@string='Sales Order Lines']/group/group/field[@name='address_allotment_id']" position="after">
-                   <field name="property_ids" widget="many2many_tags"
-                        groups="sale.group_mrp_properties"/>
-               </xpath>
+               <field name="address_allotment_id" position="after">
+                   <field name="property_ids" widget="many2many_tags" groups="sale.group_mrp_properties"/>
+               </field>
             </field>
         </record>
 

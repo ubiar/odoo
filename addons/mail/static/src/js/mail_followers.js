@@ -51,6 +51,13 @@ openerp_mail_followers = function(session, mail) {
         },
 
         set_value: function(_value) {
+            // En algunos casos le llegan valores que no corresponden
+            // por Ej: en una Nota de Venta si se pone buscar mas en un cliente
+            // y se agrupa por pais al sellecionar el cliente se llama a este metodo
+            // y le llegan mas los valores
+            if (Array.isArray(_value) && !_.isNumber(_value[0])) {
+                return ;
+            }
             this.value = _value;
             this._super(_value);
         },
