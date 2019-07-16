@@ -387,22 +387,30 @@ class mail_message(osv.Model):
         # votes and favorites: res.users ids, no prefetching should be done
         vote_nb = len(message.vote_user_ids)
         has_voted = uid in [user.id for user in message.vote_user_ids]
-
+        
+        email_id = self.pool.get('mail.mail').search(cr, SUPERUSER_ID, [('mail_message_id', '=', message.id)], limit=1)
+        body = message.body
+        if email_id:
+            action = "openerp.webclient.action_manager.do_action({'type': 'ir.actions.act_window', 'view_mode': 'form', 'res_model':'mail.mail', 'name': 'Email', 'target': 'new', 'res_id': %s, 'views': [[false, 'form']]})" % email_id[0]
+            body = '<a href="#" onclick="openerp.client.do_action(%s)" style="font-weight: bold;">Ver email</a>' % action
         try:
             if parent_id:
                 max_length = 300
             else:
                 max_length = 100
-            body_short = html_email_clean(message.body, remove=False, shorten=True, max_length=max_length)
+            body_short = ''
+            body_short = html_email_clean(body, remove=False, shorten=True, max_length=max_length)
 
         except Exception:
             body_short = '<p><b>Encoding Error : </b><br/>Unable to convert this message (id: %s).</p>' % message.id
             _logger.exception(Exception)
+            
+        
 
         return {'id': message.id,
                 'type': message.type,
                 'subtype': message.subtype_id.name if message.subtype_id else False,
-                'body': message.body,
+                'body': body,
                 'body_short': body_short,
                 'model': message.model,
                 'res_id': message.res_id,
