@@ -1261,7 +1261,7 @@
                 </t>
             </t>
         </span>
-        <span t-if="widget.get('effective_readonly')" class="oe_radio_readonly"><t t-esc="widget.get('value')[1]"/></span>
+        <span t-if="widget.get('effective_readonly')" class="oe_radio_readonly"><t t-esc="widget.get('value') ? widget.get('value')[1] : ''"/></span>
     </span>
 </t>
 <t t-name="FieldMany2One">
