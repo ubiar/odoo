@@ -726,7 +726,7 @@ class account_invoice(models.Model):
                     continue
                 key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
                 tax_key.append(key)
-                if self.lleva_recargo_financiero:
+                if round(self.recargo_financiero_val, 2):
                     continue
                 if key not in compute_taxes:
                     raise Warning(_("Global taxes defined, but they are not in invoice lines !"))
