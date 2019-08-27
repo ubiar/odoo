@@ -1549,6 +1549,11 @@ class stock_picking(osv.osv):
                 #split move lines if needed
                 toassign_move_ids = []
                 for move in picking.move_lines:
+                    # Si lleva lote, y es una RP parcial de una Repo, quedaba el move nuevo en 'waiting' a pesar de que la OE ya se había transferido completa
+                    if move.product_id.tracking != 'none' and move.location_id.usage == 'transit' and move.state == 'waiting' and move.split_from:
+                        move_reposicion = stock_move_obj.move_reposicion(cr, uid, move)
+                        if move_reposicion and move_reposicion[0].state == 'done':
+                            toassign_move_ids.append(move.id)
                     # Si esta todo procesado y utiliza lotes indivisibles se ajusta la diferencia de stock que se esperaba ya que puede ser
                     # que cada lote tenga menos cantida de lo esperado pero se recibio la cantidad total de los lotes
                     if context.get('tipo_transferencia_stock') == 'compras' and move.product_id.tracking == 'lote_indivisible' and all_op_processed and move.remaining_qty and len(move.linked_move_operation_ids) == move.product_uop_qty:
