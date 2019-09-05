@@ -277,7 +277,7 @@ class Cursor(object):
         if (duration > log_min_duration or error) and config.get('ubiar_log'):
             try:
                 # {'hash': [db, query, stack, avg_duration, max_duration, execution_count, error_count]}
-                query_hash = md5.new(query).hexdigest()
+                query_hash = md5.new(query.encode('utf8')).hexdigest()
                 if query_hash in slow_query_buffer:
                     sqb = slow_query_buffer[query_hash]
                     sqb[3] = round((sqb[3] + duration) / 2, 2) # avg_duration
