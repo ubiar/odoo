@@ -161,7 +161,6 @@
             this.editor.destroy();
             // Editor is not restartable due to formview not being restartable
             this.editor = this.make_editor();
-            
             if (this.editable()) {
                 this.$el.addClass('oe_list_editable');
                 // FIXME: any hook available to ensure this is only done once?
@@ -243,11 +242,10 @@
                 this.dataset.select_id(record.get('id'));
             } else {
                 record = this.make_empty_record(false);
-                this.records.add(record, {
-                    at: this.prepends_on_create() ? 0 : null});
+                this.records.add(record, {at: (this.prepends_on_create()) ? 0 : null});
             }
             return this.ensure_saved().then(function(){
-                return $.when.apply(null, self.editor.form.render_value_defs);
+                return $.when.apply($, self.editor.form.render_value_defs);
             }).then(function () {
                 var $recordRow = self.groups.get_row_for(record);
                 var cells = self.get_cells_for($recordRow);
@@ -307,7 +305,7 @@
          */
         resize_fields: function () {
             if (!this.editor.is_editing()) { return; }
-            for(var i=0, len=this.fields_for_resize.length; i<len; ++i) {
+            for(var i=0, len=this.fields_for_resize.length; i<len; i++) {
                 var item = this.fields_for_resize[i];
                 this.resize_field(item.field, item.cell);
             }
@@ -321,13 +319,12 @@
          */
         resize_field: function (field, cell) {
             var $cell = $(cell);
-
             field.set_dimensions($cell.outerHeight(), $cell.outerWidth());
-            field.$el.css({top: 0, left: 0}).position({
+            field.$el.addClass('o_temp_visible').css({top: 0, left: 0}).position({
                 my: 'left top',
                 at: 'left top',
                 of: $cell
-            });
+            }).removeClass('o_temp_visible');
             if (field.get('effective_readonly')) {
                 field.$el.addClass('oe_readonly');
             }
@@ -522,8 +519,7 @@
                 if (saveInfo.created) {
                     return self.start_edition();
                 }
-                var record = self.records[next_record](
-                        saveInfo.record, {wraparound: true});
+                var record = self.records[next_record](saveInfo.record, {wraparound: true});
                 return self.start_edition(record, options);
             });
         },
@@ -822,15 +818,23 @@
                 .value();
         }
     });
-
+    
     instance.web.ListView.List.include(/** @lends instance.web.ListView.List# */{
         row_clicked: function (event) {
             var record_id = $(event.currentTarget).data('id');
             var click_on_edit_if = ($(event.target) && $(event.target)[0] && $(event.target)[0].name == "edit_if");
             var row_is_editable = this.view.editable_if(record_id ? this.records.get(record_id) : null);
-            
+            var self = this;
+            var _super = this._super;
+            var args = arguments;
             if (!this.view.editable() || (!row_is_editable && click_on_edit_if) || !this.view.is_action_enabled('edit')) {
-                return this._super.apply(this, arguments);
+                if (click_on_edit_if){
+                    return this.view.ensure_saved().then(() => {
+                        return _super.apply(self, args);
+                    });
+                }else{
+                    return this._super.apply(this, arguments);
+                }
             }
             return this.view.start_edition(
                 record_id ? this.records.get(record_id) : null, {
