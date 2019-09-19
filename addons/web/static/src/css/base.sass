@@ -1986,10 +1986,14 @@ $sheet-padding: 16px
                     background-color: #eee
 
     $row-height: 27px
-    .oe_list_editable .oe_list_content td.oe_list_field_cell
-        padding: 4px 6px 3px
+    .oe_list_editable
+        .oe_list_content td.oe_list_field_cell
+            padding: 4px 6px 3px
+        .o_temp_visible
+            opacity: 0
+            display: block !important
     .oe_list.oe_list_editable.oe_editing
-        .oe_edition .oe_list_field_cell
+        .oe_edition .oe_list_field_cell:not(.oe-button)
             *
                 visibility: hidden
             color: transparent
