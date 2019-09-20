@@ -4509,26 +4509,32 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         if (_.isEmpty(this.records.records)){
             return true;
         }
-        current_values = {};
-        _.each(this.editor.form.fields, function(field){
+        var fields = this.editor.form.fields;
+        var current_values = {};
+        _.each(fields, function(field){
             field._inhibit_on_change_flag = true;
+            field.__no_rerender = field.no_rerender;
             field.no_rerender = true;
             current_values[field.name] = field.get('value');
         });
-        var valid = _.every(this.records.records, function(record){
-            _.each(self.editor.form.fields, function(field){
-                field.set_value(record.attributes[field.name]);
+        var cached_records = _.filter(this.dataset.cache, function(item){return !_.isEmpty(item.values) && !item.to_delete;});
+        var valid = _.every(cached_records, function(record){
+            _.each(fields, function(field){
+                var value = record.values[field.name];
+                field._inhibit_on_change_flag = true;
+                field.no_rerender = true;
+                field.set_value(_.isArray(value) && _.isArray(value[0]) ? [commands.delete_all()].concat(value) : value);
             });
-            return _.every(self.editor.form.fields, function(field){
+            return _.every(fields, function(field){
                 field.process_modifiers();
                 field._check_css_flags();
                 return field.is_valid();
             });
         });
-        _.each(this.editor.form.fields, function(field){
-            field.set('value', current_values[field.name]);
+        _.each(fields, function(field){
+            field.set('value', current_values[field.name], {silent: true});
             field._inhibit_on_change_flag = false;
-            field.no_rerender = false;
+            field.no_rerender = field.__no_rerender;
         });
         return valid;
     },
