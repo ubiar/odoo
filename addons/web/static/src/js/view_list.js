@@ -551,7 +551,7 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
                     return r.tag === 'field';
                 }), 'name'),
             {check_access_rule: true}
-        ).done(function (records) {
+        ).then(function (records) {
             var values = records[0];
             if (!values) {
                 self.records.remove(record);
@@ -563,6 +563,15 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
                 record.set(key, value, {silent: true});            
             });
             record.trigger('change', record);
+            
+            /* When a record is reloaded, there is a rendering lag because of the addition/suppression of 
+            a table row. Since the list view editable need to wait for the end of this rendering lag before
+            computing the position of the editable fields, a 100ms delay is added. */
+            var def = $.Deferred();
+            setTimeout(function() {
+                def.resolve(records);
+            }, 100);
+            return def;
         });
     },
 
