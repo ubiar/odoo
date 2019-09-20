@@ -715,12 +715,11 @@
         },
         start: function () {
             var self = this;
-            var _super = this._super();            
-            this.form.embedded_view = this._validate_view(
-                    this.delegate.edition_view(this));
-            var form_ready = this.form.appendTo(this.$el).done(
-                self.form.proxy('do_hide'));
-            return $.when(_super, form_ready);
+            this.form.embedded_view = this._validate_view(this.delegate.edition_view(this));
+            return $.when(this._super(), this.form.appendTo($('<div/>')).then(function() {
+                self.form.$el.addClass(self.$el.attr('class'));
+                self.replaceElement(self.form.$el);
+            }).done(this.proxy('do_hide')));
         },
         _validate_view: function (edition_view) {
             if (!edition_view) {
@@ -767,21 +766,27 @@
             throw new Error("is_editing's state filter must be either `new` or" +
                             " `edit` if provided");
         },
-        edit: function (record, configureField, options) {
-            // TODO: specify sequence of edit calls
+        edit: function (record, configureField) {
             var self = this;
-            var form = self.form;
-            var loaded = record
-                ? form.trigger('load_record', _.extend({}, record))
-                : form.load_defaults();
-            return $.when(loaded).then(function () {
-                return form.do_show({reload: false});
+            // TODO: specify sequence of edit calls
+            var loaded;
+            if(record) {
+                this.form.trigger('load_record', _.extend({}, record));
+                loaded = this.form.record_loaded;
+            } else {
+                loaded = this.form.load_defaults().then(function() {
+                    return self.form.record_loaded;
+                });
+            }
+    
+            return loaded.then(function () {
+                return self.do_show({reload: false});
             }).then(function () {
-                self.record = form.datarecord;
-                _(form.fields).each(function (field, name) {
+                self.record = self.form.datarecord;
+                _(self.form.fields).each(function (field, name) {
                     configureField(name, field);
                 });
-                return form;
+                return self.form;
             });
         },
         save: function () {
