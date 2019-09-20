@@ -117,6 +117,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             "footer_to_buttons": false,
         });
         this.is_initialized = $.Deferred();
+        this.record_loaded = $.Deferred();
         this.mutating_mutex = new $.Mutex();
         this.save_list = [];
         this.render_value_defs = [];
@@ -326,6 +327,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         this._actualize_mode();
         this.set({ 'title' : record.id ? record.display_name : _t("New") });
 
+        this.record_loaded = $.Deferred();
         _(this.fields).each(function (field, f) {
             field._dirty_flag = false;
             field._inhibit_on_change_flag = true;
@@ -335,23 +337,28 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         });
         return $.when.apply(null, set_values).then(function() {
             if (!record.id) {
-                // trigger onchanges
-                self.do_onchange(null);
+                // trigger onchange for new record after x2many with non-embedded views are loaded
+                var fields_loaded = _.pluck(self.fields, 'is_loaded');
+                $.when.apply(null, fields_loaded).done(function() {
+                    self.do_onchange(null);
+                });
             }
             self.on_form_changed();
-            self.rendering_engine.init_fields();
-            self.is_initialized.resolve();
-            self.do_update_pager(record.id === null || record.id === undefined);
-            if (self.sidebar) {
-               self.sidebar.do_attachement_update(self.dataset, self.datarecord.id);
-            }
-            if (record.id) {
-                self.do_push_state({id:record.id});
-            } else {
-                self.do_push_state({});
-            }
-            self.$el.add(self.$buttons).removeClass('oe_form_dirty');
-            self.autofocus();
+            self.rendering_engine.init_fields().then(function() {
+                self.is_initialized.resolve();
+                self.record_loaded.resolve();
+                self.do_update_pager(record.id === null || record.id === undefined);
+                if (self.sidebar) {
+                   self.sidebar.do_attachement_update(self.dataset, self.datarecord.id);
+                }
+                if (record.id) {
+                    self.do_push_state({id:record.id});
+                } else {
+                    self.do_push_state({});
+                }
+                self.$el.removeClass('oe_form_dirty');
+                self.autofocus();
+            });
         });
     },
     /**
