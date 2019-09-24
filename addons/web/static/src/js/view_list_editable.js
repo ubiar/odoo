@@ -338,7 +338,9 @@
             var self = this;
             return self.saving_mutex.exec(function() {
                 if (!self.editor.is_editing()) {
-                    return $.when();
+                    var def = $.Deferred();
+                    setTimeout(() => { def.resolve(); }, 100);
+                    return def;
                 }
                 return self.with_event('save', {
                     editor: self.editor,
