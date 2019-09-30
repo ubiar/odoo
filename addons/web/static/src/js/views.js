@@ -530,6 +530,9 @@ instance.web.ActionManager = instance.web.Widget.extend({
         } else {
             window.open(action.url, '_blank');
         }
+        if (action && action.close_dialog){
+            if (this.dialog) this.dialog.close();
+        }
         return $.when();
     },
 });
