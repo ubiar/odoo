@@ -557,6 +557,15 @@ class mail_message(osv.Model):
         message_tree = {}
         message_list = []
         parent_tree = {}
+        
+        # TODO: Por algun motivo a veces me llega en ids un listado de listados con el siguiente formato
+        # [[2, 402958], [2, 402955], [2, 402953], [2, 402952]]
+        # para evitar que de un error lo fixeo debe ser un problema de js
+        if ids and type(ids) == list and type(ids[0]) == list and len(ids[0]) == 2 and type(ids[0][1]) == int:
+            fix_ids = []
+            for id in ids:
+                fix_ids.append(id[1])
+            ids = fix_ids
 
         # no specific IDS given: fetch messages according to the domain, add their parents if uid has access to
         if ids is None:

@@ -161,7 +161,6 @@
             this.editor.destroy();
             // Editor is not restartable due to formview not being restartable
             this.editor = this.make_editor();
-            
             if (this.editable()) {
                 this.$el.addClass('oe_list_editable');
                 // FIXME: any hook available to ensure this is only done once?
@@ -243,11 +242,10 @@
                 this.dataset.select_id(record.get('id'));
             } else {
                 record = this.make_empty_record(false);
-                this.records.add(record, {
-                    at: this.prepends_on_create() ? 0 : null});
+                this.records.add(record, {at: (this.prepends_on_create()) ? 0 : null});
             }
             return this.ensure_saved().then(function(){
-                return $.when.apply(null, self.editor.form.render_value_defs);
+                return $.when.apply($, self.editor.form.render_value_defs);
             }).then(function () {
                 var $recordRow = self.groups.get_row_for(record);
                 var cells = self.get_cells_for($recordRow);
@@ -307,7 +305,7 @@
          */
         resize_fields: function () {
             if (!this.editor.is_editing()) { return; }
-            for(var i=0, len=this.fields_for_resize.length; i<len; ++i) {
+            for(var i=0, len=this.fields_for_resize.length; i<len; i++) {
                 var item = this.fields_for_resize[i];
                 this.resize_field(item.field, item.cell);
             }
@@ -321,13 +319,12 @@
          */
         resize_field: function (field, cell) {
             var $cell = $(cell);
-
             field.set_dimensions($cell.outerHeight(), $cell.outerWidth());
-            field.$el.css({top: 0, left: 0}).position({
+            field.$el.addClass('o_temp_visible').css({top: 0, left: 0}).position({
                 my: 'left top',
                 at: 'left top',
                 of: $cell
-            });
+            }).removeClass('o_temp_visible');
             if (field.get('effective_readonly')) {
                 field.$el.addClass('oe_readonly');
             }
@@ -341,7 +338,9 @@
             var self = this;
             return self.saving_mutex.exec(function() {
                 if (!self.editor.is_editing()) {
-                    return $.when();
+                    var def = $.Deferred();
+                    setTimeout(() => { def.resolve(); }, 100);
+                    return def;
                 }
                 return self.with_event('save', {
                     editor: self.editor,
@@ -522,8 +521,7 @@
                 if (saveInfo.created) {
                     return self.start_edition();
                 }
-                var record = self.records[next_record](
-                        saveInfo.record, {wraparound: true});
+                var record = self.records[next_record](saveInfo.record, {wraparound: true});
                 return self.start_edition(record, options);
             });
         },
@@ -719,12 +717,11 @@
         },
         start: function () {
             var self = this;
-            var _super = this._super();            
-            this.form.embedded_view = this._validate_view(
-                    this.delegate.edition_view(this));
-            var form_ready = this.form.appendTo(this.$el).done(
-                self.form.proxy('do_hide'));
-            return $.when(_super, form_ready);
+            this.form.embedded_view = this._validate_view(this.delegate.edition_view(this));
+            return $.when(this._super(), this.form.appendTo($('<div/>')).then(function() {
+                self.form.$el.addClass(self.$el.attr('class'));
+                self.replaceElement(self.form.$el);
+            }).done(this.proxy('do_hide')));
         },
         _validate_view: function (edition_view) {
             if (!edition_view) {
@@ -771,21 +768,27 @@
             throw new Error("is_editing's state filter must be either `new` or" +
                             " `edit` if provided");
         },
-        edit: function (record, configureField, options) {
-            // TODO: specify sequence of edit calls
+        edit: function (record, configureField) {
             var self = this;
-            var form = self.form;
-            var loaded = record
-                ? form.trigger('load_record', _.extend({}, record))
-                : form.load_defaults();
-            return $.when(loaded).then(function () {
-                return form.do_show({reload: false});
+            // TODO: specify sequence of edit calls
+            var loaded;
+            if(record) {
+                this.form.trigger('load_record', _.extend({}, record));
+                loaded = this.form.record_loaded;
+            } else {
+                loaded = this.form.load_defaults().then(function() {
+                    return self.form.record_loaded;
+                });
+            }
+    
+            return loaded.then(function () {
+                return self.do_show({reload: false});
             }).then(function () {
-                self.record = form.datarecord;
-                _(form.fields).each(function (field, name) {
+                self.record = self.form.datarecord;
+                _(self.form.fields).each(function (field, name) {
                     configureField(name, field);
                 });
-                return form;
+                return self.form;
             });
         },
         save: function () {
@@ -822,15 +825,23 @@
                 .value();
         }
     });
-
+    
     instance.web.ListView.List.include(/** @lends instance.web.ListView.List# */{
         row_clicked: function (event) {
             var record_id = $(event.currentTarget).data('id');
             var click_on_edit_if = ($(event.target) && $(event.target)[0] && $(event.target)[0].name == "edit_if");
             var row_is_editable = this.view.editable_if(record_id ? this.records.get(record_id) : null);
-            
+            var self = this;
+            var _super = this._super;
+            var args = arguments;
             if (!this.view.editable() || (!row_is_editable && click_on_edit_if) || !this.view.is_action_enabled('edit')) {
-                return this._super.apply(this, arguments);
+                if (click_on_edit_if){
+                    return this.view.ensure_saved().then(() => {
+                        return _super.apply(self, args);
+                    });
+                }else{
+                    return this._super.apply(this, arguments);
+                }
             }
             return this.view.start_edition(
                 record_id ? this.records.get(record_id) : null, {

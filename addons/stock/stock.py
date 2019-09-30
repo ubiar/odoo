@@ -1550,7 +1550,7 @@ class stock_picking(osv.osv):
                 toassign_move_ids = []
                 for move in picking.move_lines:
                     # Si lleva lote, y es una RP parcial de una Repo, quedaba el move nuevo en 'waiting' a pesar de que la OE ya se había transferido completa
-                    if move.product_id.tracking != 'none' and move.location_id.usage == 'transit' and move.state == 'waiting' and move.split_from:
+                    if move.product_id.tracking != 'none' and move.location_id.usage == 'transit' and move.state == 'waiting' and (move.split_from or move.move_orig_ids):
                         move_reposicion = stock_move_obj.move_reposicion(cr, uid, move)
                         if move_reposicion and move_reposicion[0].state == 'done':
                             toassign_move_ids.append(move.id)
