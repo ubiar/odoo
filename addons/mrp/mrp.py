@@ -1219,8 +1219,11 @@ class mrp_production(osv.osv):
         source_location_id = production.location_src_id.id
         prod_location_id = source_location_id
         prev_move= False
-        if production.bom_id.routing_id and production.bom_id.routing_id.location_id and production.bom_id.routing_id.location_id.id != source_location_id:
-            source_location_id = production.bom_id.routing_id.location_id.id
+        # Ubiar se creó el campo location_materia_prima_id en el routing, se usa para definir por defecto la production.location_src_id, por lo que se asigna con un onchange en la OP
+        # por lo tanto no se va a dar este caso 'production.bom_id.routing_id.location_materia_prima_id.id != source_location_id' de acá abajo, a menos que cambien el valor a mano
+        # Reveer más adelante si se debe realizar algún cambio para habilitar bien esa funcionalidad
+        if production.bom_id.routing_id and production.bom_id.routing_id.location_materia_prima_id and production.bom_id.routing_id.location_materia_prima_id.id != source_location_id:
+            source_location_id = production.bom_id.routing_id.location_materia_prima_id.id
             prev_move = True
 
         destination_location_id = production.product_id.property_stock_production.id
