@@ -1322,6 +1322,8 @@ class account_move(osv.osv):
         valid_moves = self.validate(cr, uid, ids, context=context)
 
         if not valid_moves:
+            if '_imprimir_asiento' in dir(self):
+                self._imprimir_asiento(cr, uid, ids)
             raise UserError(_('You cannot validate a non-balanced entry.\nMake sure you have configured payment terms properly.\nThe latest payment term line should be of the "Balance" type.'))
         obj_sequence = self.pool.get('ir.sequence')
         for move in self.browse(cr, uid, valid_moves, context=context):

@@ -861,13 +861,12 @@ class account_invoice(models.Model):
             if totlines:
                 res_amount_currency = total_currency
                 ctx['date'] = date_invoice
-                ctx['currency_rate'] = inv.cotizacion
+                ctx['to_currency_rate'] = inv.cotizacion
                 for i, t in enumerate(totlines):
                     if inv.currency_id != company_currency:
                         amount_currency = company_currency.with_context(ctx).compute(t[1], inv.currency_id)
                     else:
                         amount_currency = False
-
                     # last line: add the diff
                     res_amount_currency -= amount_currency or 0
                     if i + 1 == len(totlines):
