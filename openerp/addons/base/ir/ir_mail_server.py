@@ -233,9 +233,9 @@ class ir_mail_server(osv.osv):
             if not 'SMTP_SSL' in smtplib.__all__:
                 raise UserError(_("Your OpenERP Server does not support SMTP-over-SSL. You could use STARTTLS instead."
                                     "If SSL is needed, an upgrade to Python 2.6 on the server-side should do the trick."))
-            connection = smtplib.SMTP_SSL(host, port)
+            connection = smtplib.SMTP_SSL(host, port, timeout=30)
         else:
-            connection = smtplib.SMTP(host, port)
+            connection = smtplib.SMTP(host, port, timeout=30)
         connection.set_debuglevel(smtp_debug)
         if encryption == 'starttls':
             # starttls() will perform ehlo() if needed first
