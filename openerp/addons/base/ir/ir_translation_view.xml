@@ -32,6 +32,7 @@
                         <group>
                             <field name="name"/>
                             <field name="lang"/>
+                            <field name="system"/>
                         </group>
                         <group>
                             <field name="module" groups="base.group_no_one"/>
@@ -61,6 +62,7 @@
                     <field name="name"/>
                     <field name="lang"/>
                     <field name="type"/>
+                    <field name="system"/>
                 </tree>
             </field>
         </record>

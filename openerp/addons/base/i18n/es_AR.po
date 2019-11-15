@@ -10889,6 +10889,16 @@ msgid "Language"
 msgstr "Idioma"
 
 #. module: base
+#: field:ir.translation,system:0
+msgid "System"
+msgstr "Sistema"
+
+#. module: base
+#: help:ir.translation,system:0
+msgid "It is a system translation"
+msgstr "Es una traducción de sistema"
+
+#. module: base
 #: model:ir.model,name:base.model_base_language_import
 msgid "Language Import"
 msgstr ""
