@@ -126,6 +126,7 @@ class ir_translation_import_cursor(object):
             AND irt.type = ti.type
             AND irt.module = ti.module
             AND irt.name = ti.name
+            AND irt.system = True
             AND (ti.type IN ('field', 'help') OR irt.src = ti.src)
             AND (    ti.type NOT IN ('model', 'view')
                  OR (ti.type = 'model' AND ti.res_id = irt.res_id)
@@ -144,8 +145,8 @@ class ir_translation_import_cursor(object):
                 """ % (self._parent_table, self._table_name, find_expr))
 
         # Step 3: insert new translations
-        cr.execute("""INSERT INTO %s(name, lang, res_id, src, type, value, module, state, comments)
-            SELECT name, lang, res_id, src, type, value, module, state, comments
+        cr.execute("""INSERT INTO %s(name, lang, res_id, src, type, value, module, state, comments, system)
+            SELECT name, lang, res_id, src, type, value, module, state, comments, True
               FROM %s AS ti
               WHERE NOT EXISTS(SELECT 1 FROM ONLY %s AS irt WHERE %s);
               """ % (self._parent_table, self._table_name, self._parent_table, find_expr))
@@ -164,7 +165,7 @@ class ir_translation_import_cursor(object):
 
 class ir_translation(osv.osv):
     _name = "ir.translation"
-    _order = 'id desc'
+    _order = 'system, id desc'
     _log_access = False
 
     def _get_language(self, cr, uid, context):
@@ -220,7 +221,7 @@ class ir_translation(osv.osv):
         'source': fields.function(_get_src, fnct_inv=_set_src, type='text', string='Source'),
         'value': fields.text('Translation Value'),
         'module': fields.char('Module', help="Module this term belongs to", select=True),
-
+        'system': fields.boolean('System', help="It is a system translation"), 
         'state': fields.selection(
             [('to_translate','To Translate'),
              ('inprogress','Translation in Progress'),
@@ -280,7 +281,7 @@ class ir_translation(osv.osv):
                     'where lang=%s '
                         'and type=%s '
                         'and name=%s '
-                        'and res_id IN %s order by id',
+                        'and res_id IN %s order by system desc, id',
                     (lang,tt,name,tuple(ids)))
             for res_id, value in cr.fetchall():
                 translations[res_id] = value
