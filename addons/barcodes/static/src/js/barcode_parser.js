@@ -38,7 +38,7 @@ openerp.barcodes = function(instance) {
 
         // resolves when the barcode parser is operational.
         is_loaded: function() {
-            return self.loaded;
+            return this.loaded;
         },
 
         // returns the checksum of the ean13, or -1 if the ean has not the correct length, ean must be a string
