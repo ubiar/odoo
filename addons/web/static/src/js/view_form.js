@@ -5072,11 +5072,11 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
             _(element_ids).each(function (id) {
                 if(! _.detect(self.dataset.ids, function(x) {return x == id;})) {
                     self.dataset.set_ids(self.dataset.ids.concat([id]));
-                    self.m2m_field.dataset_changed();
                     reload = true;
                 }
             });
             if (reload) {
+                self.m2m_field.dataset_changed();
                 self.reload_content();
             }
         });
