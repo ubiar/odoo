@@ -186,27 +186,6 @@ class hr_salary_rule_category(osv.osv):
     }
 
 
-class one2many_mod2(fields.one2many):
-
-    def get(self, cr, obj, ids, name, user=None, offset=0, context=None, values=None):
-        if context is None:
-            context = {}
-        if not values:
-            values = {}
-        res = {}
-        for id in ids:
-            res[id] = []
-        ids2 = obj.pool[self._obj].search(cr, user, [(self._fields_id,'in',ids), ('appears_on_payslip', '=', True)], limit=self._limit)
-        for r in obj.pool[self._obj].read(cr, user, ids2, [self._fields_id], context=context, load='_classic_write'):
-            key = r[self._fields_id]
-            if isinstance(key, tuple):
-                # Read return a tuple in the case where the field is a many2one
-                # but we want to get the id of this field.
-                key = key[0]
-
-            res[key].append( r['id'] )
-        return res
-
 class hr_payslip_run(osv.osv):
 
     _name = 'hr.payslip.run'
@@ -280,7 +259,7 @@ class hr_payslip(osv.osv):
             \n* If the payslip is under verification, the status is \'Waiting\'. \
             \n* If the payslip is confirmed then status is set to \'Done\'.\
             \n* When user cancel payslip the status is \'Rejected\'.'),
-        'line_ids': one2many_mod2('hr.payslip.line', 'slip_id', 'Payslip Lines', readonly=True, states={'draft':[('readonly',False)]}),
+        'line_ids': fields.one2many('hr.payslip.line', 'slip_id', 'Payslip Lines', readonly=True, domain=[('appears_on_payslip', '=', True)], states={'draft':[('readonly',False)]}),
         'company_id': fields.many2one('res.company', 'Company', required=False, readonly=True, states={'draft': [('readonly', False)]}, copy=False),
         'worked_days_line_ids': fields.one2many('hr.payslip.worked_days', 'payslip_id', 'Payslip Worked Days', copy=True, required=False, readonly=True, states={'draft': [('readonly', False)]}),
         'input_line_ids': fields.one2many('hr.payslip.input', 'payslip_id', 'Payslip Inputs', required=False, readonly=True, states={'draft': [('readonly', False)]}),
