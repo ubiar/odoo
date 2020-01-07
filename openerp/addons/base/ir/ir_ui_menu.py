@@ -307,8 +307,14 @@ class ir_ui_menu(osv.osv):
     def _get_menu_de_usuario(self):
         """ Chequea si el menuitem es de usuario o de sistema
         """
+        menu_sistema_ids = []
+        if self._ids:
+            self._cr.execute("SELECT array_agg(res_id) FROM ir_model_data WHERE model = 'ir.ui.menu' and res_id in (%s)" % str(list(self._ids))[1:-1])
+            res = self._cr.fetchone()
+            if res:
+                menu_sistema_ids = res[0] or []
         for obj in self:
-            obj.menu_de_usuario = self.sudo()._es_menu_de_usuario(obj.sudo())
+            obj.menu_de_usuario = obj.id not in menu_sistema_ids
 
     def get_needaction_data(self, cr, uid, ids, context=None):
         """ Return for each menu entry of ids :
