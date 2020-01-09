@@ -46,18 +46,47 @@ class res_currency(osv.osv):
 
         date = context.get('date') or time.strftime('%Y-%m-%d')
         for id in ids:
-            cr.execute('SELECT rate FROM res_currency_rate '
-                       'WHERE currency_id = %s '
-                         'AND name <= %s '
-                       'ORDER BY name desc LIMIT 1',
-                       (id, date))
+
+            if context.get('tipo_cotizacion') and id != self.pool.get('res.users').browse(cr, uid, uid, context=context).subcompania_id.currency_id.id:
+                query = '''
+                SELECT rate FROM res_currency_rate r
+                LEFT JOIN tipo_cotizacion tc on tc.id = r.tipo_cotizacion_id
+                WHERE r.currency_id = %s
+                AND r.name <= %s
+                AND tc.ID = %s
+                ORDER BY r.name desc LIMIT 1
+                '''
+                cr.execute(query, (id, date, context.get('tipo_cotizacion')))
+            else:
+                query = '''
+                SELECT tipo_cotizacion_defecto_id FROM res_currency
+                WHERE ID = %s
+                '''
+                cr.execute(query, [id])
+                tipo_cotizacion_defecto = cr.fetchone()[0]
+
+                query = '''
+                SELECT rate FROM res_currency_rate r
+                LEFT JOIN tipo_cotizacion tc on tc.id = r.tipo_cotizacion_id
+                WHERE r.currency_id = %s
+                AND r.name <= %s
+                AND tc.ID = %s
+                ORDER BY r.name desc LIMIT 1
+                '''
+                cr.execute(query, (id, date, tipo_cotizacion_defecto))
+                
             if cr.rowcount:
                 res[id] = cr.fetchone()[0]
             elif not raise_on_no_rate:
-                res[id] = 0
+                # Originalmente era 0, se modifico para evitar errores de division por 0.
+                res[id] = 1
             else:
                 currency = self.browse(cr, uid, id, context=context)
-                raise UserError(_("No currency rate associated for currency '%s' for the given period: %s") % (currency.name, date))
+                if context.get('tipo_cotizacion'):
+                    tipo_cotizacion = self.pool.get('tipo.cotizacion').browse(cr, uid, context.get('tipo_cotizacion'), context=context)[0]
+                    raise UserError(_("No se ha encontrado tasas de cambio para la moneda: '%s' con el tipo de cotizacion: '%s' en la fecha: %s") % (currency.name, tipo_cotizacion.name, date))
+                else:
+                    raise UserError(_("No currency rate associated for currency '%s' for the given period: %s") % (currency.name, date))
         return res
 
     _name = "res.currency"
