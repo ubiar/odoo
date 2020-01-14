@@ -933,11 +933,11 @@ class Field(object):
         elif self.compute:
             # this is either a non-stored computed field, or a stored computed
             # field in onchange mode
-            if not self.store or self.recursive:
+            if self.recursive:
                 self.compute_value(record)
             else:
                 recs = record._in_cache_without(self)
-                self.compute_value(record)
+                self.compute_value(recs)
 
         else:
             # this is a non-stored non-computed field
