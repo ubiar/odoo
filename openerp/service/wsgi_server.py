@@ -222,6 +222,9 @@ def application_unproxied(environ, start_response):
 
 def application(environ, start_response):
     if config['proxy_mode'] and 'HTTP_X_FORWARDED_HOST' in environ:
+        if config.get('newrelic_config_file', False) not in [False, '0']:
+            app_proxy = werkzeug.contrib.fixers.ProxyFix(application_unproxied)
+            return newrelic_agent.WSGIApplicationWrapper(app_proxy)(environ, start_response)
         return werkzeug.contrib.fixers.ProxyFix(application_unproxied)(environ, start_response)
     else:
         if config.get('newrelic_config_file', False) not in [False, '0']:
