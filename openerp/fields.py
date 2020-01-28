@@ -1481,12 +1481,17 @@ class Reference(Selection):
                 return value.with_env(record.env) or False
         elif isinstance(value, basestring):
             res_model, res_id = value.split(',')
-            return record.env[res_model].browse(int(res_id))
+            if res_id and res_id != 'False':
+                return record.env[res_model].browse(int(res_id))
+            else:
+                return record.env[res_model]
         elif not value:
             return False
         raise ValueError("Wrong value for %s: %r" % (self, value))
 
     def convert_to_read(self, value, use_name_get=True, context=False):
+        if not value and hasattr(value, '_name'):
+             return "%s,False" % value._name
         return "%s,%s" % (value._name, value.id) if value else False
 
     def convert_to_export(self, value, env):

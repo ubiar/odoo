@@ -5492,12 +5492,14 @@ class BaseModel(object):
     # Record traversal and update
     #
 
-    def _mapped_func(self, func):
+    def _mapped_func(self, func, name=False):
         """ Apply function ``func`` on all records in ``self``, and return the
             result as a list or a recordset (if ``func`` returns recordsets).
         """
         if self:
             vals = [func(rec) for rec in self]
+            if name and rec._fields[name].type == 'reference':
+                return vals
             return reduce(operator.or_, vals) if isinstance(vals[0], BaseModel) else vals
         else:
             vals = func(self)
@@ -5513,7 +5515,7 @@ class BaseModel(object):
         if isinstance(func, basestring):
             recs = self
             for name in func.split('.'):
-                recs = recs._mapped_func(operator.itemgetter(name))
+                recs = recs._mapped_func(operator.itemgetter(name), name)
             return recs
         else:
             return self._mapped_func(func)
