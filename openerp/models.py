@@ -263,7 +263,7 @@ IdType = (int, long, basestring, NewId)
 
 
 # maximum number of prefetched records
-PREFETCH_MAX = 200
+PREFETCH_MAX = 1000
 
 # special columns automatically created by the ORM
 LOG_ACCESS_COLUMNS = ['create_uid', 'create_date', 'write_uid', 'write_date']
@@ -3342,9 +3342,6 @@ class BaseModel(object):
         # fetch the records of this model without field_name in their cache
         records = self._in_cache_without(field)
 
-        if len(records) > PREFETCH_MAX:
-            records = records[:PREFETCH_MAX] | self
-
         # determine which fields can be prefetched
         if not self.env.in_onchange and \
                 self._context.get('prefetch_fields', True) and \
@@ -3412,10 +3409,10 @@ class BaseModel(object):
         fields_pre = [
             field
             for field in fields
-            if field.base_field.column._classic_write
-            if not (field.inherited and field.base_field.column.translate)
+            if field.base_field.column and field.base_field.column._classic_write
+            if not (field.inherited and callable(field.base_field.column.translate))
         ]
-
+        
         # the query may involve several tables: we need fully-qualified names
         def qualify(field):
             col = field.name
@@ -5495,12 +5492,14 @@ class BaseModel(object):
     # Record traversal and update
     #
 
-    def _mapped_func(self, func):
+    def _mapped_func(self, func, name=False):
         """ Apply function ``func`` on all records in ``self``, and return the
             result as a list or a recordset (if ``func`` returns recordsets).
         """
         if self:
             vals = [func(rec) for rec in self]
+            if name and rec._fields[name].type == 'reference':
+                return vals
             return reduce(operator.or_, vals) if isinstance(vals[0], BaseModel) else vals
         else:
             vals = func(self)
@@ -5516,7 +5515,7 @@ class BaseModel(object):
         if isinstance(func, basestring):
             recs = self
             for name in func.split('.'):
-                recs = recs._mapped_func(operator.itemgetter(name))
+                recs = recs._mapped_func(operator.itemgetter(name), name)
             return recs
         else:
             return self._mapped_func(func)
@@ -5755,16 +5754,19 @@ class BaseModel(object):
         return RecordCache(self)
 
     @api.model
-    def _in_cache_without(self, field):
-        """ Make sure ``self`` is present in cache (for prefetching), and return
-            the records of model ``self`` in cache that have no value for ``field``
-            (:class:`Field` instance).
+    def _in_cache_without(self, field, limit=PREFETCH_MAX):
+        """ Return records to prefetch that have no value in cache for ``field``
+            (:class:`Field` instance), including ``self``.
+            Return at most ``limit`` records.
         """
         env = self.env
         prefetch_ids = env.prefetch[self._name]
         prefetch_ids.update(self._ids)
         ids = filter(None, prefetch_ids - set(env.cache[field]))
-        return self.browse(ids)
+        recs = self.browse(ids)
+        if limit and len(recs) > limit:
+            recs = self + (recs - self)[:(limit - len(self))]
+        return recs
 
     @api.model
     def refresh(self):

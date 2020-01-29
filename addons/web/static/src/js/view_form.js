@@ -5754,6 +5754,9 @@ instance.web.form.FieldReference = instance.web.form.AbstractField.extend(instan
         this.m2o.field.relation = this.get('value')[0];
         this.m2o.set_value(this.get('value')[1]);
         this.m2o.$el.toggle(!!this.get('value')[0]);
+        if (this.options.reference_selection_invisible) {
+            this.m2o.$el.css('width', '100%');
+        }
         this.reference_ready = true;
     },
 });

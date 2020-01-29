@@ -248,6 +248,11 @@ class Cursor(object):
                 _logger.info("bad query: %s", self._obj.query or query)
             self._add_slow_query_buffer(query, time.time() - start_time, True)
             raise
+        if config.get('log_level') == 'debug_function_fields' and time.time() - start_time > 0.1:
+            try:
+                _logger.warning('Query demasiado lento -> %s\n%s' % (time.time() - start_time, query % params)) 
+            except Exception, e:
+                _logger.warning('Query demasiado lento -> %s\n%s' % (time.time() - start_time, query))
         self._add_slow_query_buffer(query, time.time() - start_time)
 
         # simple query count is always computed
