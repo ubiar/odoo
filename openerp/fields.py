@@ -883,7 +883,8 @@ class Field(object):
         self.compute(records)
         if config.get('log_level') == 'debug_function_fields':
             from openerp.addons import funciones
-            funciones.utils.imprimir_tiempo('Tiempo en procesar calculo de los campos %s de %s' % (', '.join([f.name for f in self.computed_fields]), field.model_name), inicio)
+            if time.time() - inicio > 0.01:
+                _logger.warning(funciones.utils.formatear_tiempo('Campo calculado demasiado lento %s de %s' % (', '.join([f.name for f in self.computed_fields]), field.model_name), inicio))
         for field in self.computed_fields:
             records.env.computed[field].difference_update(records._ids)
             
@@ -1237,13 +1238,13 @@ class Date(Field):
         return value.strftime(DATE_FORMAT)
         
     @staticmethod
-    def to_export(self, value):
+    def to_export(self, value, lang=False):
         """ Convert a :class:`date` value into the format expected by the ORM. """
         if not value:
             return ''
         if type(value) == str:
             value = Date.from_string(value)
-        d_format = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1).date_format or DATE_FORMAT
+        d_format = self.env['res.lang'].search([('code', '=', lang or self.env.lang)], limit=1).date_format or DATE_FORMAT
         return value.strftime(d_format)
 
     def convert_to_cache(self, value, record, validate=True):
@@ -1315,14 +1316,14 @@ class Datetime(Field):
         return value.strftime(DATETIME_FORMAT)
         
     @staticmethod
-    def to_export(self, value):
+    def to_export(self, value, lang=False):
         """ Convert a :class:`date` value into the format expected by the ORM. """
         if not value:
             return ''
         if type(value) == str:
             value = Datetime.from_string(value)
         d_format = DATETIME_FORMAT
-        lang = self.env['res.lang'].search([('code', '=', self.env.lang)], limit=1)
+        lang = self.env['res.lang'].search([('code', '=', lang or self.env.lang)], limit=1)
         if lang:
             d_format = '%s %s' % (lang.date_format, lang.time_format)
         value = Datetime.context_timestamp(self, value)
@@ -1480,12 +1481,17 @@ class Reference(Selection):
                 return value.with_env(record.env) or False
         elif isinstance(value, basestring):
             res_model, res_id = value.split(',')
-            return record.env[res_model].browse(int(res_id))
+            if res_id and res_id != 'False':
+                return record.env[res_model].browse(int(res_id))
+            else:
+                return record.env[res_model]
         elif not value:
             return False
         raise ValueError("Wrong value for %s: %r" % (self, value))
 
     def convert_to_read(self, value, use_name_get=True, context=False):
+        if not value and hasattr(value, '_name'):
+             return "%s,False" % value._name
         return "%s,%s" % (value._name, value.id) if value else False
 
     def convert_to_export(self, value, env):

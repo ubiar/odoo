@@ -1315,11 +1315,11 @@
 <t t-name="FieldReference">
     <table class="oe_form_field oe_form_field_reference" border="0" cellpadding="0" cellspacing="0" t-att-style="widget.node.attrs.style">
     <tr>
-        <td t-attf-class="oe_form_frame_cell oe_form_selection">
+        <td t-attf-class="oe_form_frame_cell oe_form_selection" t-att-style="widget.options.reference_selection_invisible ? 'display: none;' : ''">
             <span t-attf-class="oe_form_view_reference_selection"/>
         </td>
         <td t-attf-class="oe_form_frame_cell oe_form_many2one" nowrap="true">
-            <span t-attf-class="oe_form_view_reference_m2o"/>
+            <span t-attf-class="oe_form_view_reference_m2o" t-att-style="widget.options.reference_selection_invisible ? 'width: 100%;' : ''"/>
         </td>
     </tr>
     </table>
