@@ -741,6 +741,12 @@ class BaseModel(object):
                 except Exception, e:
                     pass
                 attrs['domain'] = domain
+            elif field['ttype'] == 'float':
+                if field.get('precision_decimal_id'):
+                    cr.execute("SELECT digits FROM decimal_precision WHERE id = %s" % field.get('precision_decimal_id'))
+                    res = cr.fetchone()
+                    if res:
+                        attrs['digits'] = [15, res[0]]
             cls._add_field(name, Field.by_type[field['ttype']](**attrs))
 
     @classmethod
