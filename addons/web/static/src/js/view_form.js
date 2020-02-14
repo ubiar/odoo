@@ -4285,10 +4285,32 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
          */
         return (this.viewmanager && this.viewmanager.active_view);
     },
+    get_value_m2m: function() {
+        return [commands.replace_with(this.get('value'))];
+    },
     set_value: function(value_) {
+        var view = this.get_active_view();
+        if (view && view.type == "list" && view.controller.add_no_editable()){
+            // Si tiene add_no_editable, se ejecutan los comandos como si fuera un m2m
+            value_ = value_ || [];
+            if (value_.length >= 1 && value_[0] instanceof Array) {
+                // value_ is a list of m2m commands. We only process
+                // LINK_TO and REPLACE_WITH in this context
+                var val = [];
+                _.each(value_, function (command) {
+                    if (command[0] === commands.LINK_TO) {
+                        val.push(command[1]);                   // (4, id[, _])
+                    } else if (command[0] === commands.REPLACE_WITH) {
+                        val = command[2];                       // (6, _, ids)
+                    }
+                });
+                value_ = val;
+            }
+            this._super(value_);
+            return;
+        }
         value_ = value_ || [];
         var self = this;
-        var view = this.get_active_view();
         this.dataset.reset_ids([]);
         var ids;
         if(value_.length >= 1 && value_[0] instanceof Array) {
@@ -4350,6 +4372,10 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
         }
     },
     get_value: function() {
+        var view = this.get_active_view();
+        if (view && view.type == "list" && view.controller.add_no_editable()){
+            return this.get_value_m2m();
+        }
         var self = this;
         if (!this.dataset)
             return [];
