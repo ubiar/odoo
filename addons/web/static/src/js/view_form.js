@@ -4482,7 +4482,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         }));
         this.on('edit:after', this, this.proxy('_after_edit'));
         this.on('save:before cancel:before', this, this.proxy('_before_unedit'));
-
+        
         /* detect if the user try to exit the one2many widget */
         instance.web.bus.on('click', this, this._on_click_outside);
 
@@ -4539,11 +4539,37 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         return valid;
     },
     do_add_record: function () {
-        if (this.editable()) {
+        var self = this;
+        var pop;
+        if (this.editable() && !this.add_no_editable()) {
             this._super.apply(this, arguments);
+        } else if (this.add_no_editable()){
+            pop = new instance.web.form.SelectCreatePopup(this);
+            pop.select_element(
+                self.o2m.field.relation,
+                {
+                    title: _t("Add: ") + self.o2m.string,
+                    alternative_form_view: self.o2m.field.views ? self.o2m.field.views["form"] : undefined,
+                    no_create: self.o2m.options.no_create,
+                },
+                new instance.web.CompoundDomain(self.o2m.build_domain(), ["!", ["id", "in", self.o2m.dataset.ids]]),
+                self.o2m.build_context()
+            );
+            pop.on("elements_selected", self, function(element_ids) {
+                var reload = false;
+                _(element_ids).each(function (id) {
+                    if(! _.detect(self.o2m.dataset.ids, function(x) {return x == id;})) {
+                        self.o2m.dataset.set_ids(self.o2m.dataset.ids.concat([id]));
+                        reload = true;
+                    }
+                });
+                if (reload) {
+                    self.o2m.dataset.trigger("dataset_changed");
+                    self.reload_content();
+                }
+            });
         } else {
-            var self = this;
-            var pop = new instance.web.form.SelectCreatePopup(this);
+            pop = new instance.web.form.SelectCreatePopup(this);
             pop.select_element(
                 self.o2m.field.relation,
                 {

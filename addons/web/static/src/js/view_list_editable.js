@@ -108,6 +108,12 @@
                 || this._context_editable
                 || this.options.editable);
         },
+        add_no_editable: function(){
+            return !this.grouped
+                && !this.options.disable_editable_mode
+                && (this.fields_view.arch.attrs.add_no_editable
+                || this.options.add_no_editable);
+        },
         editable_if: function(record) {
             var editable_if = !this.options.disable_editable_mode && this.options.editable_if;
             if (!record) return editable_if;
