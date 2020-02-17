@@ -834,7 +834,7 @@ form: module.record_id""" % (xml_id,)
                 except Exception, e:
                     self.cr.rollback()
                     exc_info = sys.exc_info()
-                    raise ParseError, (misc.ustr(e), etree.tostring(rec).rstrip(), rec.getroottree().docinfo.URL, rec.sourceline), exc_info[2]
+                    raise ParseError, (misc.ustr(e), etree.tostring(rec).rstrip()[0:1000], rec.getroottree().docinfo.URL, rec.sourceline), exc_info[2]
         return True
 
     def __init__(self, cr, module, idref, mode, report=None, noupdate=False, xml_filename=None):
