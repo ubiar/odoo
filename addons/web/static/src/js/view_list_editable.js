@@ -111,7 +111,7 @@
         add_no_editable: function(){
             return !this.grouped
                 && !this.options.disable_editable_mode
-                && (this.fields_view && this.fields_view.arch.attrs.add_no_editable
+                && (this.fields_view.arch.attrs.add_no_editable
                 || this.options.add_no_editable);
         },
         editable_if: function(record) {
