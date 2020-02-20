@@ -114,6 +114,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                 noupdate = False
                 if kind in ('demo', 'demo_xml') or (filename.endswith('.csv') and kind in ('init', 'init_xml')):
                     noupdate = True
+                threading.currentThread().last_path_file = os.path.join(module_name, filename)
                 tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
         finally:
             if kind in ('demo', 'test'):
