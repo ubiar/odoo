@@ -5053,6 +5053,11 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         this._super(parent, dataset, view_id, _.extend(options || {}, {
             ListType: instance.web.form.Many2ManyList,
         }));
+        this.on('edit:after', this, this.proxy('_after_edit'));
+        this.on('save:before cancel:before', this, this.proxy('_before_unedit'));
+
+        /* detect if the user try to exit the many2many widget */
+        instance.web.bus.on('click', this, this._on_click_outside);
     },
     do_add_record: function () {
         var pop = new instance.web.form.SelectCreatePopup(this);
@@ -5092,6 +5097,10 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         });
         pop.on('write_completed', self, self.reload_content);
     },
+    editable: function(){
+        if (this.getParent().get("effective_readonly")) return false;
+        return this._super.apply(this, arguments);
+    },
     do_button_action: function(name, id, callback) {
         var self = this;
         var _sup = _.bind(this._super, this);
@@ -5106,6 +5115,77 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         }
      },
     is_action_enabled: function () { return true; },
+    _on_click_outside: function(e) {
+        if(this.__ignore_blur || !this.editor.is_editing()) {
+            return;
+        }
+
+        var $target = $(e.target);
+
+        // If click on a button, a ui-autocomplete dropdown or modal-backdrop, it is not considered as a click outside
+        var click_outside = ($target.closest('.ui-autocomplete,.btn,.modal-backdrop').length === 0);
+
+        // Check if click inside the current list editable
+        var $o2m = $target.closest(".oe_list_editable");
+        if($o2m.length && $o2m[0] === this.el) {
+            click_outside = false;
+        }
+
+        // Check if click inside a modal which is on top of the current list editable
+        var $modal = $target.closest(".modal");
+        if($modal.length) {
+            var $currentModal = this.$el.closest(".modal");
+            if($currentModal.length === 0 || $currentModal[0] !== $modal[0]) {
+                click_outside = false;
+            }
+        }
+
+        if (click_outside) {
+            this._on_form_blur();
+        }
+    },
+    _after_edit: function () {
+        this.__ignore_blur = false;
+        this.editor.form.on('blurred', this, this._on_form_blur);
+        // The form's blur thing may be jiggered during the edition setup,
+        // potentially leading to the o2m instasaving the row. Cancel any
+        // blurring triggered the edition startup here
+        this.editor.form.widgetFocused();
+    },
+    _before_unedit: function () {        
+        this.editor.form.off('blurred', this, this._on_form_blur);
+    },
+    _button_down: function () {
+        // If a button is clicked (usually some sort of action button), it's
+        // the button's responsibility to ensure the editable list is in the
+        // correct state -> ignore form blurring
+        this.__ignore_blur = true;
+    },
+    /**
+     * Handles blurring of the nested form (saves the currently edited row),
+     * unless the flag to ignore the event is set to ``true``
+     *
+     * Makes the internal form go away
+     */
+    _on_form_blur: function () {
+        if (this.__ignore_blur) {
+            this.__ignore_blur = false;
+            return;
+        }
+        // FIXME: why isn't there an API for this?
+        if (this.editor.form.$el.hasClass('oe_form_dirty')) {
+            this.ensure_saved();
+            return;
+        }
+        this.cancel_edition();
+    },
+    keypress_ENTER: function () {
+        // blurring caused by hitting the [Return] key, should skip the
+        // autosave-on-blur and let the handler for [Return] do its thing (save
+        // the current row *anyway*, then create a new one/edit the next one)
+        this.__ignore_blur = true;
+        this._super.apply(this, arguments);
+    },
 });
 instance.web.form.Many2ManyList = instance.web.form.AddAnItemList.extend({
     _add_row_class: 'oe_form_field_many2many_list_row_add',
