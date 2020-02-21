@@ -5059,6 +5059,13 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         /* detect if the user try to exit the many2many widget */
         instance.web.bus.on('click', this, this._on_click_outside);
     },
+    start: function () {
+        var ret = this._super();
+        this.$el
+            .off('mousedown.handleButtons')
+            .on('mousedown.handleButtons', 'table button, div a.oe_m2o_cm_button', this.proxy('_button_down'));
+        return ret;
+    },
     do_add_record: function () {
         var pop = new instance.web.form.SelectCreatePopup(this);
         pop.select_element(
@@ -5124,7 +5131,6 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
 
         // If click on a button, a ui-autocomplete dropdown or modal-backdrop, it is not considered as a click outside
         var click_outside = ($target.closest('.ui-autocomplete,.btn,.modal-backdrop').length === 0);
-
         // Check if click inside the current list editable
         var $o2m = $target.closest(".oe_list_editable");
         if($o2m.length && $o2m[0] === this.el) {
