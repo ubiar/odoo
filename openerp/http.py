@@ -597,22 +597,29 @@ def serialize_exception(e):
         "debug": traceback.format_exc(),
         "message": ustr(e),
         "arguments": to_jsonable(e.args),
-        "exception_type": "internal_error"
+        "exception_type": "internal_error",
+        "context": getattr(e, 'context', {})
     }
     if isinstance(e, openerp.exceptions.UserError):
         tmp["exception_type"] = "user_error"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.Warning):
         tmp["exception_type"] = "warning"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.RedirectWarning):
         tmp["exception_type"] = "warning"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.AccessError):
         tmp["exception_type"] = "access_error"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.MissingError):
         tmp["exception_type"] = "missing_error"
     elif isinstance(e, openerp.exceptions.AccessDenied):
         tmp["exception_type"] = "access_denied"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.ValidationError):
         tmp["exception_type"] = "validation_error"
+        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.except_orm):
         tmp["exception_type"] = "except_orm"
     return tmp
