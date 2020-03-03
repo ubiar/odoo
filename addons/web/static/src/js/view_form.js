@@ -4285,32 +4285,10 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
          */
         return (this.viewmanager && this.viewmanager.active_view);
     },
-    get_value_m2m: function() {
-        return [commands.replace_with(this.get('value'))];
-    },
     set_value: function(value_) {
-        var view = this.get_active_view();
-        if (view && view.type == "list" && view.controller.add_no_editable()){
-            // Si tiene add_no_editable, se ejecutan los comandos como si fuera un m2m
-            value_ = value_ || [];
-            if (value_.length >= 1 && value_[0] instanceof Array) {
-                // value_ is a list of m2m commands. We only process
-                // LINK_TO and REPLACE_WITH in this context
-                var val = [];
-                _.each(value_, function (command) {
-                    if (command[0] === commands.LINK_TO) {
-                        val.push(command[1]);                   // (4, id[, _])
-                    } else if (command[0] === commands.REPLACE_WITH) {
-                        val = command[2];                       // (6, _, ids)
-                    }
-                });
-                value_ = val;
-            }
-            this._super(value_);
-            return;
-        }
         value_ = value_ || [];
         var self = this;
+        var view = this.get_active_view();
         this.dataset.reset_ids([]);
         var ids;
         if(value_.length >= 1 && value_[0] instanceof Array) {
@@ -4372,10 +4350,6 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
         }
     },
     get_value: function() {
-        var view = this.get_active_view();
-        if (view && view.type == "list" && view.controller.add_no_editable()){
-            return this.get_value_m2m();
-        }
         var self = this;
         if (!this.dataset)
             return [];
@@ -4508,7 +4482,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         }));
         this.on('edit:after', this, this.proxy('_after_edit'));
         this.on('save:before cancel:before', this, this.proxy('_before_unedit'));
-        
+
         /* detect if the user try to exit the one2many widget */
         instance.web.bus.on('click', this, this._on_click_outside);
 
@@ -4565,37 +4539,11 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         return valid;
     },
     do_add_record: function () {
-        var self = this;
-        var pop;
-        if (this.editable() && !this.add_no_editable()) {
+        if (this.editable()) {
             this._super.apply(this, arguments);
-        } else if (this.add_no_editable()){
-            pop = new instance.web.form.SelectCreatePopup(this);
-            pop.select_element(
-                self.o2m.field.relation,
-                {
-                    title: _t("Add: ") + self.o2m.string,
-                    alternative_form_view: self.o2m.field.views ? self.o2m.field.views["form"] : undefined,
-                    no_create: self.o2m.options.no_create,
-                },
-                new instance.web.CompoundDomain(self.o2m.build_domain(), ["!", ["id", "in", self.o2m.dataset.ids]]),
-                self.o2m.build_context()
-            );
-            pop.on("elements_selected", self, function(element_ids) {
-                var reload = false;
-                _(element_ids).each(function (id) {
-                    if(! _.detect(self.o2m.dataset.ids, function(x) {return x == id;})) {
-                        self.o2m.dataset.set_ids(self.o2m.dataset.ids.concat([id]));
-                        reload = true;
-                    }
-                });
-                if (reload) {
-                    self.o2m.dataset.trigger("dataset_changed");
-                    self.reload_content();
-                }
-            });
         } else {
-            pop = new instance.web.form.SelectCreatePopup(this);
+            var self = this;
+            var pop = new instance.web.form.SelectCreatePopup(this);
             pop.select_element(
                 self.o2m.field.relation,
                 {
@@ -5105,6 +5053,18 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         this._super(parent, dataset, view_id, _.extend(options || {}, {
             ListType: instance.web.form.Many2ManyList,
         }));
+        this.on('edit:after', this, this.proxy('_after_edit'));
+        this.on('save:before cancel:before', this, this.proxy('_before_unedit'));
+
+        /* detect if the user try to exit the many2many widget */
+        instance.web.bus.on('click', this, this._on_click_outside);
+    },
+    start: function () {
+        var ret = this._super();
+        this.$el
+            .off('mousedown.handleButtons')
+            .on('mousedown.handleButtons', 'table button, div a.oe_m2o_cm_button', this.proxy('_button_down'));
+        return ret;
     },
     do_add_record: function () {
         var pop = new instance.web.form.SelectCreatePopup(this);
@@ -5144,6 +5104,10 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         });
         pop.on('write_completed', self, self.reload_content);
     },
+    editable: function(){
+        if (this.getParent().get("effective_readonly")) return false;
+        return this._super.apply(this, arguments);
+    },
     do_button_action: function(name, id, callback) {
         var self = this;
         var _sup = _.bind(this._super, this);
@@ -5158,6 +5122,76 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         }
      },
     is_action_enabled: function () { return true; },
+    _on_click_outside: function(e) {
+        if(this.__ignore_blur || !this.editor.is_editing()) {
+            return;
+        }
+
+        var $target = $(e.target);
+
+        // If click on a button, a ui-autocomplete dropdown or modal-backdrop, it is not considered as a click outside
+        var click_outside = ($target.closest('.ui-autocomplete,.btn,.modal-backdrop').length === 0);
+        // Check if click inside the current list editable
+        var $o2m = $target.closest(".oe_list_editable");
+        if($o2m.length && $o2m[0] === this.el) {
+            click_outside = false;
+        }
+
+        // Check if click inside a modal which is on top of the current list editable
+        var $modal = $target.closest(".modal");
+        if($modal.length) {
+            var $currentModal = this.$el.closest(".modal");
+            if($currentModal.length === 0 || $currentModal[0] !== $modal[0]) {
+                click_outside = false;
+            }
+        }
+
+        if (click_outside) {
+            this._on_form_blur();
+        }
+    },
+    _after_edit: function () {
+        this.__ignore_blur = false;
+        this.editor.form.on('blurred', this, this._on_form_blur);
+        // The form's blur thing may be jiggered during the edition setup,
+        // potentially leading to the o2m instasaving the row. Cancel any
+        // blurring triggered the edition startup here
+        this.editor.form.widgetFocused();
+    },
+    _before_unedit: function () {        
+        this.editor.form.off('blurred', this, this._on_form_blur);
+    },
+    _button_down: function () {
+        // If a button is clicked (usually some sort of action button), it's
+        // the button's responsibility to ensure the editable list is in the
+        // correct state -> ignore form blurring
+        this.__ignore_blur = true;
+    },
+    /**
+     * Handles blurring of the nested form (saves the currently edited row),
+     * unless the flag to ignore the event is set to ``true``
+     *
+     * Makes the internal form go away
+     */
+    _on_form_blur: function () {
+        if (this.__ignore_blur) {
+            this.__ignore_blur = false;
+            return;
+        }
+        // FIXME: why isn't there an API for this?
+        if (this.editor.form.$el.hasClass('oe_form_dirty')) {
+            this.ensure_saved();
+            return;
+        }
+        this.cancel_edition();
+    },
+    keypress_ENTER: function () {
+        // blurring caused by hitting the [Return] key, should skip the
+        // autosave-on-blur and let the handler for [Return] do its thing (save
+        // the current row *anyway*, then create a new one/edit the next one)
+        this.__ignore_blur = true;
+        this._super.apply(this, arguments);
+    },
 });
 instance.web.form.Many2ManyList = instance.web.form.AddAnItemList.extend({
     _add_row_class: 'oe_form_field_many2many_list_row_add',
