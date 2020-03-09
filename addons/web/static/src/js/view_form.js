@@ -5029,7 +5029,23 @@ instance.web.form.FieldMany2Many = instance.web.form.AbstractField.extend(instan
         });
     },
     dataset_changed: function() {
+        var self = this;
         this.internal_set_value(this.dataset.ids);
+        if (this.options && this.options.save_at_onchange){
+            this.save_form();
+        }
+    },
+    trigger_on_change: function(){
+        if (this.options && this.options.save_at_onchange){
+            this.save_form();
+        }
+    },
+    save_form: function(){
+        var self = this;
+        var save = this.view.recursive_save();
+        save.done(function(){
+            self.view.recursive_reload();
+        });
     },
 });
 
@@ -5058,6 +5074,8 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
 
         /* detect if the user try to exit the many2many widget */
         instance.web.bus.on('click', this, this._on_click_outside);
+        
+        this.on('save:after', this, this.proxy("changed_records"));
     },
     start: function () {
         var ret = this._super();
@@ -5065,6 +5083,9 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
             .off('mousedown.handleButtons')
             .on('mousedown.handleButtons', 'table button, div a.oe_m2o_cm_button', this.proxy('_button_down'));
         return ret;
+    },
+    changed_records: function(){
+        this.m2m_field.trigger_on_change();
     },
     do_add_record: function () {
         var pop = new instance.web.form.SelectCreatePopup(this);
