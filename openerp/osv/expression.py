@@ -413,14 +413,14 @@ def select_from_where(cr, select_field, from_table, where_field, where_ids, wher
     res = []
     if where_ids:
         if where_operator in ['<', '>', '>=', '<=']:
-            cr.execute('SELECT "%s" FROM "%s" WHERE "%s" %s %%s' % \
+            cr.execute('SELECT DISTINCT "%s" FROM "%s" WHERE "%s" %s %%s' % \
                 (select_field, from_table, where_field, where_operator),
                 (where_ids[0],))  # TODO shouldn't this be min/max(where_ids) ?
             res = [r[0] for r in cr.fetchall()]
         else:  # TODO where_operator is supposed to be 'in'? It is called with child_of...
             for i in range(0, len(where_ids), cr.IN_MAX):
                 subids = where_ids[i:i + cr.IN_MAX]
-                cr.execute('SELECT "%s" FROM "%s" WHERE "%s" IN %%s' % \
+                cr.execute('SELECT DISTINCT "%s" FROM "%s" WHERE "%s" IN %%s' % \
                     (select_field, from_table, where_field), (tuple(subids),))
                 res.extend([r[0] for r in cr.fetchall()])
     return res
@@ -949,22 +949,24 @@ class expression(object):
                             push(create_substitution_leaf(leaf, ('id', o2m_op, ids2), model))
 
                 if call_null:
-                    o2m_op = 'in' if operator in NEGATIVE_TERM_OPERATORS else 'not in'
-                    push(create_substitution_leaf(leaf, ('id', o2m_op, select_distinct_from_where_not_null(cr, column._fields_id, comodel._table)), model))
+                    subop = 'inselect' if operator in NEGATIVE_TERM_OPERATORS else 'not inselect'
+                    subquery = 'SELECT distinct("%s") FROM "%s" WHERE "%s" is not null' % (column._fields_id, comodel._table, column._fields_id)
+                    push(create_substitution_leaf(leaf, ('id', subop, (subquery, [])), internal=True))
 
             elif column._type == 'many2many':
                 rel_table, rel_id1, rel_id2 = column._sql_names(model)
                 #FIXME
                 if operator == 'child_of':
-                    def _rec_convert(ids):
-                        if comodel == model:
-                            return ids
-                        return select_from_where(cr, rel_id1, rel_table, rel_id2, ids, operator)
-
                     ids2 = to_ids(right, comodel, context)
                     dom = child_of_domain('id', ids2, comodel)
                     ids2 = comodel.search(cr, uid, dom, context=context)
-                    push(create_substitution_leaf(leaf, ('id', 'in', _rec_convert(ids2)), model))
+                    if comodel == model:
+                        push(create_substitution_leaf(leaf, ('id', 'in', ids2), model))
+                    else:
+                        subquery = 'SELECT "%s" FROM "%s" WHERE "%s" IN %%s' % (rel_id1, rel_table, rel_id2)
+                        # avoid flattening of argument in to_sql()
+                        subquery = cr.mogrify(subquery, [tuple(ids2)])
+                        push(create_substitution_leaf(leaf, ('id', 'inselect', (subquery, [])), internal=True))
                 else:
                     call_null_m2m = True
                     if right is not False:
@@ -987,12 +989,16 @@ class expression(object):
                                 operator = 'in'  # operator changed because ids are directly related to main object
                         else:
                             call_null_m2m = False
-                            m2m_op = 'not in' if operator in NEGATIVE_TERM_OPERATORS else 'in'
-                            push(create_substitution_leaf(leaf, ('id', m2m_op, select_from_where(cr, rel_id1, rel_table, rel_id2, res_ids, operator) or [0]), model))
+                            subop = 'not inselect' if operator in NEGATIVE_TERM_OPERATORS else 'inselect'
+                            subquery = 'SELECT "%s" FROM "%s" WHERE "%s" IN %%s' % (rel_id1, rel_table, rel_id2)
+                            # avoid flattening of argument in to_sql()
+                            subquery = cr.mogrify(subquery, [tuple(filter(None, res_ids))])
+                            push(create_substitution_leaf(leaf, ('id', subop, (subquery, [])), internal=True))
 
                     if call_null_m2m:
-                        m2m_op = 'in' if operator in NEGATIVE_TERM_OPERATORS else 'not in'
-                        push(create_substitution_leaf(leaf, ('id', m2m_op, select_distinct_from_where_not_null(cr, rel_id1, rel_table)), model))
+                        subop = 'inselect' if operator in NEGATIVE_TERM_OPERATORS else 'not inselect'
+                        subquery = 'SELECT distinct("%s") FROM "%s" WHERE "%s" is not null' % (rel_id1, rel_table, rel_id1)
+                        push(create_substitution_leaf(leaf, ('id', subop, (subquery, [])), internal=True))
 
             elif column._type == 'many2one':
                 if operator == 'child_of':
