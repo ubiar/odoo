@@ -3538,6 +3538,7 @@ class BaseModel(object):
                 _('The requested operation cannot be completed due to security restrictions. Please contact your system administrator.\n\n(Document type: %s, Operation: %s, records: %s)') % \
                 (self._name, _('read'), self._ids)
             )
+            exc = self._check_access_rule('read', self._ids) or exc
             forbidden = missing.exists()
             forbidden._cache.update(FailedValue(exc))
             # store a missing error exception in non-existing records
@@ -3545,6 +3546,10 @@ class BaseModel(object):
                 _('One of the documents you are trying to access has been deleted, please try again after refreshing.')
             )
             (missing - forbidden)._cache.update(FailedValue(exc))
+            
+    @api.model
+    def _check_access_rule(self, operation, ids):
+        return False
 
     @api.multi
     def get_metadata(self):

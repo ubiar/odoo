@@ -60,7 +60,7 @@ class sale_order(osv.Model):
     def action_button_confirm(self, cr, uid, ids, context=None):
         # fetch the partner's id and subscribe the partner to the sale order
         assert len(ids) == 1
-        document = self.browse(cr, uid, ids[0], context=context)
+        document = self.browse(cr, SUPERUSER_ID, ids[0], context=context)
         partner = document.partner_id
         if partner not in document.message_follower_ids:
             self.message_subscribe(cr, uid, ids, [partner.id], context=context)
