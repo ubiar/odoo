@@ -4999,6 +4999,7 @@ instance.web.form.FieldMany2Many = instance.web.form.AbstractField.extend(instan
     },
     // WARNING: duplicated in 4 other M2M widgets
     set_value: function(value_) {
+        var self = this;
         value_ = value_ || [];
         if (value_.length >= 1 && value_[0] instanceof Array) {
             // value_ is a list of m2m commands. We only process
@@ -5007,6 +5008,9 @@ instance.web.form.FieldMany2Many = instance.web.form.AbstractField.extend(instan
             _.each(value_, function (command) {
                 if (command[0] === commands.LINK_TO) {
                     val.push(command[1]);                   // (4, id[, _])
+                } else if (command[0] === commands.UPDATE) {
+                    val.push(command[1]);    
+                    self.list_view.dataset.write(command[1], command[2]);
                 } else if (command[0] === commands.REPLACE_WITH) {
                     val = command[2];                       // (6, _, ids)
                 }
@@ -5036,6 +5040,7 @@ instance.web.form.FieldMany2Many = instance.web.form.AbstractField.extend(instan
         }
     },
     trigger_on_change: function(){
+        this.trigger('changed_value');
         if (this.options && this.options.save_at_onchange){
             this.save_form();
         }
@@ -5085,7 +5090,7 @@ instance.web.form.Many2ManyListView = instance.web.ListView.extend(/** @lends in
         return ret;
     },
     changed_records: function(){
-        this.m2m_field.trigger_on_change();
+        if (this.editable()) this.m2m_field.trigger_on_change();
     },
     do_add_record: function () {
         var pop = new instance.web.form.SelectCreatePopup(this);

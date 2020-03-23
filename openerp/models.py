@@ -6075,11 +6075,12 @@ class BaseModel(object):
                             # clean up result to not return another value
                             result['value'].pop(name, None)
 
+        # Se comento ya que se agrego la funcionalidad en el set_value del FieldMany2Many
         # At the moment, the client does not support updates on a *2many field
         # while this one is modified by the user.
-        if field_name and not isinstance(field_name, list) and \
-                self._fields[field_name].type in ('one2many', 'many2many'):
-            result['value'].pop(field_name, None)
+        # if field_name and not isinstance(field_name, list) and \
+        #         self._fields[field_name].type in ('one2many', 'many2many'):
+        #     result['value'].pop(field_name, None)
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
         if result and result.get('value'):
             for name, val in result.get('value').iteritems():
