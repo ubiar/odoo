@@ -6083,9 +6083,12 @@ class BaseModel(object):
         # Se comento ya que se agrego la funcionalidad en el set_value del FieldMany2Many
         # At the moment, the client does not support updates on a *2many field
         # while this one is modified by the user.
-        # if field_name and not isinstance(field_name, list) and \
-        #         self._fields[field_name].type in ('one2many', 'many2many'):
-        #     result['value'].pop(field_name, None)
+        # El sistema no soportaba los onchange sobre los o2m o m2m se contemplaron para los m2m
+        # y en los o2m se tiene que establecer mediante el contexto onchange_o2m para activarlo
+        # porque en algunos casos genera errores cuando se utiliza con ciertos widgets
+        # Ej: o2m Agregar Campos de Usuario a un Formulario
+        if field_name and not isinstance(field_name, list) and self._fields[field_name].type in ('one2many') and not self._context.get('onchange_o2m'): 
+            result['value'].pop(field_name, None)
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
         if result and result.get('value'):
             for name, val in result.get('value').iteritems():
