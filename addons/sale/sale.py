@@ -907,7 +907,7 @@ class sale_order_line(osv.osv):
         'th_weight': fields.float('Weight', readonly=True, states={'draft': [('readonly', False)]}),
         'state': fields.selection(
                 [('cancel', 'Cancelled'),('draft', 'Draft'),('confirmed', 'Confirmed'),('exception', 'Exception'),('done', 'Done')],
-                'Status', required=True, readonly=True, copy=False,
+                'Status', required=True, copy=False,
                 help='* The \'Draft\' status is set when the related sales order in draft status. \
                     \n* The \'Confirmed\' status is set when the related sales order is confirmed. \
                     \n* The \'Exception\' status is set when the related sales order is set as exception. \
