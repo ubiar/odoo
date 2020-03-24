@@ -424,7 +424,7 @@ class procurement_order(osv.osv):
             self._procure_orderpoint_confirm(cr, SUPERUSER_ID, use_new_cursor=use_new_cursor, company_id=company_id, context=context)
 
             #Search all confirmed stock_moves and try to assign them
-            confirmed_ids = move_obj.search(cr, uid, [('state', '=', 'confirmed')], limit=None, order='priority desc, date_expected asc', context=context)
+            confirmed_ids = move_obj.search(cr, uid, [('state', 'in', ['confirmed', 'partially_available'])], limit=None, order='priority desc, date_expected asc', context=context)
             for x in xrange(0, len(confirmed_ids), 100):
                 move_obj.action_assign(cr, uid, confirmed_ids[x:x + 100], context=context)
                 if use_new_cursor:
