@@ -3538,6 +3538,7 @@ class BaseModel(object):
                 _('The requested operation cannot be completed due to security restrictions. Please contact your system administrator.\n\n(Document type: %s, Operation: %s, records: %s)') % \
                 (self._name, _('read'), self._ids)
             )
+            exc = self._check_access_rule('read', self._ids) or exc
             forbidden = missing.exists()
             forbidden._cache.update(FailedValue(exc))
             # store a missing error exception in non-existing records
@@ -3545,6 +3546,10 @@ class BaseModel(object):
                 _('One of the documents you are trying to access has been deleted, please try again after refreshing.')
             )
             (missing - forbidden)._cache.update(FailedValue(exc))
+            
+    @api.model
+    def _check_access_rule(self, operation, ids):
+        return False
 
     @api.multi
     def get_metadata(self):
@@ -6075,10 +6080,14 @@ class BaseModel(object):
                             # clean up result to not return another value
                             result['value'].pop(name, None)
 
+        # Se comento ya que se agrego la funcionalidad en el set_value del FieldMany2Many
         # At the moment, the client does not support updates on a *2many field
         # while this one is modified by the user.
-        if field_name and not isinstance(field_name, list) and \
-                self._fields[field_name].type in ('one2many', 'many2many'):
+        # El sistema no soportaba los onchange sobre los o2m o m2m se contemplaron para los m2m
+        # y en los o2m se tiene que establecer mediante el contexto onchange_o2m para activarlo
+        # porque en algunos casos genera errores cuando se utiliza con ciertos widgets
+        # Ej: o2m Agregar Campos de Usuario a un Formulario
+        if field_name and not isinstance(field_name, list) and self._fields[field_name].type in ('one2many') and not self._context.get('onchange_o2m'): 
             result['value'].pop(field_name, None)
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
         if result and result.get('value'):

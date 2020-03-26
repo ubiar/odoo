@@ -37,7 +37,7 @@ class product_product(osv.osv):
             ('product_id', 'in', ids),
             ('location_id.usage', '!=', 'internal'),
             ('location_dest_id.usage', '=', 'internal'),
-            ('state','in',('confirmed','assigned','pending'))
+            ('state','in',('confirmed', 'partially_available','assigned','pending'))
         ], ['product_id'], ['product_id'])
         for move in moves:
             product_id = move['product_id'][0]
@@ -46,7 +46,7 @@ class product_product(osv.osv):
             ('product_id', 'in', ids),
             ('location_id.usage', '=', 'internal'),
             ('location_dest_id.usage', '!=', 'internal'),
-            ('state','in',('confirmed','assigned','pending'))
+            ('state','in',('confirmed', 'partially_available','assigned','pending'))
         ], ['product_id'], ['product_id'])
         for move in moves:
             product_id = move['product_id'][0]

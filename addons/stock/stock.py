@@ -389,7 +389,7 @@ class stock_quant(osv.osv):
                 self.pool.get('stock.picking').write(cr, uid, [move.picking_id.id], {'recompute_pack_op': True}, context=context)
         #check if move'state needs to be set as 'assigned'
         rounding = move.product_id.uom_id.rounding
-        if float_compare(reserved_availability, move.product_qty, precision_rounding=rounding) == 0 and move.state in ('confirmed', 'waiting')  :
+        if float_compare(reserved_availability, move.product_qty, precision_rounding=rounding) == 0 and move.state in ('confirmed', 'partially_available', 'waiting')  :
             self.pool.get('stock.move').write(cr, uid, [move.id], {'state': 'assigned'}, context=context)
         elif float_compare(reserved_availability, 0, precision_rounding=rounding) > 0 and not move.partially_available:
             self.pool.get('stock.move').write(cr, uid, [move.id], {'partially_available': True}, context=context)
@@ -760,7 +760,7 @@ class stock_picking(osv.osv):
                 res[pick.id] = 'done'
                 continue
 
-            order = {'confirmed': 0, 'waiting': 1, 'assigned': 2}
+            order = {'confirmed': 0, 'partially_available': 0, 'waiting': 1, 'assigned': 2}
             order_inv = {0: 'confirmed', 1: 'waiting', 2: 'assigned'}
             lst = [order[x.state] for x in pick.move_lines if x.state not in ('cancel', 'done')]
             if pick.move_type == 'one':
@@ -958,7 +958,7 @@ class stock_picking(osv.osv):
         @return: True
         """
         for pick in self.browse(cr, uid, ids, context=context):
-            move_ids = [x.id for x in pick.move_lines if x.state in ['confirmed', 'waiting']]
+            move_ids = [x.id for x in pick.move_lines if x.state in ['confirmed', 'partially_available', 'waiting']]
             self.pool.get('stock.move').force_assign(cr, uid, move_ids, context=context)
         #pack_operation might have changed and need to be recomputed
         self.write(cr, uid, ids, {'recompute_pack_op': True}, context=context)
@@ -981,7 +981,7 @@ class stock_picking(osv.osv):
             for move in pick.move_lines:
                 if move.state == 'draft':
                     todo.extend(self.pool.get('stock.move').action_confirm(cr, uid, [move.id], context=context))
-                elif move.state in ('assigned', 'confirmed'):
+                elif move.state in ('assigned', 'confirmed', 'partially_available'):
                     todo.append(move.id)
             if len(todo):
                 self.pool.get('stock.move').action_done(cr, uid, todo, context=context)
@@ -1236,7 +1236,7 @@ class stock_picking(osv.osv):
             picking_quants = []
             #Calculate packages, reserved quants, qtys of this picking's moves
             for move in picking.move_lines:
-                if move.state not in ('assigned', 'confirmed', 'waiting'):
+                if move.state not in ('assigned', 'confirmed', 'partially_available', 'waiting'):
                     continue
                 move_quants = move.reserved_quant_ids
                 picking_quants += move_quants
@@ -1568,7 +1568,7 @@ class stock_picking(osv.osv):
                     elif move.state == 'draft':
                         toassign_move_ids.append(move.id)
                     if float_compare(remaining_qty, 0,  precision_rounding = move.product_id.uom_id.rounding) == 0:
-                        if move.state in ('draft', 'assigned', 'confirmed'):
+                        if move.state in ('draft', 'assigned', 'confirmed', 'partially_available'):
                             todo_move_ids.append(move.id)
                     elif float_compare(remaining_qty,0, precision_rounding = move.product_id.uom_id.rounding) > 0 and \
                                 float_compare(remaining_qty, move.product_qty, precision_rounding = move.product_id.uom_id.rounding) < 0:
@@ -1986,6 +1986,7 @@ class stock_move(osv.osv):
                                    ('cancel', 'Cancelled'),
                                    ('waiting', 'Waiting Another Move'),
                                    ('confirmed', 'Waiting Availability'),
+                                   ('partially_available', 'Partially Available'),
                                    ('assigned', 'Available'),
                                    ('done', 'Done'),
                                    ], 'Status', readonly=True, select=True, copy=False,
@@ -2442,7 +2443,7 @@ class stock_move(osv.osv):
         todo_moves = []
         operations = set()
         for move in self.browse(cr, uid, ids, context=context):
-            if move.state not in ('confirmed', 'waiting', 'assigned'):
+            if move.state not in ('confirmed', 'partially_available', 'waiting', 'assigned'):
                 continue
             if move.location_id.usage in ('supplier', 'inventory', 'production'):
                 to_assign_moves.append(move.id)
@@ -2648,7 +2649,7 @@ class stock_move(osv.osv):
                 quant_obj.quants_move(cr, uid, quants, move, move.location_dest_id, lot_id=move.restrict_lot_id.id, owner_id=move.restrict_partner_id.id, context=context)
 
             # If the move has a destination, add it to the list to reserve
-            if move.move_dest_id and move.move_dest_id.state in ('waiting', 'confirmed'):
+            if move.move_dest_id and move.move_dest_id.state in ('waiting', 'confirmed', 'partially_available'):
                 move_dest_ids.add(move.move_dest_id.id)
 
             if move.procurement_id:

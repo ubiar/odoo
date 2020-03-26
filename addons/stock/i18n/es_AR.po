@@ -5377,6 +5377,11 @@ msgid "Waiting Availability"
 msgstr "Esperando Disponibilidad"
 
 #. module: stock
+#: selection:stock.move,state:0
+msgid "Partially Available"
+msgstr "Parcialmente Disponible"
+
+#. module: stock
 #: model:ir.actions.act_window,name:stock.action_picking_tree_waiting
 msgid "Waiting Availability Transfers"
 msgstr ""
