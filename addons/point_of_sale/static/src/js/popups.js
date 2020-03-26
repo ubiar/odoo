@@ -218,6 +218,11 @@ openerp.point_of_sale.load_popups = function load_popups(instance, module) {
             this._super();
             this.$('.popup').addClass('popup-password');
         },
+        click_numpad: function(event){
+            this._super.apply(this, arguments);
+            var $value = this.$('.value');
+            $value.text($value.text().replace(/./g, '•'));
+        },
     });
     module.Gui.define_popup({name:'password', widget:module.PasswordPopupWidget});
 
