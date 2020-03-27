@@ -133,6 +133,8 @@ class ir_rule(osv.osv):
             for rule in self.browse(cr, SUPERUSER_ID, rule_ids):
                 if context and context.get('disable_rules') and rule.code and rule.code in context.get('disable_rules'):
                     continue
+                if context and context.get('disable_rules_ids') and type(context.get('disable_rules_ids')) == list and rule.id in context.get('disable_rules_ids'):
+                    continue
                 # read 'domain' as UID to have the correct eval context for the rule.
                 rule_domain = self.read(cr, uid, [rule.id], ['domain'], context={'rule_mode': mode})[0]['domain']
                 dom = expression.normalize_domain(rule_domain)
