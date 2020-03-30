@@ -148,7 +148,7 @@ def assert_valid_codeobj(allowed_codes, code_obj, expr):
     # almost twice as fast as a manual iteration + condition when loading
     # /web according to line_profiler
     if set(_get_opcodes(code_obj)) - allowed_codes:
-        raise ValueError("forbidden opcode(s) in %r" % expr)
+        raise ValueError("forbidden opcode(s) %r in %s" % (expr, code_obj.co_name))
 
     for const in code_obj.co_consts:
         if isinstance(const, CodeType):
