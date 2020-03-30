@@ -1955,6 +1955,7 @@ instance.web.form.FormWidget = instance.web.Widget.extend(instance.web.form.Invi
             }, options || {});
         //only show tooltip if we are in debug or if we have a help to show, otherwise it will display
         //as empty
+        if (widget.node.attrs.help) widget.node.attrs.help = widget.node.attrs.help.replace(/\\n/g,'\n').replace(/\\r/g,'\r').replace(/\\t/g,'\t');
         if (instance.session.debug || widget.node.attrs.help || (widget.field && widget.field.help)){
             $(trigger).tooltip(options);
         }
