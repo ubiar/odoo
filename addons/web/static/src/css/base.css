@@ -3278,12 +3278,16 @@ body.oe_single_form .oe_single_form_container {
 }
 .modal .oe-view-manager-content > div {
   position: static !important;
+  max-height: calc(100vh - 270px);
 }
 
 @media (min-width: 768px) {
   .modal .modal-body {
     max-height: -webkit-calc(100vh - 170px);
     max-height: calc(100vh - 170px);
+  }
+  .modal .oe-view-manager-content > div {
+    max-height: calc(100vh - 300px);
   }
 }
 .ui-datepicker {
