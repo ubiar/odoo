@@ -6047,6 +6047,7 @@ class BaseModel(object):
                 # apply field-specific onchange methods
                 if field_onchange.get(name):
                     record._onchange_eval(name, field_onchange[name], result)
+                    self.env.computed_onchange_fields.append(str(name))
 
                 # force re-evaluation of function fields on secondary records
                 for field_seq in secondary:
