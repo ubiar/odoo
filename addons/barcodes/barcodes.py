@@ -150,6 +150,10 @@ class barcode_nomenclature(osv.osv):
                 cur_barcode = '0'+cur_barcode
             elif rule['encoding'] == 'upca' and self.check_encoding(barcode,'ean13') and barcode[0] == '0' and self.upc_ean_conv in ['ean2upc','always']:
                 cur_barcode = cur_barcode[1:]
+            elif rule['pattern'] and '*' not in rule['pattern']:
+                pattern_lenght = len(rule['pattern'].replace('[', '').replace(']', '').replace('{', '').replace('}', ''))
+                if pattern_lenght != len(cur_barcode):
+                    continue
 
             if not self.check_encoding(barcode,rule['encoding']):
                 continue
