@@ -679,6 +679,7 @@ class stock_quant(osv.osv):
                     quantity = 0
                     break
             offset += 10
+        print res
         return res
 
     def _check_location(self, cr, uid, location, context=None):
@@ -2467,9 +2468,14 @@ class stock_move(osv.osv):
                 elif ancestors:
                     main_domain[move.id] += [('history_ids', 'in', ancestors)]
 
-                #if the move is returned from another, restrict the choice of quants to the ones that follow the returned move
+                # if the move is returned from another, restrict the choice of quants to the ones that follow the returned move
+                # Valida Trazabilidad
                 if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
+                # No Valida Trazabilidad
+                elif move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                    lote_ids = list(set([q.lot_id.id for q in move.origin_returned_move_id.quant_ids])) # Sólo Quants pertenecientes a los Lotes que se Recibieron originalmente
+                    main_domain[move.id] += [('lot_id', 'in', lote_ids)]
                 for link in move.linked_move_operation_ids:
                     operations.add(link.operation_id)
         # Check all ops and sort them: we want to process first the packages, then operations with lot then the rest

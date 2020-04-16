@@ -82,10 +82,16 @@ class stock_return_picking(osv.osv_memory):
                 validar_trazabilidad = True
                 if 'validar_trazabilidad' in move.product_id.categ_id:
                     validar_trazabilidad = move.product_id.categ_id.validar_trazabilidad
-                if validar_trazabilidad or move.product_id.tracking != 'none':
+                # Lote Indivisible y Serie siempre validan Trazabilidad (sólo los Quants originales)
+                if validar_trazabilidad or move.product_id.tracking in ['lote_indivisible', 'serie']:
                     quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                # Lote permite no validar Trazabilidad, pero los posibles quants igual quedan atados a los Lotes que se recibieron originalmente (cualquier Quant pero de los Lotes originales)
+                elif move.product_id.tracking == 'lot':
+                    lote_ids = list(set([q.lot_id.id for q in move.quant_ids]))
+                    quant_search = quant_obj.search(cr, uid, [('product_id', '=', move.product_id.id), ('lot_id', 'in', lote_ids), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                # Sin Tracking permite no validar Trazabilidad (cualquier Quant)
                 else:
-                    # Se suda porque puede ser que no tengo stock de quants de su sucursal en la ubicacion de clientes y como no se valida trasabilidad no importa
+                    # Se suda porque puede ser que no tengo stock de quants de su sucursal en la ubicacion de clientes y como no se valida trazabilidad no importa
                     quant_search = quant_obj.search(cr, SUPERUSER_ID, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 for quant in quant_obj.browse(cr, SUPERUSER_ID, quant_search, context=context):
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
@@ -177,7 +183,7 @@ class stock_return_picking(osv.osv_memory):
                     'procure_method': 'make_to_stock',
                     'restrict_lot_id': data_get.lot_id.id,
                     'move_dest_id': move_dest_id,
-                    'devolucion_no_validar_trazabilidad': 'validar_trazabilidad' in data_get.product_id.categ_id and not data_get.product_id.categ_id.validar_trazabilidad and move.product_id.tracking == 'none',
+                    'devolucion_no_validar_trazabilidad': 'validar_trazabilidad' in data_get.product_id.categ_id and not data_get.product_id.categ_id.validar_trazabilidad and move.product_id.tracking in ['lot', 'none'],
                 })
 
         if not returned_lines:
