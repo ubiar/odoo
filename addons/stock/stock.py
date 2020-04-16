@@ -679,7 +679,6 @@ class stock_quant(osv.osv):
                     quantity = 0
                     break
             offset += 10
-        print res
         return res
 
     def _check_location(self, cr, uid, location, context=None):
