@@ -45,7 +45,7 @@ class stock_move(osv.osv):
         res = super(stock_move, self).write(cr, uid, ids, vals, context=context)
         if vals.get('state') in ['done', 'cancel']:
             for move in self.browse(cr, uid, ids, context=context):
-                if move.purchase_line_id and move.purchase_line_id.order_id:
+                if move.purchase_line_id and move.purchase_line_id.order_id and move.picking_type_id.code == "incoming":
                     order_id = move.purchase_line_id.order_id.id
                     # update linked purchase order as superuser as the warehouse
                     # user may not have rights to access purchase.order

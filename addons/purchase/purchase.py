@@ -352,19 +352,19 @@ class purchase_order(osv.osv):
         self.message_post(cr, uid, [order], body=_("RFQ created"), context=context)
         return order
 
-    def unlink(self, cr, uid, ids, context=None):
-        purchase_orders = self.read(cr, uid, ids, ['state'], context=context)
-        unlink_ids = []
-        for s in purchase_orders:
-            if s['state'] in ['draft','cancel']:
-                unlink_ids.append(s['id'])
-            else:
-                raise UserError(_('In order to delete a purchase order, you must cancel it first.'))
+    # def unlink(self, cr, uid, ids, context=None):
+    #     purchase_orders = self.read(cr, uid, ids, ['state'], context=context)
+    #     unlink_ids = []
+    #     for s in purchase_orders:
+    #         if s['state'] in ['draft','cancel']:
+    #             unlink_ids.append(s['id'])
+    #         else:
+    #             raise UserError(_('In order to delete a purchase order, you must cancel it first.'))
 
-        # automatically sending subflow.delete upon deletion
-        self.signal_workflow(cr, uid, unlink_ids, 'purchase_cancel')
+    #     # automatically sending subflow.delete upon deletion
+    #     self.signal_workflow(cr, uid, unlink_ids, 'purchase_cancel')
 
-        return super(purchase_order, self).unlink(cr, uid, unlink_ids, context=context)
+    #     return super(purchase_order, self).unlink(cr, uid, unlink_ids, context=context)
 
     def set_order_line_status(self, cr, uid, ids, status, context=None):
         line = self.pool.get('purchase.order.line')
