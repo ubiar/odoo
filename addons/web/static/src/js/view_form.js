@@ -602,19 +602,18 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
     _process_operations: function(from_button) {
         var self = this;
         return this.mutating_mutex.exec(function() {
+            function onchanges_mutex () {return self.onchanges_mutex.def;}
             function iterate() {
-
                 var mutex = new $.Mutex();
+                mutex.exec(onchanges_mutex);
                 _.each(self.fields, function(field) {
-                    self.onchanges_mutex.def.then(function(){
-                        mutex.exec(function(){
-                            return field.commit_value();
-                        });
+                    mutex.exec(function(){
+                        return field.commit_value();
                     });
+                    mutex.exec(onchanges_mutex);
                 });
 
-                var args = _.toArray(arguments);
-                return $.when.apply(null, [mutex.def, self.onchanges_mutex.def]).then(function() {
+                return mutex.def.then(function() {
                     var save_obj = self.save_list.pop();
                     if (save_obj) {
                         return self._process_save(save_obj, from_button).then(function() {
