@@ -352,19 +352,19 @@ class purchase_order(osv.osv):
         self.message_post(cr, uid, [order], body=_("RFQ created"), context=context)
         return order
 
-    def unlink(self, cr, uid, ids, context=None):
-        purchase_orders = self.read(cr, uid, ids, ['state'], context=context)
-        unlink_ids = []
-        for s in purchase_orders:
-            if s['state'] in ['draft','cancel']:
-                unlink_ids.append(s['id'])
-            else:
-                raise UserError(_('In order to delete a purchase order, you must cancel it first.'))
+    # def unlink(self, cr, uid, ids, context=None):
+    #     purchase_orders = self.read(cr, uid, ids, ['state'], context=context)
+    #     unlink_ids = []
+    #     for s in purchase_orders:
+    #         if s['state'] in ['draft','cancel']:
+    #             unlink_ids.append(s['id'])
+    #         else:
+    #             raise UserError(_('In order to delete a purchase order, you must cancel it first.'))
 
-        # automatically sending subflow.delete upon deletion
-        self.signal_workflow(cr, uid, unlink_ids, 'purchase_cancel')
+    #     # automatically sending subflow.delete upon deletion
+    #     self.signal_workflow(cr, uid, unlink_ids, 'purchase_cancel')
 
-        return super(purchase_order, self).unlink(cr, uid, unlink_ids, context=context)
+    #     return super(purchase_order, self).unlink(cr, uid, unlink_ids, context=context)
 
     def set_order_line_status(self, cr, uid, ids, status, context=None):
         line = self.pool.get('purchase.order.line')
@@ -741,9 +741,10 @@ class purchase_order(osv.osv):
         price_unit = order_line.price_unit
         if order_line.product_uom.id != order_line.product_id.uom_id.id:
             price_unit *= order_line.product_uom.factor / order_line.product_id.uom_id.factor
-        if order.currency_id.id != order.company_id.currency_id.id:
+        # Ubiar Se comenta porque el cálculo de la Moneda se aplica de forma diferente en la herencia de purchase_ubiar
+        # if order.currency_id.id != order.company_id.currency_id.id:
             #we don't round the price_unit, as we may want to store the standard price with more digits than allowed by the currency
-            price_unit = self.pool.get('res.currency').compute(cr, uid, order.currency_id.id, order.company_id.currency_id.id, price_unit, round=False, context=context)
+            # price_unit = self.pool.get('res.currency').compute(cr, uid, order.currency_id.id, order.company_id.currency_id.id, price_unit, round=False, context=context)
         res = []
         move_template = {
             'name': order_line.name or '',
