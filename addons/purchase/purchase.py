@@ -1074,7 +1074,6 @@ class purchase_order_line(osv.osv):
         """
         onchange handler of product_uom.
         """
-        raise Warning(_("Este método ya no se utiliza onchange_product_uom() - purchase_order_line"))
         if context is None:
             context = {}
         if not uom_id:
@@ -1121,7 +1120,6 @@ class purchase_order_line(osv.osv):
         """
         onchange handler of product_id.
         """
-        raise Warning(_("Reemplazado en Advance - onchange_product_id() - purchase_order_line"))
         if context is None:
             context = {}
 
@@ -1173,6 +1171,7 @@ class purchase_order_line(osv.osv):
         # - determine product_qty and date_planned based on seller info
         if not date_order:
             date_order = fields.datetime.now()
+
 
         supplierinfo = False
         precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Product Unit of Measure')
