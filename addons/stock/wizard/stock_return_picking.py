@@ -74,33 +74,60 @@ class stock_return_picking(osv.osv_memory):
                 raise UserError(_("You may only return pickings that are Done!"))
                 
             for move in pick.move_lines:
+                lote_result_ids = []
                 if move.move_dest_id:
                     chained_move_exist = True
                 #Sum the quants in that location that can be returned (they should have been moved by the moves that were included in the returned picking)
                 qty = 0
                 quant_search = False
                 validar_trazabilidad = True
+                tracking = move.product_id.tracking
                 if 'validar_trazabilidad' in move.product_id.categ_id:
                     validar_trazabilidad = move.product_id.categ_id.validar_trazabilidad
                 # Lote Indivisible y Serie siempre validan Trazabilidad (sólo los Quants originales)
-                if validar_trazabilidad or move.product_id.tracking in ['lote_indivisible', 'serie']:
+                if validar_trazabilidad or tracking in ['lote_indivisible', 'serial']:
                     quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 # Lote permite no validar Trazabilidad, pero los posibles quants igual quedan atados a los Lotes que se recibieron originalmente (cualquier Quant pero de los Lotes originales)
-                elif move.product_id.tracking == 'lot':
+                elif tracking == 'lot':
                     lote_ids = list(set([q.lot_id.id for q in move.quant_ids]))
                     quant_search = quant_obj.search(cr, uid, [('product_id', '=', move.product_id.id), ('lot_id', 'in', lote_ids), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                    # Dict con {lote_id: cant} donde se acumula la cantidad original que se recibió/envió en cada Lote, ya que en un Move se pueden recibir varios lotes, 
+                    # por lo que el move.product_qty no nos sirve para saber la cantidad original, y así no permitir devolver más cantidad de la original
+                    lote_cantidad = {}
+                    quant_original_ids = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0)], context=context)
+                    quant_originales = quant_obj.browse(cr, SUPERUSER_ID, quant_original_ids, context=context)
+                    for q in quant_originales:
+                        if q.lot_id.id not in lote_cantidad:
+                            lote_cantidad[q.lot_id.id] = q.qty
+                        else:
+                            lote_cantidad[q.lot_id.id] += q.qty
+                        q.lot_id.id
                 # Sin Tracking permite no validar Trazabilidad (cualquier Quant)
                 else:
                     # Se suda porque puede ser que no tengo stock de quants de su sucursal en la ubicacion de clientes y como no se valida trazabilidad no importa
                     quant_search = quant_obj.search(cr, SUPERUSER_ID, [('product_id', '=', move.product_id.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 for quant in quant_obj.browse(cr, SUPERUSER_ID, quant_search, context=context):
+                    lote = quant.lot_id
+                    cantidad = quant.qty
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
-                        if quant.lot_id:
-                            result1.append({'product_id': move.product_id.id, 'quantity': quant.qty, 'move_id': move.id, 'lot_id': quant.lot_id.id})
+                        if lote and tracking in ['lote_indivisible', 'serial']:
+                            result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id})
+                        elif lote and tracking == 'lot':
+                            if lote.id not in lote_result_ids:
+                                lote_result_ids.append(lote.id)
+                                if cantidad > lote_cantidad.get(lote.id, 0.0):
+                                    cantidad = lote_cantidad.get(lote.id, 0.0)
+                                result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id})
+                            else:
+                                for linea in result1:
+                                    if lote.id in linea.values():
+                                        linea['quantity'] += cantidad
+                                        if linea['quantity'] > lote_cantidad.get(lote.id, 0.0):
+                                            linea['quantity'] = lote_cantidad.get(lote.id, 0.0)
+                                        break
                         else:
-                            qty += quant.qty
+                            qty += cantidad
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
-                
                 if not validar_trazabilidad:
                     cantidad_restante = move.product_qty - move.cantidad_devuelta
                     if qty > cantidad_restante:
