@@ -55,8 +55,10 @@
             this.on('edit:after', this, function () {
                 self.$el.add(self.$buttons).addClass('oe_editing');
                 self.$('.ui-sortable').sortable('disable');
+                self.$('thead th').on('click', (e)=> { self._on_click_outside(e); });
             });
             this.on('save:after cancel:after', this, function () {
+                self.$('thead th').off('click', (e)=> { self._on_click_outside(e); });
                 self.$('.ui-sortable').sortable('enable');
                 self.$el.add(self.$buttons).removeClass('oe_editing');
             });
@@ -490,7 +492,9 @@
                      
                 });
             });
-
+            
+            instance.web.bus.on('click', this, this._on_click_outside);
+            
             this.editor.$el.on('keyup keypress keydown', function (e) {
                 if (!self.editor.is_editing()) { return true; }
                 var key = _($.ui.keyCode).chain()
@@ -533,6 +537,59 @@
         },
         keyup_ESCAPE: function (e) {
             return this.cancel_edition();
+        },
+        _on_click_outside: function(e) {
+            if(this.__ignore_blur || (this.editor && !this.editor.is_editing())) {
+                return;
+            }
+    
+            var $target = $(e.target);
+            var sort_after = false;
+            // If click on a button, a ui-autocomplete dropdown or modal-backdrop, it is not considered as a click outside
+            var click_outside = ($target.closest('.ui-autocomplete,.btn,.modal-backdrop').length === 0);
+            // Check if click inside the current list editable
+            var $o2m = $target.closest(".oe_list_editable");
+            if($o2m.length && $o2m[0] === this.el) {
+                if ($target.closest("thead th").length === 0){
+                    click_outside = false;
+                }else{
+                    sort_after = $target;
+                }
+            }
+    
+            // Check if click inside a modal which is on top of the current list editable
+            var $modal = $target.closest(".modal");
+            if($modal.length) {
+                var $currentModal = this.$el.closest(".modal");
+                if($currentModal.length === 0 || $currentModal[0] !== $modal[0]) {
+                    click_outside = false;
+                }
+            }
+            //console.log("ignore_blur: ", this.__ignore_blur, ", is_editing: ", (this.editor && this.editor.is_editing()), ", click_outside: ", click_outside);
+            
+            if (click_outside) {
+                this._on_form_blur(sort_after);
+            }
+        },
+        _on_form_blur: function (sort_after) {
+            if (this.__ignore_blur) {
+                this.__ignore_blur = false;
+                return;
+            }
+            // FIXME: why isn't there an API for this?
+            if (this.editor.form.$el.hasClass('oe_form_dirty')) {
+                this.ensure_saved().done(function(){
+                    if (sort_after){
+                        sort_after.click();
+                    }
+                });
+                return;
+            }
+            this.cancel_edition().done(function(){
+                if (sort_after){
+                    sort_after.click();
+                }
+            });
         },
         /**
          * Gets the selection range (start, end) for the provided element,
