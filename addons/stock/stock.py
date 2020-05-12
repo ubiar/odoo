@@ -2777,6 +2777,9 @@ class stock_move(osv.osv):
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
         uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
         uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
+        udd_qty = 0
+        if hasattr(move, 'cantidad_udd'):
+            udd_qty = float_round(uom_qty * move.cantidad_udd / move.product_uom_qty, precision_rounding=move.udd_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
@@ -2795,19 +2798,22 @@ class stock_move(osv.osv):
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():
             uop_qty = defaults['product_uop_qty']
+        if 'cantidad_udd' in defaults.keys():
+            udd_qty = defaults['cantidad_udd']
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
 
         ctx = context.copy()
         ctx['do_not_propagate'] = True
-        self.write(cr, uid, [move.id], {
+        write_vals = {
             'product_uom_qty': move.product_uom_qty - uom_qty,
             'product_uos_qty': move.product_uos_qty - uos_qty,
             'product_uop_qty': move.product_uop_qty - uop_qty,
-            
-        }, context=ctx)
-
+        }
+        if hasattr(move, 'cantidad_udd'):
+            write_vals['cantidad_udd'] = move.cantidad_udd - udd_qty
+        self.write(cr, uid, [move.id], write_vals, context=ctx)
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
             new_move_prop = self.split(cr, uid, move.move_dest_id, qty, context=context)
             self.write(cr, uid, [new_move], {'move_dest_id': new_move_prop}, context=context)
