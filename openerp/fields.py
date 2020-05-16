@@ -884,7 +884,7 @@ class Field(object):
         if config.get('log_level') == 'debug_function_fields':
             from openerp.addons import funciones
             if time.time() - inicio > 0.01:
-                _logger.warning(funciones.utils.formatear_tiempo('Campo calculado demasiado lento %s de %s' % (', '.join([f.name for f in self.computed_fields]), field.model_name), inicio))
+                _logger.warning(funciones.utils.formatear_tiempo('Campo calculado demasiado lento %s de %s con %s registros' % (', '.join([f.name for f in self.computed_fields]), field.model_name, len(records)), inicio))
         for field in self.computed_fields:
             records.env.computed[field].difference_update(records._ids)
             
