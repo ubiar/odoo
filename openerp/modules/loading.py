@@ -130,7 +130,8 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                 # hasta que no se pruebe por un tiempo
                 if not tools.config.get('servidor_produccion') and ir_upgrade_file and registry:
                     file_data = tools.misc.file_open(os.path.join(module_name, filename)).read()
-                    if '<function ' in file_data and False:
+                    # Ignoro las exportaciones y los querys ya que si no cambio el archivo no se tienen que ejecutar
+                    if '<function ' in file_data and '<function model="ir.interface.export"' not in file_data and '<function model="ir.query.export"' not in file_data:
                         tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
                         continue
                     new_file_hash = hashlib.md5(file_data).hexdigest()
