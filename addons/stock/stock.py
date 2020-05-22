@@ -1358,7 +1358,6 @@ class stock_picking(osv.osv):
         operations = []
         for op in picking.pack_operation_ids:
             if op.processed != 'true':
-                print 'No procesada'
                 operations.append(op)
         #sort the operations in order to give higher priority to those with a package, then a serial number
         operations = sorted(operations, key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
@@ -2348,7 +2347,16 @@ class stock_move(osv.osv):
         else:
             move = self.browse(cr, uid, move_ids, context=context)[0]
             values = self._prepare_picking_assign(cr, uid, move, context=context)
-            pick = pick_obj.create(cr, uid, values, context=context)
+            # Contexto que se envía al Create de stock_picking, al crear una NV en cuyas líneas se eligió nv_ruta_id que pertenece a un Depósito de otra Sucursal,
+            # diferente a la Sucursal de la NV (se crea la OE en una Sucursal diferente con un PDV diferente). Si no el create de stock_ubiar le pisa la Sucursal (con la del picking_type)
+            # y da error porque no coincide con la Sucursal del PDV
+            if values.get('no_pisar_sucursal_pdv'):
+                ctx = context.copy()
+                ctx.update({'no_pisar_sucursal_pdv': True})
+                values.pop('no_pisar_sucursal_pdv')
+                pick = pick_obj.create(cr, uid, values, context=ctx)
+            else:
+                pick = pick_obj.create(cr, uid, values, context=context)
         return self.write(cr, uid, move_ids, {'picking_id': pick}, context=context)
 
     def onchange_date(self, cr, uid, ids, date, date_expected, context=None):
