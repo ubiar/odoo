@@ -775,7 +775,7 @@ class groups_view(osv.osv):
             xml = E.field(*(xml1 + xml2), name="groups_id", position="replace")
             xml.addprevious(etree.Comment("GENERATED AUTOMATICALLY BY GROUPS"))
             xml_content = etree.tostring(xml, pretty_print=True, xml_declaration=True, encoding="utf-8")
-            view.write({'arch': xml_content})
+            view.write_sql({'arch': xml_content})
         return True
 
     def get_application_groups(self, cr, uid, domain=None, context=None):
