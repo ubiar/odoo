@@ -1358,7 +1358,6 @@ class stock_picking(osv.osv):
         operations = []
         for op in picking.pack_operation_ids:
             if op.processed != 'true':
-                print 'No procesada'
                 operations.append(op)
         #sort the operations in order to give higher priority to those with a package, then a serial number
         operations = sorted(operations, key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
