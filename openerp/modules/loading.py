@@ -128,12 +128,8 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                 # Se realizo una optimización para no volver a cargar las vistas que no se modificaron y de esa manera
                 # actualizar el sistema mas rapido, por el momento no se habilita en los servidores de producción
                 # hasta que no se pruebe por un tiempo
-                if not tools.config.get('servidor_produccion') and ir_upgrade_file and registry:
+                if tools.config.get('fast_update') and not tools.config.get('servidor_produccion') and ir_upgrade_file and registry:
                     file_data = tools.misc.file_open(os.path.join(module_name, filename)).read()
-                    # Ignoro las exportaciones y los querys ya que si no cambio el archivo no se tienen que ejecutar
-                    if '<function ' in file_data and '<function model="ir.interface.export"' not in file_data and '<function model="ir.query.export"' not in file_data:
-                        tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
-                        continue
                     new_file_hash = hashlib.md5(file_data).hexdigest()
                     file_data_id = file_hash = file_loads = False
                     cr.execute("SELECT id, file_hash, loads FROM ir_upgrade_file WHERE modulo = %s and archivo=%s LIMIT 1", (module_name, filename))
@@ -237,8 +233,11 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                     getattr(py_module, post_init)(cr, registry)
 
             registry._init_modules.add(package.name)
-            # validate all the views at a whole
-            registry['ir.ui.view']._validate_module_views(cr, SUPERUSER_ID, module_name)
+            
+            # Si utiliza fast_update y no esta en produccion no vuelvo a controlar las vistas del modulo
+            if not tools.config.get('fast_update') or tools.config.get('servidor_produccion'):
+                # validate all the views at a whole
+                registry['ir.ui.view']._validate_module_views(cr, SUPERUSER_ID, module_name)
 
             if has_demo:
                 # launch tests only in demo mode, allowing tests to use demo data.
@@ -257,6 +256,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
             ver = adapt_version(package.data['version'])
             # Set new modules and dependencies
             modobj.write(cr, SUPERUSER_ID, [module_id], {'state': 'installed', 'latest_version': ver})
+            
             # Update translations for all installed languages
             modobj.update_translations(cr, SUPERUSER_ID, [module_id], None, {'overwrite': openerp.tools.config["overwrite_existing_translations"]})
 
