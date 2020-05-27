@@ -434,8 +434,11 @@ class mail_thread(osv.AbstractModel):
 
         # Perform the tracking
         if tracked_fields:
-            self.message_track(cr, uid, ids, tracked_fields, initial_values, context=track_ctx)
-
+            try:
+                self.message_track(cr, uid, ids, tracked_fields, initial_values, context=track_ctx)
+            except Exception, e:
+                pass
+        
         # update followers
         self.message_auto_subscribe(cr, uid, ids, values.keys(), context=context, values=values)
 
