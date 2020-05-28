@@ -44,6 +44,10 @@ from openerp.modules.module import initialize_sys_path, \
     load_openerp_module, init_module_models, adapt_version
 from module import runs_post_install
 
+import hashlib
+import cPickle
+import base64
+
 _logger = logging.getLogger(__name__)
 _test_logger = logging.getLogger('openerp.tests')
 
@@ -97,7 +101,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                     )
         return files
 
-    def _load_data(cr, module_name, idref, mode, kind):
+    def _load_data(cr, module_name, idref, mode, kind, registry=False):
         """
 
         kind: data, demo, test, init_xml, update_xml, demo_xml.
@@ -109,13 +113,50 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         try:
             if kind in ('demo', 'test'):
                 threading.currentThread().testing = True
+                
+            ir_upgrade_file = False
+            cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_upgrade_file' LIMIT 1")
+            if cr.fetchone():
+                ir_upgrade_file = True
             for filename in _get_files_of_kind(kind):
                 _logger.info("loading %s/%s", module_name, filename)
+                # continue
                 noupdate = False
                 if kind in ('demo', 'demo_xml') or (filename.endswith('.csv') and kind in ('init', 'init_xml')):
                     noupdate = True
                 threading.currentThread().last_path_file = os.path.join(module_name, filename)
-                tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
+                # Se realizo una optimización para no volver a cargar las vistas que no se modificaron y de esa manera
+                # actualizar el sistema mas rapido, por el momento no se habilita en los servidores de producción
+                # hasta que no se pruebe por un tiempo
+                if tools.config.get('fast_update') and not tools.config.get('servidor_produccion') and ir_upgrade_file and registry:
+                    file_data = tools.misc.file_open(os.path.join(module_name, filename)).read()
+                    new_file_hash = hashlib.md5(file_data).hexdigest()
+                    file_data_id = file_hash = file_loads = False
+                    cr.execute("SELECT id, file_hash, loads FROM ir_upgrade_file WHERE modulo = %s and archivo=%s LIMIT 1", (module_name, filename))
+                    file_data_res = cr.fetchone()
+                    if file_data_res:
+                        file_data_id = file_data_res[0]
+                        file_hash = file_data_res[1]
+                        file_loads = file_data_res[2]
+                    if file_data_id and file_loads and file_hash == new_file_hash:
+                        data_ref = cPickle.loads(str(base64.b64decode(file_loads)))
+                        registry['ir.model.data'].loads.update(data_ref)
+                        registry['ir.model.data'].pool.model_data_reference_ids.update(data_ref)
+                    else:
+                        loads_before = registry['ir.model.data'].loads.copy()
+                        tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
+                        loads_file = {}
+                        loads_file_keys = list(set(registry['ir.model.data'].loads.keys()) - set(loads_before.keys()))
+                        if loads_file_keys:
+                            for key, val in registry['ir.model.data'].loads.items():
+                                if key in loads_file_keys:
+                                    loads_file[key] = val
+                        if file_data_id:
+                            cr.execute("UPDATE ir_upgrade_file SET file_hash=%s, loads=%s WHERE id = %s", (new_file_hash, base64.b64encode(cPickle.dumps(loads_file)), file_data_id))
+                        else:
+                            cr.execute("INSERT INTO ir_upgrade_file (modulo, archivo, file_hash, loads) VALUES (%s, %s, %s, %s)", (module_name, filename, new_file_hash, base64.b64encode(cPickle.dumps(loads_file))))
+                else:
+                    tools.convert_file(cr, module_name, filename, idref, mode, noupdate, kind, report)
         finally:
             if kind in ('demo', 'test'):
                 threading.currentThread().testing = False
@@ -177,10 +218,10 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
             if package.state=='to upgrade':
                 # upgrading the module information
                 modobj.write(cr, SUPERUSER_ID, [module_id], modobj.get_values_from_terp(package.data))
-            _load_data(cr, module_name, idref, mode, kind='data')
+            _load_data(cr, module_name, idref, mode, kind='data', registry=registry)
             has_demo = hasattr(package, 'demo') or (package.dbdemo and package.state != 'installed')
             if has_demo:
-                _load_data(cr, module_name, idref, mode, kind='demo')
+                _load_data(cr, module_name, idref, mode, kind='demo', registry=registry)
                 cr.execute('update ir_module_module set demo=%s where id=%s', (True, module_id))
                 modobj.invalidate_cache(cr, SUPERUSER_ID, ['demo'], [module_id])
 
@@ -192,8 +233,11 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
                     getattr(py_module, post_init)(cr, registry)
 
             registry._init_modules.add(package.name)
-            # validate all the views at a whole
-            registry['ir.ui.view']._validate_module_views(cr, SUPERUSER_ID, module_name)
+            
+            # Si utiliza fast_update y no esta en produccion no vuelvo a controlar las vistas del modulo
+            if not tools.config.get('fast_update') or tools.config.get('servidor_produccion'):
+                # validate all the views at a whole
+                registry['ir.ui.view']._validate_module_views(cr, SUPERUSER_ID, module_name)
 
             if has_demo:
                 # launch tests only in demo mode, allowing tests to use demo data.
@@ -212,6 +256,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
             ver = adapt_version(package.data['version'])
             # Set new modules and dependencies
             modobj.write(cr, SUPERUSER_ID, [module_id], {'state': 'installed', 'latest_version': ver})
+            
             # Update translations for all installed languages
             modobj.update_translations(cr, SUPERUSER_ID, [module_id], None, {'overwrite': openerp.tools.config["overwrite_existing_translations"]})
 
