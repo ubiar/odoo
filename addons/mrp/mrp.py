@@ -1247,7 +1247,7 @@ class mrp_production(osv.osv):
                                                                                                      location_dest_id=destination_location_id, context=context), #Make_to_stock avoids creating procurement
             'raw_material_production_id': production.id,
             #this saves us a browse in create()
-            'price_unit': product.standard_price,
+            # 'price_unit': product.standard_price, # Comentado por Ubiar porque evitaba el correcto funcionamiento del attribute_price()
             'origin': production.name,
             'warehouse_id': loc_obj.get_warehouse(cr, uid, production.location_src_id, context=context),
             'group_id': production.move_prod_id.group_id.id,
