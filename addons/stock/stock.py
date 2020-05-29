@@ -2347,7 +2347,16 @@ class stock_move(osv.osv):
         else:
             move = self.browse(cr, uid, move_ids, context=context)[0]
             values = self._prepare_picking_assign(cr, uid, move, context=context)
-            pick = pick_obj.create(cr, uid, values, context=context)
+            # Contexto que se envía al Create de stock_picking, al crear una NV en cuyas líneas se eligió nv_ruta_id que pertenece a un Depósito de otra Sucursal,
+            # diferente a la Sucursal de la NV (se crea la OE en una Sucursal diferente con un PDV diferente). Si no el create de stock_ubiar le pisa la Sucursal (con la del picking_type)
+            # y da error porque no coincide con la Sucursal del PDV
+            if values.get('no_pisar_sucursal_pdv'):
+                ctx = context.copy()
+                ctx.update({'no_pisar_sucursal_pdv': True})
+                values.pop('no_pisar_sucursal_pdv')
+                pick = pick_obj.create(cr, uid, values, context=ctx)
+            else:
+                pick = pick_obj.create(cr, uid, values, context=context)
         return self.write(cr, uid, move_ids, {'picking_id': pick}, context=context)
 
     def onchange_date(self, cr, uid, ids, date, date_expected, context=None):
@@ -2516,7 +2525,7 @@ class stock_move(osv.osv):
 
         #force assignation of consumable products and incoming from supplier/inventory/production
         if to_assign_moves:
-            self.force_assign(cr, uid, to_assign_moves, context=context)
+            self.force_assign(cr, uid, list(set(to_assign_moves)), context=context)
 
     def action_cancel(self, cr, uid, ids, context=None):
         """ Cancels the moves and if all moves are cancelled it cancels the picking.
@@ -2777,6 +2786,9 @@ class stock_move(osv.osv):
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
         uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
         uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
+        udd_qty = 0
+        if hasattr(move, 'cantidad_udd'):
+            udd_qty = float_round(uom_qty * move.cantidad_udd / move.product_uom_qty, precision_rounding=move.udd_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
@@ -2795,19 +2807,22 @@ class stock_move(osv.osv):
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():
             uop_qty = defaults['product_uop_qty']
+        if 'cantidad_udd' in defaults.keys():
+            udd_qty = defaults['cantidad_udd']
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
 
         ctx = context.copy()
         ctx['do_not_propagate'] = True
-        self.write(cr, uid, [move.id], {
+        write_vals = {
             'product_uom_qty': move.product_uom_qty - uom_qty,
             'product_uos_qty': move.product_uos_qty - uos_qty,
             'product_uop_qty': move.product_uop_qty - uop_qty,
-            
-        }, context=ctx)
-
+        }
+        if hasattr(move, 'cantidad_udd'):
+            write_vals['cantidad_udd'] = move.cantidad_udd - udd_qty
+        self.write(cr, uid, [move.id], write_vals, context=ctx)
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
             new_move_prop = self.split(cr, uid, move.move_dest_id, qty, context=context)
             self.write(cr, uid, [new_move], {'move_dest_id': new_move_prop}, context=context)

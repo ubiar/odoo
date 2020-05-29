@@ -354,9 +354,10 @@ class ir_model_fields(osv.osv):
                     cr.execute('DROP TABLE IF EXISTS "%s"' % (rel_name))
                 except Exception, e:
                     return True
-            
-            model._pop_field(field.name)
-
+            try:
+                model._pop_field(field.name)
+            except Exception, e:
+                pass
         return True
 
     def unlink(self, cr, user, ids, context=None):

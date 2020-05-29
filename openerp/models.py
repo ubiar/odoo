@@ -1334,7 +1334,10 @@ class BaseModel(object):
 
         defaults = {}
         parent_fields = defaultdict(list)
-
+        
+        # Se movio aca para que no se ejecute una vez por cada campo
+        action_id = self._context.get('params') and self._context.get('params').get('action')
+        ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
         for name in fields_list:
             # 1. look up context
             key = 'default_' + name
@@ -1344,8 +1347,6 @@ class BaseModel(object):
 
             # 2. look up ir_values
             #    Note: performance is good, because get_defaults_dict is cached!
-            action_id = self._context.get('params') and self._context.get('params').get('action')
-            ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
             if name in ir_values_dict:
                 defaults[name] = ir_values_dict[name]
                 continue
@@ -1380,11 +1381,10 @@ class BaseModel(object):
             if field and field.inherited:
                 field = field.related_field
                 parent_fields[field.model_name].append(field.name)
-
+        
         # convert default values to the right format
         defaults = self._convert_to_cache(defaults, validate=False)
         defaults = self._convert_to_write(defaults)
-
         # add default values for inherited fields
         for model, names in parent_fields.iteritems():
             defaults.update(self.env[model].default_get(names))
