@@ -154,7 +154,10 @@ class ir_property(osv.osv):
         if domain is not None:
             domain = [('res_id', '=', res_id)] + domain
             #make the search with company_id asc to make sure that properties specific to a company are given first
-            nid = self.search(cr, uid, domain, limit=1, order='company_id asc', context=context)
+            order = 'company_id asc'
+            if 'subcompania_id' in self:
+                order = 'company_id asc, subcompania_id asc'
+            nid = self.search(cr, uid, domain, limit=1, order=order, context=context)
             if not nid: return False
             record = self.browse(cr, uid, nid[0], context=context)
             return self.get_by_record(cr, uid, record, context=context)
@@ -171,8 +174,11 @@ class ir_property(osv.osv):
         if not cid:
             company = self.pool.get('res.company')
             cid = company._company_default_get(cr, uid, model, res[0], context=context)
-
-        return [('fields_id', '=', res[0]), ('company_id', 'in', [cid, False])]
+        domain = [('fields_id', '=', res[0]), ('company_id', 'in', [cid, False])]
+        if 'ir.model.field.subcompania' in self.pool and self.pool.get('ir.model.field.subcompania').search(cr, uid, [('modelo', '=', model), ('campo', '=', prop_name)]):
+            user = self.pool.get('res.users').browse(cr, uid, uid)
+            domain += [('subcompania_id', '=', user.subcompania_id.id)]
+        return domain
 
     @api.model
     def get_multi(self, name, model, ids):
@@ -191,9 +197,12 @@ class ir_property(osv.osv):
         refs = {('%s,%s' % (model, id)): id for id in ids}
         refs[False] = False
         domain += [('res_id', 'in', list(refs))]
-
+        
         # note: order by 'company_id asc' will return non-null values first
-        props = self.search(domain, order='company_id asc')
+        order = 'company_id asc'
+        if 'subcompania_id' in self:
+            order = 'company_id asc, subcompania_id asc'
+        props = self.search(domain, order=order)
         result = {}
         for prop in props:
             # for a given res_id, take the first property only
@@ -231,11 +240,17 @@ class ir_property(osv.osv):
         field_id = self._cr.fetchone()[0]
         company_id = self.env.context.get('force_company') or self.env['res.company']._company_default_get(model, field_id)
         refs = {('%s,%s' % (model, id)): id for id in values}
-        props = self.search([
+        domain = [
             ('fields_id', '=', field_id),
             ('company_id', '=', company_id),
             ('res_id', 'in', list(refs)),
-        ])
+        ]
+        user = self.env.user
+        filtrar_por_subcompania = False
+        if 'ir.model.field.subcompania' in self.env and self.env['ir.model.field.subcompania'].search([('modelo', '=', model), ('campo', '=', name)]):
+            filtrar_por_subcompania = True
+            domain += [('subcompania_id', '=', user.subcompania_id.id)]
+        props = self.search(domain)
 
         # modify existing properties
         for prop in props:
@@ -250,14 +265,17 @@ class ir_property(osv.osv):
         for ref, id in refs.iteritems():
             value = clean(values[id])
             if value != default_value:
-                self.create({
+                vals = {
                     'fields_id': field_id,
                     'company_id': company_id,
                     'res_id': ref,
                     'name': name,
                     'value': value,
                     'type': self.env[model]._fields[name].type,
-                })
+                }
+                if filtrar_por_subcompania:
+                    vals['subcompania_id'] = user.subcompania_id.id
+                self.create(vals)
 
     @api.model
     def search_multi(self, name, model, operator, value):
