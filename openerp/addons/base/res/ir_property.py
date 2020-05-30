@@ -175,7 +175,7 @@ class ir_property(osv.osv):
             company = self.pool.get('res.company')
             cid = company._company_default_get(cr, uid, model, res[0], context=context)
         domain = [('fields_id', '=', res[0]), ('company_id', 'in', [cid, False])]
-        if 'ir.model.field.subcompania' in self.pool and self.pool.get('ir.model.field.subcompania').search(cr, uid, [('modelo', '=', model), ('campo', '=', prop_name)]):
+        if 'subcompania_id' in self and self.pool.get('ir.model.field.subcompania').search(cr, uid, [('modelo', '=', model), ('campo', '=', prop_name)]):
             user = self.pool.get('res.users').browse(cr, uid, uid)
             domain += [('subcompania_id', '=', user.subcompania_id.id)]
         return domain
@@ -247,7 +247,7 @@ class ir_property(osv.osv):
         ]
         user = self.env.user
         filtrar_por_subcompania = False
-        if 'ir.model.field.subcompania' in self.env and self.env['ir.model.field.subcompania'].search([('modelo', '=', model), ('campo', '=', name)]):
+        if 'subcompania_id' in self and self.env['ir.model.field.subcompania'].search([('modelo', '=', model), ('campo', '=', name)]):
             filtrar_por_subcompania = True
             domain += [('subcompania_id', '=', user.subcompania_id.id)]
         props = self.search(domain)
