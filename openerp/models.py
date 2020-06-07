@@ -2062,6 +2062,10 @@ class BaseModel(object):
                 qualified_field = "date_trunc('%s', %s)" % (gb_function or 'month', qualified_field)
         if field_type == 'boolean':
             qualified_field = "coalesce(%s,false)" % qualified_field
+        field = self._fields[split[0]]
+        if field.related:
+            related_model = self.pool.get(field.related_field.model_name)._table
+            qualified_field = qualified_field.replace('"%s"."%s"' % (self._table, field.name), "(SELECT %(field)s FROM %(related_model)s WHERE id = %(table)s.%(field_related)s)" % {'field': field.related[1], 'table': self._table, 'related_model': related_model, 'field_related': field.related[0]})
         return {
             'field': split[0],
             'groupby': gb,
@@ -2174,7 +2178,7 @@ class BaseModel(object):
         for gb in groupby_fields:
             assert gb in fields, "Fields in 'groupby' must appear in the list of fields to read (perhaps it's missing in the list view?)"
             groupby_def = self._columns.get(gb) or (self._inherit_fields.get(gb) and self._inherit_fields.get(gb)[2])
-            assert groupby_def and groupby_def._classic_write, "Fields in 'groupby' must be regular database-persisted fields (no function or related fields), or function fields with store=True"
+            assert (groupby_def and groupby_def._classic_write) or self._fields[gb].related, "Fields in 'groupby' must be regular database-persisted fields (no function or related fields), or function fields with store=True"
             if not (gb in self._fields):
                 # Don't allow arbitrary values, as this would be a SQL injection vector!
                 raise UserError(_('Invalid group_by specification: "%s".\nA group_by specification must be a list of valid fields.') % (gb,))
@@ -2204,7 +2208,7 @@ class BaseModel(object):
 
         prefix_terms = lambda prefix, terms: (prefix + " " + ",".join(terms)) if terms else ''
         prefix_term = lambda prefix, term: ('%s %s' % (prefix, term)) if term else ''
-
+        
         query = """
             SELECT min(%(table)s.id) AS id, count(%(table)s.id) AS %(count_field)s %(extra_fields)s
             FROM %(from)s
