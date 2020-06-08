@@ -4173,11 +4173,13 @@ instance.web.form.FieldOne2Many = instance.web.form.AbstractField.extend({
             if (self.field.views && self.field.views[mode]) {
                 view.embedded_view = self.field.views[mode];
             }
+            var sortable = true;
+            if (_.isObject(self.options) && _.has(self.options, 'sortable') && (self.options.sortable === false || self.options.sortable === 0)) sortable = false;
             if(view.view_type === "list") {
                 _.extend(view.options, {
                     addable: null,
                     selectable: self.multi_selection,
-                    sortable: true,
+                    sortable: sortable,
                     import_enabled: false,
                     deletable: true
                 });
