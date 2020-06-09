@@ -217,7 +217,7 @@ class ir_ui_menu(osv.osv):
             context=context)
         values_action = {}
         for value in ir_values_obj.browse(cursor, user, value_ids, context=context):
-            if value.value and len(value.value.split(',')) == 2 and self.pool.get(value.value.split(',')[0]) and self.pool.get(value.value.split(',')[0]).search(cursor, SUPERUSER_ID, [('id', '=', value.value.split(',')[1])]):
+            if value.value and len(value.value.split(',')) == 2 and value.value.split(',')[1] and self.pool.get(value.value.split(',')[0]) and self.pool.get(value.value.split(',')[0]).search(cursor, SUPERUSER_ID, [('id', '=', value.value.split(',')[1])]):
                 values_action[value.res_id] = value.value
         for menu_id in ids:
             res[menu_id] = values_action.get(menu_id, False)
