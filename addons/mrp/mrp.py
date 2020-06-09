@@ -186,7 +186,8 @@ class mrp_bom(osv.osv):
         'date_stop': fields.date('Valid Until', help="Validity of this BoM. Keep empty if it's always valid."),
         'sequence': fields.integer('Sequence', help="Gives the sequence order when displaying a list of bills of material."),
         'routing_id': fields.many2one('mrp.routing', 'Routing', help="The list of operations (list of work centers) to produce the finished product. "\
-                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."),
+                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."\
+                "Si se definine un Proceso Productivo, no se permitirá modificarlo en la OPR si se selecciona esta Lista"),
         'product_rounding': fields.float('Product Rounding', help="Rounding applied on the product quantity."),
         'product_efficiency': fields.float('Manufacturing Efficiency', required=True, help="A factor of 0.9 means a loss of 10% during the production process."),
         'property_ids': fields.many2many('mrp.property', string='Properties'),
