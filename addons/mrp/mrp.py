@@ -186,7 +186,8 @@ class mrp_bom(osv.osv):
         'date_stop': fields.date('Valid Until', help="Validity of this BoM. Keep empty if it's always valid."),
         'sequence': fields.integer('Sequence', help="Gives the sequence order when displaying a list of bills of material."),
         'routing_id': fields.many2one('mrp.routing', 'Routing', help="The list of operations (list of work centers) to produce the finished product. "\
-                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."),
+                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."\
+                "Si se definine un Proceso Productivo, no se permitirá modificarlo en la OPR si se selecciona esta Lista"),
         'product_rounding': fields.float('Product Rounding', help="Rounding applied on the product quantity."),
         'product_efficiency': fields.float('Manufacturing Efficiency', required=True, help="A factor of 0.9 means a loss of 10% during the production process."),
         'property_ids': fields.many2many('mrp.property', string='Properties'),
@@ -1247,7 +1248,7 @@ class mrp_production(osv.osv):
                                                                                                      location_dest_id=destination_location_id, context=context), #Make_to_stock avoids creating procurement
             'raw_material_production_id': production.id,
             #this saves us a browse in create()
-            'price_unit': product.standard_price,
+            # 'price_unit': product.standard_price, # Comentado por Ubiar porque evitaba el correcto funcionamiento del attribute_price()
             'origin': production.name,
             'warehouse_id': loc_obj.get_warehouse(cr, uid, production.location_src_id, context=context),
             'group_id': production.move_prod_id.group_id.id,
