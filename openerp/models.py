@@ -786,7 +786,11 @@ class BaseModel(object):
                     _logger.warning("@onchange%r parameters must be field names", func._onchange)
                 methods[name].append(func)
 
-        methods.update(self._onchange_methods_usuario())
+        for field, functios in self._onchange_methods_usuario().items():
+            if field not in methods.keys():
+                methods[field] = functios
+            else:
+                methods[field] += functios
 
         # optimization: memoize result on cls, it will not be recomputed
         cls._onchange_methods = methods
