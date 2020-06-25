@@ -62,7 +62,7 @@ from . import SUPERUSER_ID
 from . import api
 from . import tools
 from .api import Environment
-from .exceptions import AccessError, MissingError, ValidationError, UserError
+from .exceptions import AccessError, MissingError, ValidationError, Warning, UserError
 from .osv import fields
 from .osv.query import Query
 from .tools import frozendict, lazy_property, ormcache
@@ -1314,6 +1314,9 @@ class BaseModel(object):
                 try:
                     check(self)
                 except ValidationError, e:
+                    _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
+                    raise
+                except Warning, e:
                     _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
                     raise
                 except Exception, e:
