@@ -674,6 +674,7 @@ class Environment(object):
         structure to manage recomputations.
     """
     _local = Local()
+    computed_onchange_fields = []
 
     @classproperty
     def envs(cls):
@@ -716,6 +717,7 @@ class Environment(object):
         self.cache = defaultdict(dict)      # {field: {id: value, ...}, ...}
         self.prefetch = defaultdict(set)    # {model_name: set(id), ...}
         self.computed = defaultdict(set)    # {field: set(id), ...}
+        self.computed_onchange_fields = []  # Campos ya calculados en un onchange
         self.dirty = defaultdict(set)       # {record: set(field_name), ...}
         self.all = envs
         envs.add(self)

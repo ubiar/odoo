@@ -21,10 +21,11 @@
 import time
 
 from openerp import SUPERUSER_ID
-from openerp import tools
+from openerp import tools, _
 from openerp.osv import fields, osv, expression
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.tools.misc import unquote as unquote
+from openerp.exceptions import except_orm, Warning, RedirectWarning, ValidationError
 
 class ir_rule(osv.osv):
     _name = 'ir.rule'
@@ -133,6 +134,8 @@ class ir_rule(osv.osv):
             for rule in self.browse(cr, SUPERUSER_ID, rule_ids):
                 if context and context.get('disable_rules') and rule.code and rule.code in context.get('disable_rules'):
                     continue
+                if context and context.get('disable_rules_ids') and type(context.get('disable_rules_ids')) == list and rule.id in context.get('disable_rules_ids'):
+                    continue
                 # read 'domain' as UID to have the correct eval context for the rule.
                 rule_domain = self.read(cr, uid, [rule.id], ['domain'], context={'rule_mode': mode})[0]['domain']
                 dom = expression.normalize_domain(rule_domain)
@@ -157,14 +160,17 @@ class ir_rule(osv.osv):
         self._compute_domain.clear_cache(self)
 
     def domain_get(self, cr, uid, model_name, mode='read', context=None):
-        dom = self._compute_domain(cr, uid, model_name, mode, context)
-        if dom:
-            # _where_calc is called as superuser. This means that rules can
-            # involve objects on which the real uid has no acces rights.
-            # This means also there is no implicit restriction (e.g. an object
-            # references another object the user can't see).
-            query = self.pool[model_name]._where_calc(cr, SUPERUSER_ID, dom, active_test=False)
-            return query.where_clause, query.where_clause_params, query.tables
+        try:
+            dom = self._compute_domain(cr, uid, model_name, mode, context)
+            if dom:
+                # _where_calc is called as superuser. This means that rules can
+                # involve objects on which the real uid has no acces rights.
+                # This means also there is no implicit restriction (e.g. an object
+                # references another object the user can't see).
+                query = self.pool[model_name]._where_calc(cr, SUPERUSER_ID, dom, active_test=False)
+                return query.where_clause, query.where_clause_params, query.tables
+        except Exception, e:
+            raise Warning(_("Hubo un error al procesar las reglas %s del modelo %s, por favor contactese con el Administrador\n%s") % (mode, model_name, e))
         return [], [], ['"' + self.pool[model_name]._table + '"']
 
     def unlink(self, cr, uid, ids, context=None):

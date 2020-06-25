@@ -857,6 +857,8 @@ class account_invoice(models.Model):
                     ctx['anticipo_val'] = inv.anticipo_val
                 else:
                     ctx['anticipo_val'] = inv.amount_untaxed * (inv.anticipo_porc / 100)
+                if 'anticipo_impuestos' in inv:
+                    ctx['anticipo_val'] = ctx.get('anticipo_val') + inv.anticipo_impuestos
                 totlines = inv.with_context(ctx).payment_term.compute(total, date_invoice)[0]
             if totlines:
                 res_amount_currency = total_currency
@@ -1608,10 +1610,10 @@ class account_invoice_tax(models.Model):
                 val = {
                     'invoice_id': invoice.id,
                     'name': tax['name'],
-                    'amount': tax['amount'],
+                    'amount': currency.round(tax['amount']),
                     'manual': False,
                     'sequence': tax['sequence'],
-                    'base': tax['price_unit'] * line['quantity'],
+                    'base': currency.round(tax['price_unit'] * line['quantity']),
                 }
                 
                 if invoice.type in ('out_invoice','in_invoice'):

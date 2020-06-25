@@ -446,7 +446,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
 
                     if( model.model ){
                         if (model.ids) {
-                            var records = new instance.web.Model(model.model).call('read',[ids,fields],context);
+                            var records = new instance.web.Model(model.model).call('read',[ids,fields],{'context': context});
                         } else {
                             var records = new instance.web.Model(model.model).query(fields).filter(domain).order_by(order).context(context).all()
                         }

@@ -55,6 +55,12 @@ def float_round(value, precision_digits=None, precision_rounding=None, rounding_
     # cuando en realidad era 12.0, para evitar estos casos se redondea a 8 decimales
     if rounding_method == 'UP':
         value = round(value, 8)
+    else:
+        # Si no se redondea a 12 decimales porque al tener demasadios decimales puede dar un error en
+        # math.log(abs(normalized_value), 2)
+        value = round(value, 12)
+    if not value:
+        return 0.0
 
     # NORMALIZE - ROUND - DENORMALIZE
     # In order to easily support rounding to arbitrary 'steps' (e.g. coin values),

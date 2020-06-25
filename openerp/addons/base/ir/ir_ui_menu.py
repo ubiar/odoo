@@ -27,7 +27,7 @@ import threading
 
 import openerp.modules
 from openerp.osv import fields, osv
-from openerp import api, tools
+from openerp import api, tools, SUPERUSER_ID
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.tools.translate import _
 
@@ -217,7 +217,8 @@ class ir_ui_menu(osv.osv):
             context=context)
         values_action = {}
         for value in ir_values_obj.browse(cursor, user, value_ids, context=context):
-            values_action[value.res_id] = value.value
+            if value.value and len(value.value.split(',')) == 2 and value.value.split(',')[1] not in [False, 'False'] and self.pool.get(value.value.split(',')[0]) and self.pool.get(value.value.split(',')[0]).search(cursor, SUPERUSER_ID, [('id', '=', value.value.split(',')[1])]):
+                values_action[value.res_id] = value.value
         for menu_id in ids:
             res[menu_id] = values_action.get(menu_id, False)
         return res
@@ -303,6 +304,7 @@ class ir_ui_menu(osv.osv):
     def _filter_menu(self, menus, groups):
         return menus.filtered(lambda menu: not menu.groups_id or menu.groups_id & groups)
 
+    @api.depends('sequence')
     def _get_menu_de_usuario(self):
         """ Chequea si el menuitem es de usuario o de sistema
         """
@@ -485,7 +487,7 @@ class ir_ui_menu(osv.osv):
                 ('ir.bi.powerbi.consulta', 'ir.bi.powerbi.consulta'),
             ]),
     }
-    menu_de_usuario = openerp.fields.Boolean('Menu de Usuario', compute=_get_menu_de_usuario)
+    menu_de_usuario = openerp.fields.Boolean('Menu de Usuario', compute=_get_menu_de_usuario, store=True)
 
     def _rec_message(self, cr, uid, ids, context=None):
         return _('Error ! You can not create recursive Menu.')

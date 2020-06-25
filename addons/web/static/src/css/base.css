@@ -258,7 +258,7 @@
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-.openerp a.button.disabled, .openerp .oe_button:disabled, .openerp input[type='submit']:disabled {
+.openerp a.button.disabled, .openerp .oe_button:disabled, .openerp .oe_button.disabled, .openerp input[type='submit']:disabled {
   background: #efefef !important;
   border: 1px solid #d1d1d1 !important;
   -moz-box-shadow: none !important;
@@ -3280,10 +3280,16 @@ body.oe_single_form .oe_single_form_container {
   position: static !important;
 }
 
+.modal.in > div > div > div.modal-body.oe_act_window > div > div > div.oe-view-manager-content > div.oe-view-manager-view-list{
+  max-height: calc(100vh - 270px);
+}
 @media (min-width: 768px) {
   .modal .modal-body {
     max-height: -webkit-calc(100vh - 170px);
     max-height: calc(100vh - 170px);
+  }
+  .modal.in > div > div > div.modal-body.oe_act_window > div > div > div.oe-view-manager-content > div.oe-view-manager-view-list {
+    max-height: calc(100vh - 300px);
   }
 }
 .ui-datepicker {

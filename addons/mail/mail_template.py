@@ -506,12 +506,15 @@ class mail_template(osv.osv):
                 # add company signature
                 if 'body_html' in fields:
                     user = self.pool.get('res.users').browse(cr, uid, request and request.uid or uid, context)
-                    if user.company_id.website:
-                        website_url = ('http://%s' % user.company_id.website) if not user.company_id.website.lower().startswith(('http:', 'https:')) \
-                            else user.company_id.website
-                        company = "<a target='_blank' style='color:#7C7BAD' href='%s'>%s</a>" % (website_url, user.company_id.name)
+                    company_obj = user.company_id
+                    if hasattr(user, 'subcompania_id'):
+                        company_obj = user.subcompania_id
+                    if company_obj.website:
+                        website_url = ('http://%s' % company_obj.website) if not company_obj.website.lower().startswith(('http:', 'https:')) \
+                            else company_obj.website
+                        company = "<a target='_blank' style='color:#7C7BAD' href='%s'>%s</a>" % (website_url, company_obj.name)
                     else:
-                        company = user.company_id.name
+                        company = company_obj.name
                     sent_by = _('Enviado por %(company)s mediante %(odoo)s')
                     signature_company = '<br /><br /><small>%s</small>' % (sent_by % {
                         'company': company,

@@ -525,21 +525,21 @@
     <ul class="dropdown-menu" role="menu">
         <t t-if="view_manager.active_view.type === 'form'">
             <li><a data-action="get_metadata">View Metadata</a></li>
-            <li><a data-action="toggle_layout_outline">Toggle Form Layout Outline</a></li>
+            <!--<li><a data-action="toggle_layout_outline">Toggle Form Layout Outline</a></li>-->
             <li><a data-action="set_defaults">Set Defaults</a></li>
         </t>
-        <li><a data-action="tests">JS Tests</a></li>
-        <li><a data-action="fields">View Fields</a></li>
+        <!--<li><a data-action="tests">JS Tests</a></li>-->
+        <!--<li><a data-action="fields">View Fields</a></li>-->
         <li><a data-action="fvg">Fields View Get</a></li>
         <li><a data-action="manage_filters">Manage Filters</a></li>
         <t t-if="is_admin">
             <li><a data-action="translate">Technical Translation</a></li>
-            <li><a data-action="manage_views">Manage Views</a></li>
+            <!--<li><a data-action="manage_views">Manage Views</a></li>-->
             <li><a data-action="edit" data-model="ir.ui.view" t-att-data-id="view.fields_view.view_id">Edit <t t-esc="_.str.capitalize(view.fields_view.type)"/> View</a></li>
             <li t-if="view_manager.searchview"><a data-action="edit" data-model="ir.ui.view" t-att-data-id="view_manager.searchview.view_id">Edit SearchView</a></li>
             <li t-if="view_manager.action"><a data-action="edit" t-att-data-model="view_manager.action.type" t-att-data-id="view_manager.action.id">Edit Action</a></li>
-            <li><a data-action="edit_workflow">Edit Workflow</a></li>
-            <li><a data-action="print_workflow">Print Workflow</a></li>
+            <!--<li><a data-action="edit_workflow">Edit Workflow</a></li>-->
+            <!--<li><a data-action="print_workflow">Print Workflow</a></li>-->
             <li class="divider"/>
             <li><a data-action="leave_debug">Leave Debug Mode</a></li>
         </t>
@@ -1315,11 +1315,11 @@
 <t t-name="FieldReference">
     <table class="oe_form_field oe_form_field_reference" border="0" cellpadding="0" cellspacing="0" t-att-style="widget.node.attrs.style">
     <tr>
-        <td t-attf-class="oe_form_frame_cell oe_form_selection">
+        <td t-attf-class="oe_form_frame_cell oe_form_selection" t-att-style="widget.options.reference_selection_invisible ? 'display: none;' : ''">
             <span t-attf-class="oe_form_view_reference_selection"/>
         </td>
         <td t-attf-class="oe_form_frame_cell oe_form_many2one" nowrap="true">
-            <span t-attf-class="oe_form_view_reference_m2o"/>
+            <span t-attf-class="oe_form_view_reference_m2o" t-att-style="widget.options.reference_selection_invisible ? 'width: 100%;' : ''"/>
         </td>
     </tr>
     </table>

@@ -62,7 +62,7 @@ from . import SUPERUSER_ID
 from . import api
 from . import tools
 from .api import Environment
-from .exceptions import AccessError, MissingError, ValidationError, UserError
+from .exceptions import AccessError, MissingError, ValidationError, Warning, UserError
 from .osv import fields
 from .osv.query import Query
 from .tools import frozendict, lazy_property, ormcache
@@ -263,7 +263,7 @@ IdType = (int, long, basestring, NewId)
 
 
 # maximum number of prefetched records
-PREFETCH_MAX = 200
+PREFETCH_MAX = 1000
 
 # special columns automatically created by the ORM
 LOG_ACCESS_COLUMNS = ['create_uid', 'create_date', 'write_uid', 'write_date']
@@ -741,6 +741,12 @@ class BaseModel(object):
                 except Exception, e:
                     pass
                 attrs['domain'] = domain
+            elif field['ttype'] == 'float':
+                if field.get('precision_decimal_id'):
+                    cr.execute("SELECT digits FROM decimal_precision WHERE id = %s" % field.get('precision_decimal_id'))
+                    res = cr.fetchone()
+                    if res:
+                        attrs['digits'] = [15, res[0]]
             cls._add_field(name, Field.by_type[field['ttype']](**attrs))
 
     @classmethod
@@ -780,7 +786,11 @@ class BaseModel(object):
                     _logger.warning("@onchange%r parameters must be field names", func._onchange)
                 methods[name].append(func)
 
-        methods.update(self._onchange_methods_usuario())
+        for field, functios in self._onchange_methods_usuario().items():
+            if field not in methods.keys():
+                methods[field] = functios
+            else:
+                methods[field] += functios
 
         # optimization: memoize result on cls, it will not be recomputed
         cls._onchange_methods = methods
@@ -1285,7 +1295,10 @@ class BaseModel(object):
                     res_msg += "\n\n%s" % (_('En los registros:'))
                     if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
                         reg_data = ''
-                        for field, data in self._model.read(cr, uid, id, list(names)).iteritems():
+                        res = self._model.read(cr, uid, id, list(names))
+                        if type(res) == list and res:
+                            res = res[0]
+                        for field, data in res.iteritems():
                             if field and field != 'id' and data and type(data) in [str, unicode]:
                                 reg_data += "%s: %s (%s) " % (fields_translated.get(field), data, data.encode('ascii', 'replace'))
                         res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
@@ -1301,6 +1314,9 @@ class BaseModel(object):
                 try:
                     check(self)
                 except ValidationError, e:
+                    _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
+                    raise
+                except Warning, e:
                     _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
                     raise
                 except Exception, e:
@@ -1325,7 +1341,10 @@ class BaseModel(object):
 
         defaults = {}
         parent_fields = defaultdict(list)
-
+        
+        # Se movio aca para que no se ejecute una vez por cada campo
+        action_id = self._context.get('params') and self._context.get('params').get('action')
+        ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
         for name in fields_list:
             # 1. look up context
             key = 'default_' + name
@@ -1335,8 +1354,6 @@ class BaseModel(object):
 
             # 2. look up ir_values
             #    Note: performance is good, because get_defaults_dict is cached!
-            action_id = self._context.get('params') and self._context.get('params').get('action')
-            ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
             if name in ir_values_dict:
                 defaults[name] = ir_values_dict[name]
                 continue
@@ -1371,11 +1388,10 @@ class BaseModel(object):
             if field and field.inherited:
                 field = field.related_field
                 parent_fields[field.model_name].append(field.name)
-
+        
         # convert default values to the right format
         defaults = self._convert_to_cache(defaults, validate=False)
         defaults = self._convert_to_write(defaults)
-
         # add default values for inherited fields
         for model, names in parent_fields.iteritems():
             defaults.update(self.env[model].default_get(names))
@@ -1573,7 +1589,7 @@ class BaseModel(object):
             if view_ref:
                 if '.' in view_ref:
                     module, view_ref = view_ref.split('.', 1)
-                    cr.execute("SELECT res_id FROM ir_model_data WHERE model='ir.ui.view' AND module=%s AND name=%s", (module, view_ref))
+                    cr.execute("SELECT res_id FROM ir_model_data WHERE model='ir.ui.view' AND module=%s AND name=%s ORDER BY id DESC", (module, view_ref))
                     view_ref_res = cr.fetchone()
                     if view_ref_res:
                         view_id = view_ref_res[0]
@@ -2053,6 +2069,10 @@ class BaseModel(object):
                 qualified_field = "date_trunc('%s', %s)" % (gb_function or 'month', qualified_field)
         if field_type == 'boolean':
             qualified_field = "coalesce(%s,false)" % qualified_field
+        field = self._fields[split[0]]
+        if field.related:
+            related_model = self.pool.get(field.related_field.model_name)._table
+            qualified_field = qualified_field.replace('"%s"."%s"' % (self._table, field.name), "(SELECT %(field)s FROM %(related_model)s WHERE id = %(table)s.%(field_related)s)" % {'field': field.related[1], 'table': self._table, 'related_model': related_model, 'field_related': field.related[0]})
         return {
             'field': split[0],
             'groupby': gb,
@@ -2165,7 +2185,7 @@ class BaseModel(object):
         for gb in groupby_fields:
             assert gb in fields, "Fields in 'groupby' must appear in the list of fields to read (perhaps it's missing in the list view?)"
             groupby_def = self._columns.get(gb) or (self._inherit_fields.get(gb) and self._inherit_fields.get(gb)[2])
-            assert groupby_def and groupby_def._classic_write, "Fields in 'groupby' must be regular database-persisted fields (no function or related fields), or function fields with store=True"
+            assert (groupby_def and groupby_def._classic_write) or self._fields[gb].related, "Fields in 'groupby' must be regular database-persisted fields (no function or related fields), or function fields with store=True"
             if not (gb in self._fields):
                 # Don't allow arbitrary values, as this would be a SQL injection vector!
                 raise UserError(_('Invalid group_by specification: "%s".\nA group_by specification must be a list of valid fields.') % (gb,))
@@ -2195,7 +2215,7 @@ class BaseModel(object):
 
         prefix_terms = lambda prefix, terms: (prefix + " " + ",".join(terms)) if terms else ''
         prefix_term = lambda prefix, term: ('%s %s' % (prefix, term)) if term else ''
-
+        
         query = """
             SELECT min(%(table)s.id) AS id, count(%(table)s.id) AS %(count_field)s %(extra_fields)s
             FROM %(from)s
@@ -3342,9 +3362,6 @@ class BaseModel(object):
         # fetch the records of this model without field_name in their cache
         records = self._in_cache_without(field)
 
-        if len(records) > PREFETCH_MAX:
-            records = records[:PREFETCH_MAX] | self
-
         # determine which fields can be prefetched
         if not self.env.in_onchange and \
                 self._context.get('prefetch_fields', True) and \
@@ -3412,10 +3429,10 @@ class BaseModel(object):
         fields_pre = [
             field
             for field in fields
-            if field.base_field.column._classic_write
-            if not (field.inherited and field.base_field.column.translate)
+            if field.base_field.column and field.base_field.column._classic_write
+            if not (field.inherited and callable(field.base_field.column.translate))
         ]
-
+        
         # the query may involve several tables: we need fully-qualified names
         def qualify(field):
             col = field.name
@@ -3532,6 +3549,7 @@ class BaseModel(object):
                 _('The requested operation cannot be completed due to security restrictions. Please contact your system administrator.\n\n(Document type: %s, Operation: %s, records: %s)') % \
                 (self._name, _('read'), self._ids)
             )
+            exc = self._check_access_rule('read', self._ids) or exc
             forbidden = missing.exists()
             forbidden._cache.update(FailedValue(exc))
             # store a missing error exception in non-existing records
@@ -3539,6 +3557,10 @@ class BaseModel(object):
                 _('One of the documents you are trying to access has been deleted, please try again after refreshing.')
             )
             (missing - forbidden)._cache.update(FailedValue(exc))
+            
+    @api.model
+    def _check_access_rule(self, operation, ids):
+        return False
 
     @api.multi
     def get_metadata(self):
@@ -5495,12 +5517,14 @@ class BaseModel(object):
     # Record traversal and update
     #
 
-    def _mapped_func(self, func):
+    def _mapped_func(self, func, name=False):
         """ Apply function ``func`` on all records in ``self``, and return the
             result as a list or a recordset (if ``func`` returns recordsets).
         """
         if self:
             vals = [func(rec) for rec in self]
+            if name and rec._fields[name].type == 'reference':
+                return vals
             return reduce(operator.or_, vals) if isinstance(vals[0], BaseModel) else vals
         else:
             vals = func(self)
@@ -5516,7 +5540,7 @@ class BaseModel(object):
         if isinstance(func, basestring):
             recs = self
             for name in func.split('.'):
-                recs = recs._mapped_func(operator.itemgetter(name))
+                recs = recs._mapped_func(operator.itemgetter(name), name)
             return recs
         else:
             return self._mapped_func(func)
@@ -5755,16 +5779,19 @@ class BaseModel(object):
         return RecordCache(self)
 
     @api.model
-    def _in_cache_without(self, field):
-        """ Make sure ``self`` is present in cache (for prefetching), and return
-            the records of model ``self`` in cache that have no value for ``field``
-            (:class:`Field` instance).
+    def _in_cache_without(self, field, limit=PREFETCH_MAX):
+        """ Return records to prefetch that have no value in cache for ``field``
+            (:class:`Field` instance), including ``self``.
+            Return at most ``limit`` records.
         """
         env = self.env
         prefetch_ids = env.prefetch[self._name]
         prefetch_ids.update(self._ids)
         ids = filter(None, prefetch_ids - set(env.cache[field]))
-        return self.browse(ids)
+        recs = self.browse(ids)
+        if limit and len(recs) > limit:
+            recs = self + (recs - self)[:(limit - len(self))]
+        return recs
 
     @api.model
     def refresh(self):
@@ -6031,6 +6058,7 @@ class BaseModel(object):
                 # apply field-specific onchange methods
                 if field_onchange.get(name):
                     record._onchange_eval(name, field_onchange[name], result)
+                    self.env.computed_onchange_fields.append(str(name))
 
                 # force re-evaluation of function fields on secondary records
                 for field_seq in secondary:
@@ -6064,10 +6092,14 @@ class BaseModel(object):
                             # clean up result to not return another value
                             result['value'].pop(name, None)
 
+        # Se comento ya que se agrego la funcionalidad en el set_value del FieldMany2Many
         # At the moment, the client does not support updates on a *2many field
         # while this one is modified by the user.
-        if field_name and not isinstance(field_name, list) and \
-                self._fields[field_name].type in ('one2many', 'many2many'):
+        # El sistema no soportaba los onchange sobre los o2m o m2m se contemplaron para los m2m
+        # y en los o2m se tiene que establecer mediante el contexto onchange_o2m para activarlo
+        # porque en algunos casos genera errores cuando se utiliza con ciertos widgets
+        # Ej: o2m Agregar Campos de Usuario a un Formulario
+        if field_name and not isinstance(field_name, list) and self._fields[field_name].type in ('one2many') and not self._context.get('onchange_o2m'): 
             result['value'].pop(field_name, None)
         # Si retorna solamente el id en campos m2o o one2many se agrega el nameget para que no se vuelva a llamar al servidor
         if result and result.get('value'):

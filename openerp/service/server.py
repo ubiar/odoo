@@ -79,12 +79,9 @@ class BaseWSGIServerNoBind(LoggingBaseWSGIServerMixIn, werkzeug.serving.BaseWSGI
     use this class, sets the socket and calls the process_request() manually
     """
     def __init__(self, app):
-        werkzeug.serving.BaseWSGIServer.__init__(self, "1", "1", app)
-    def server_bind(self):
-        # we dont bind beause we use the listen socket of PreforkServer#socket
-        # instead we close the socket
-        if self.socket:
-            self.socket.close()
+        werkzeug.serving.BaseWSGIServer.__init__(self, "127.0.0.1", 0, app)
+        # Directly close the socket. It will be replaced by WorkerHTTP when processing requests
+    
     def server_activate(self):
         # dont listen as we use PreforkServer#socket
         pass
@@ -203,6 +200,8 @@ class ThreadedServer(CommonServer):
         self.httpd = None
         if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            if config.get('db_name'):
+                newrelic_agent.global_settings().app_name = config.get('db_name')
             _logger.info("Newrelic agent initialized")
 
     def signal_handler(self, sig, frame):
@@ -346,6 +345,8 @@ class GeventServer(CommonServer):
         self.httpd = None
         if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            if config.get('db_name'):
+                newrelic_agent.global_settings().app_name = config.get('db_name')
             _logger.info("Newrelic agent initialized")
 
     def watch_parent(self, beat=4):
@@ -411,6 +412,8 @@ class PreforkServer(CommonServer):
         self.long_polling_pid = None
         if config.get('newrelic_config_file', False) not in [False, '0']:
             newrelic_agent.initialize(config.get('newrelic_config_file'), config.get('newrelic_environment', 'production'))
+            if config.get('db_name'):
+                newrelic_agent.global_settings().app_name = config.get('db_name')
             _logger.info("Newrelic agent initialized")
 
     def pipe_new(self):

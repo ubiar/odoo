@@ -389,7 +389,7 @@ class stock_quant(osv.osv):
                 self.pool.get('stock.picking').write(cr, uid, [move.picking_id.id], {'recompute_pack_op': True}, context=context)
         #check if move'state needs to be set as 'assigned'
         rounding = move.product_id.uom_id.rounding
-        if float_compare(reserved_availability, move.product_qty, precision_rounding=rounding) == 0 and move.state in ('confirmed', 'waiting')  :
+        if float_compare(reserved_availability, move.product_qty, precision_rounding=rounding) == 0 and move.state in ('confirmed', 'partially_available', 'waiting')  :
             self.pool.get('stock.move').write(cr, uid, [move.id], {'state': 'assigned'}, context=context)
         elif float_compare(reserved_availability, 0, precision_rounding=rounding) > 0 and not move.partially_available:
             self.pool.get('stock.move').write(cr, uid, [move.id], {'partially_available': True}, context=context)
@@ -760,7 +760,7 @@ class stock_picking(osv.osv):
                 res[pick.id] = 'done'
                 continue
 
-            order = {'confirmed': 0, 'waiting': 1, 'assigned': 2}
+            order = {'confirmed': 0, 'partially_available': 0, 'waiting': 1, 'assigned': 2}
             order_inv = {0: 'confirmed', 1: 'waiting', 2: 'assigned'}
             lst = [order[x.state] for x in pick.move_lines if x.state not in ('cancel', 'done')]
             if pick.move_type == 'one':
@@ -839,7 +839,7 @@ class stock_picking(osv.osv):
         'name': fields.char('Reference', select=True, states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, copy=False),
         'origin': fields.char('Source Document', states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, help="Reference of the document", select=True),
         'backorder_id': fields.many2one('stock.picking', 'Back Order of', states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, help="If this shipment was split, then this field links to the shipment which contains the already processed part.", select=True, copy=False),
-        'note': fields.text('Notes', copy=False),
+        'note': fields.text('Notes'),
         'move_type': fields.selection([('direct', 'Partial'), ('one', 'All at once')], 'Delivery Method', required=True, states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, help="It specifies goods to be deliver partially or all at once"),
         'state': fields.function(_state_get, type="selection", copy=False,
             store={
@@ -958,7 +958,7 @@ class stock_picking(osv.osv):
         @return: True
         """
         for pick in self.browse(cr, uid, ids, context=context):
-            move_ids = [x.id for x in pick.move_lines if x.state in ['confirmed', 'waiting']]
+            move_ids = [x.id for x in pick.move_lines if x.state in ['confirmed', 'partially_available', 'waiting']]
             self.pool.get('stock.move').force_assign(cr, uid, move_ids, context=context)
         #pack_operation might have changed and need to be recomputed
         self.write(cr, uid, ids, {'recompute_pack_op': True}, context=context)
@@ -981,7 +981,7 @@ class stock_picking(osv.osv):
             for move in pick.move_lines:
                 if move.state == 'draft':
                     todo.extend(self.pool.get('stock.move').action_confirm(cr, uid, [move.id], context=context))
-                elif move.state in ('assigned', 'confirmed'):
+                elif move.state in ('assigned', 'confirmed', 'partially_available'):
                     todo.append(move.id)
             if len(todo):
                 self.pool.get('stock.move').action_done(cr, uid, todo, context=context)
@@ -1236,7 +1236,7 @@ class stock_picking(osv.osv):
             picking_quants = []
             #Calculate packages, reserved quants, qtys of this picking's moves
             for move in picking.move_lines:
-                if move.state not in ('assigned', 'confirmed', 'waiting'):
+                if move.state not in ('assigned', 'confirmed', 'partially_available', 'waiting'):
                     continue
                 move_quants = move.reserved_quant_ids
                 picking_quants += move_quants
@@ -1568,7 +1568,7 @@ class stock_picking(osv.osv):
                     elif move.state == 'draft':
                         toassign_move_ids.append(move.id)
                     if float_compare(remaining_qty, 0,  precision_rounding = move.product_id.uom_id.rounding) == 0:
-                        if move.state in ('draft', 'assigned', 'confirmed'):
+                        if move.state in ('draft', 'assigned', 'confirmed', 'partially_available'):
                             todo_move_ids.append(move.id)
                     elif float_compare(remaining_qty,0, precision_rounding = move.product_id.uom_id.rounding) > 0 and \
                                 float_compare(remaining_qty, move.product_qty, precision_rounding = move.product_id.uom_id.rounding) < 0:
@@ -1986,6 +1986,7 @@ class stock_move(osv.osv):
                                    ('cancel', 'Cancelled'),
                                    ('waiting', 'Waiting Another Move'),
                                    ('confirmed', 'Waiting Availability'),
+                                   ('partially_available', 'Partially Available'),
                                    ('assigned', 'Available'),
                                    ('done', 'Done'),
                                    ], 'Status', readonly=True, select=True, copy=False,
@@ -2022,7 +2023,7 @@ class stock_move(osv.osv):
         'lot_ids': fields.function(_get_lot_ids, type='many2many', relation='stock.production.lot', string='Lots'),
         'origin_returned_move_id': fields.many2one('stock.move', 'Origin return move', help='move that created the return move', copy=False),
         'returned_move_ids': fields.one2many('stock.move', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move'),
-        'reserved_availability': fields.function(_get_reserved_availability, type='float', string='Quantity Reserved', readonly=True, help='Quantity that has already been reserved for this move'),
+        'reserved_availability': fields.function(_get_reserved_availability, type='float', digits=dp.get_precision('Product Unit of Measure'), string='Quantity Reserved', readonly=True, help='Quantity that has already been reserved for this move'),
         'availability': fields.function(_get_product_availability, type='float', string='Quantity Available', readonly=True, help='Quantity in stock that can still be reserved for this move'),
         'string_availability_info': fields.function(_get_string_qty_information, type='text', string='Availability', readonly=True, help='Show various information on stock availability for this move'),
         'restrict_lot_id': fields.many2one('stock.production.lot', 'Lot', help="Technical field used to depict a restriction on the lot of quants to consider when marking this move as 'done'"),
@@ -2346,7 +2347,16 @@ class stock_move(osv.osv):
         else:
             move = self.browse(cr, uid, move_ids, context=context)[0]
             values = self._prepare_picking_assign(cr, uid, move, context=context)
-            pick = pick_obj.create(cr, uid, values, context=context)
+            # Contexto que se envía al Create de stock_picking, al crear una NV en cuyas líneas se eligió nv_ruta_id que pertenece a un Depósito de otra Sucursal,
+            # diferente a la Sucursal de la NV (se crea la OE en una Sucursal diferente con un PDV diferente). Si no el create de stock_ubiar le pisa la Sucursal (con la del picking_type)
+            # y da error porque no coincide con la Sucursal del PDV
+            if values.get('no_pisar_sucursal_pdv'):
+                ctx = context.copy()
+                ctx.update({'no_pisar_sucursal_pdv': True})
+                values.pop('no_pisar_sucursal_pdv')
+                pick = pick_obj.create(cr, uid, values, context=ctx)
+            else:
+                pick = pick_obj.create(cr, uid, values, context=context)
         return self.write(cr, uid, move_ids, {'picking_id': pick}, context=context)
 
     def onchange_date(self, cr, uid, ids, date, date_expected, context=None):
@@ -2442,7 +2452,7 @@ class stock_move(osv.osv):
         todo_moves = []
         operations = set()
         for move in self.browse(cr, uid, ids, context=context):
-            if move.state not in ('confirmed', 'waiting', 'assigned'):
+            if move.state not in ('confirmed', 'partially_available', 'waiting', 'assigned'):
                 continue
             if move.location_id.usage in ('supplier', 'inventory', 'production'):
                 to_assign_moves.append(move.id)
@@ -2466,9 +2476,14 @@ class stock_move(osv.osv):
                 elif ancestors:
                     main_domain[move.id] += [('history_ids', 'in', ancestors)]
 
-                #if the move is returned from another, restrict the choice of quants to the ones that follow the returned move
+                # if the move is returned from another, restrict the choice of quants to the ones that follow the returned move
+                # Valida Trazabilidad
                 if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
+                # No Valida Trazabilidad
+                elif move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                    lote_ids = list(set([q.lot_id.id for q in move.origin_returned_move_id.quant_ids])) # Sólo Quants pertenecientes a los Lotes que se Recibieron originalmente
+                    main_domain[move.id] += [('lot_id', 'in', lote_ids)]
                 for link in move.linked_move_operation_ids:
                     operations.add(link.operation_id)
         # Check all ops and sort them: we want to process first the packages, then operations with lot then the rest
@@ -2510,7 +2525,7 @@ class stock_move(osv.osv):
 
         #force assignation of consumable products and incoming from supplier/inventory/production
         if to_assign_moves:
-            self.force_assign(cr, uid, to_assign_moves, context=context)
+            self.force_assign(cr, uid, list(set(to_assign_moves)), context=context)
 
     def action_cancel(self, cr, uid, ids, context=None):
         """ Cancels the moves and if all moves are cancelled it cancels the picking.
@@ -2648,7 +2663,7 @@ class stock_move(osv.osv):
                 quant_obj.quants_move(cr, uid, quants, move, move.location_dest_id, lot_id=move.restrict_lot_id.id, owner_id=move.restrict_partner_id.id, context=context)
 
             # If the move has a destination, add it to the list to reserve
-            if move.move_dest_id and move.move_dest_id.state in ('waiting', 'confirmed'):
+            if move.move_dest_id and move.move_dest_id.state in ('waiting', 'confirmed', 'partially_available'):
                 move_dest_ids.add(move.move_dest_id.id)
 
             if move.procurement_id:
@@ -2771,6 +2786,9 @@ class stock_move(osv.osv):
         uom_qty = uom_obj._compute_qty_obj(cr, uid, move.product_id.uom_id, qty, move.product_uom, rounding_method='HALF-UP', context=context)
         uos_qty = float_round(uom_qty * move.product_uos_qty / move.product_uom_qty, precision_rounding=move.product_uos.rounding, rounding_method='UP')
         uop_qty = float_round(uom_qty * move.product_uop_qty / move.product_uom_qty, precision_rounding=move.product_uop_id.rounding, rounding_method='UP')
+        udd_qty = 0
+        if hasattr(move, 'cantidad_udd'):
+            udd_qty = float_round(uom_qty * move.cantidad_udd / move.product_uom_qty, precision_rounding=move.udd_id.rounding, rounding_method='UP')
 
         defaults = {
             'product_uom_qty': uom_qty,
@@ -2789,19 +2807,22 @@ class stock_move(osv.osv):
             uos_qty = defaults['product_uos_qty']
         if 'product_uop_qty' in defaults.keys():
             uop_qty = defaults['product_uop_qty']
+        if 'cantidad_udd' in defaults.keys():
+            udd_qty = defaults['cantidad_udd']
         if context.get('source_location_id'):
             defaults['location_id'] = context['source_location_id']
         new_move = self.copy(cr, uid, move.id, defaults, context=context)
 
         ctx = context.copy()
         ctx['do_not_propagate'] = True
-        self.write(cr, uid, [move.id], {
+        write_vals = {
             'product_uom_qty': move.product_uom_qty - uom_qty,
             'product_uos_qty': move.product_uos_qty - uos_qty,
             'product_uop_qty': move.product_uop_qty - uop_qty,
-            
-        }, context=ctx)
-
+        }
+        if hasattr(move, 'cantidad_udd'):
+            write_vals['cantidad_udd'] = move.cantidad_udd - udd_qty
+        self.write(cr, uid, [move.id], write_vals, context=ctx)
         if move.move_dest_id and move.propagate and move.move_dest_id.state not in ('done', 'cancel'):
             new_move_prop = self.split(cr, uid, move.move_dest_id, qty, context=context)
             self.write(cr, uid, [new_move], {'move_dest_id': new_move_prop}, context=context)

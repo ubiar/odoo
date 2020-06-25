@@ -186,7 +186,8 @@ class mrp_bom(osv.osv):
         'date_stop': fields.date('Valid Until', help="Validity of this BoM. Keep empty if it's always valid."),
         'sequence': fields.integer('Sequence', help="Gives the sequence order when displaying a list of bills of material."),
         'routing_id': fields.many2one('mrp.routing', 'Routing', help="The list of operations (list of work centers) to produce the finished product. "\
-                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."),
+                "The routing is mainly used to compute work center costs during operations and to plan future loads on work centers based on production planning."\
+                "Si se definine un Proceso Productivo, no se permitirá modificarlo en la OPR si se selecciona esta Lista"),
         'product_rounding': fields.float('Product Rounding', help="Rounding applied on the product quantity."),
         'product_efficiency': fields.float('Manufacturing Efficiency', required=True, help="A factor of 0.9 means a loss of 10% during the production process."),
         'property_ids': fields.many2many('mrp.property', string='Properties'),
@@ -663,7 +664,7 @@ class mrp_production(osv.osv):
             if values.get('product_uom') != product_uos_id:
                 values['product_uos'] = product_uos_id
         return super(mrp_production, self).create(cr, uid, values, context=context)
-
+    
     def unlink(self, cr, uid, ids, context=None):
         for production in self.browse(cr, uid, ids, context=context):
             if production.state not in ('draft', 'cancel'):
@@ -1208,6 +1209,7 @@ class mrp_production(osv.osv):
             'picking_type_id': types and types[0] or False,
         }, context=context)
         return move
+   
 
     def _make_consume_line_from_data(self, cr, uid, production, product, uom_id, qty, uos_id, uos_qty, context=None):
         stock_move = self.pool.get('stock.move')
@@ -1222,10 +1224,14 @@ class mrp_production(osv.osv):
         # Ubiar se creó el campo location_materia_prima_id en el routing, se usa para definir por defecto la production.location_src_id, por lo que se asigna con un onchange en la OP
         # por lo tanto no se va a dar este caso 'production.bom_id.routing_id.location_materia_prima_id.id != source_location_id' de acá abajo, a menos que cambien el valor a mano
         # Reveer más adelante si se debe realizar algún cambio para habilitar bien esa funcionalidad
-        if production.bom_id.routing_id and production.bom_id.routing_id.location_materia_prima_id and production.bom_id.routing_id.location_materia_prima_id.id != source_location_id:
+        if production.bom_id.routing_id and ('tercerizar' not in production.bom_id.routing_id or not production.bom_id.routing_id.tercerizar) and production.bom_id.routing_id.location_materia_prima_id and production.bom_id.routing_id.location_materia_prima_id.id != source_location_id:
             source_location_id = production.bom_id.routing_id.location_materia_prima_id.id
             prev_move = True
-
+        
+        if production.bom_id.routing_id and 'tercerizar' in production.bom_id.routing_id and production.bom_id.routing_id.tercerizar and production.bom_id.routing_id.location_id and production.bom_id.routing_id.location_id.id != source_location_id:
+            source_location_id = production.bom_id.routing_id.location_id.id
+            prev_move = True
+        
         destination_location_id = production.product_id.property_stock_production.id
         move_id = stock_move.create(cr, uid, {
             'name': production.name,
@@ -1242,7 +1248,7 @@ class mrp_production(osv.osv):
                                                                                                      location_dest_id=destination_location_id, context=context), #Make_to_stock avoids creating procurement
             'raw_material_production_id': production.id,
             #this saves us a browse in create()
-            'price_unit': product.standard_price,
+            # 'price_unit': product.standard_price, # Comentado por Ubiar porque evitaba el correcto funcionamiento del attribute_price()
             'origin': production.name,
             'warehouse_id': loc_obj.get_warehouse(cr, uid, production.location_src_id, context=context),
             'group_id': production.move_prod_id.group_id.id,
