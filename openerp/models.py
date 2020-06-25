@@ -62,7 +62,7 @@ from . import SUPERUSER_ID
 from . import api
 from . import tools
 from .api import Environment
-from .exceptions import AccessError, MissingError, ValidationError, UserError
+from .exceptions import AccessError, MissingError, ValidationError, Warning, UserError
 from .osv import fields
 from .osv.query import Query
 from .tools import frozendict, lazy_property, ormcache
@@ -786,7 +786,11 @@ class BaseModel(object):
                     _logger.warning("@onchange%r parameters must be field names", func._onchange)
                 methods[name].append(func)
 
-        methods.update(self._onchange_methods_usuario())
+        for field, functios in self._onchange_methods_usuario().items():
+            if field not in methods.keys():
+                methods[field] = functios
+            else:
+                methods[field] += functios
 
         # optimization: memoize result on cls, it will not be recomputed
         cls._onchange_methods = methods
@@ -1310,6 +1314,9 @@ class BaseModel(object):
                 try:
                     check(self)
                 except ValidationError, e:
+                    _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
+                    raise
+                except Warning, e:
                     _logger.debug('Constraint Error: Model -> %s - Method -> %s' % (check.im_class._name, check.im_func.func_name))
                     raise
                 except Exception, e:
