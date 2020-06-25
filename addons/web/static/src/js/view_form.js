@@ -6306,7 +6306,7 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
             val = $li.data("id");
         }
         if (val != self.get('value')) {
-            this.view.recursive_save().done(function() {
+            this.view.recursive_save().then(()=>{ this.view.recursive_reload(); }).done(function() {
                 var change = {};
                 change[self.name] = val;
                 self.view.dataset.write(self.view.datarecord.id, change).done(function() {
