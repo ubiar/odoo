@@ -4619,7 +4619,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         var self = this;
         this.ensure_saved().then(function () {
             if (parent_form)
-                return parent_form.save();
+                return parent_form.save().done(()=>{ parent_form.recursive_reload(); });
             else
                 return $.when();
         }).done(function () {
