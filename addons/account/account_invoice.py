@@ -801,7 +801,7 @@ class account_invoice(models.Model):
         for inv in self:
             if not inv.journal_id.sequence_id:
                 raise UserError(_('Please define sequence on the journal related to this invoice.'))
-            if not inv.invoice_line:
+            if not inv.invoice_line and not self._context.get('no_validar_lineas'):
                 raise UserError(_('Please create some invoice lines.'))
             if inv.move_id:
                 continue
