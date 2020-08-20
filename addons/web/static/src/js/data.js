@@ -886,7 +886,7 @@ instance.web.BufferedDataSet = instance.web.DataSetStatic.extend({
                     break;
                 }
             }
-            $.extend(record.values, data);
+            $.extend(record.values, data, (options || {}).readonly_fields || {});
         } else {
             dirty = true;
             record = {id: id, values: data};
