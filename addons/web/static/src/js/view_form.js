@@ -6452,6 +6452,9 @@ instance.web.form.FieldMonetary = instance.web.form.FieldFloat.extend({
         this.on("change:currency", this, this.get_currency_info);
         this.get_currency_info();
         this.ci_dm = new instance.web.DropMisordered();
+        if (this.options.currency_id) {
+            this.set({"currency": this.options.currency_id});
+        }
     },
     start: function() {
         var tmp = this._super();
