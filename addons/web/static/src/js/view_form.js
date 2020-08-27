@@ -721,21 +721,33 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             }
         }
     },
+    disable_button: function () {
+        this.$('.oe_form_buttons').add(this.$buttons).find('button').addClass('o_disabled').prop('disabled', true);
+        this.is_disabled = true;
+    },
+    enable_button: function () {
+        this.$('.oe_form_buttons').add(this.$buttons).find('button.o_disabled').removeClass('o_disabled').prop('disabled', false);
+        this.is_disabled = false;
+    },
     on_button_save: function(e) {
         var self = this;
-        $(e.target).attr("disabled", true);
-        return this.save().done(function(result) {
+        if (this.is_disabled) {
+            return;
+        }
+        this.disable_button();
+        return this.save().then(function(result) {
             self.trigger("save", result);
-            self.reload().then(function() {
+            return self.reload().then(function() {
                 self.to_view_mode();
                 var menu = instance.webclient.menu;
                 if (menu) {
                     menu.do_reload_needaction();
                 }
                 instance.web.bus.trigger('form_view_saved', self);
+                self.enable_button();
             });
         }).always(function(){
-            $(e.target).attr("disabled", false);
+            self.enable_button();
         });
     },
     on_button_cancel: function(event) {
@@ -2022,9 +2034,14 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
     },
     on_click: function() {
         var self = this;
+        if (this.view.is_disabled) {
+            return;
+        }
         this.force_disabled = true;
         this.check_disable();
+        this.view.disable_button();
         this.execute_action().always(function() {
+            self.view.enable_button();
             self.force_disabled = false;
             self.check_disable();
         });
@@ -2068,13 +2085,15 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
     on_confirmed: function() {
         var self = this;
         var context = this.build_context();
-        self.view.recursive_reload();
         return this.view.do_execute_action(
             _.extend({}, this.node.attrs, {context: context}),
             this.view.dataset, this.view.datarecord.id, function (reason) {
+                console.log("REASON", reason);
                 if (!_.isObject(reason)) {
                     self.view.recursive_reload();
                 }
+            }).fail(function () {
+                self.view.recursive_reload();
             });
     },
     check_disable: function() {
@@ -4619,7 +4638,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         var self = this;
         this.ensure_saved().then(function () {
             if (parent_form)
-                return parent_form.save().done(()=>{ parent_form.recursive_reload(); });
+                return parent_form.save(); // return parent_form.save().done(()=>{ parent_form.recursive_reload(); }); << Arreglar duplicacion de lineas en o2m mientras apretas botones que estan en otro tree
             else
                 return $.when();
         }).done(function () {
@@ -6416,10 +6435,17 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
             return fields;
         });
     },
-    on_click_stage: function (ev) {
+    on_click_stage: _.debounce(function (ev) {
         var self = this;
         var $li = $(ev.currentTarget);
+        var ul = $li.closest('.oe_form_field_status');
+        if (this.view.is_disabled) {
+            return;
+        }
         var val;
+        if (ul.attr('disabled')) {
+            return;
+        }
         if (this.field.type == "many2one") {
             val = parseInt($li.data("id"), 10);
         }
@@ -6427,15 +6453,25 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
             val = $li.data("id");
         }
         if (val != self.get('value')) {
-            this.view.recursive_save().then(()=>{ this.view.recursive_reload(); }).done(function() {
-                var change = {};
-                change[self.name] = val;
-                self.view.dataset.write(self.view.datarecord.id, change).done(function() {
-                    self.view.reload();
-                });
-            });
+            if (!this.view.datarecord.id ||
+                    this.view.datarecord.id.toString().match(instance.web.BufferedDataSet.virtual_id_regex)) {
+                // don't save, only set value for not-yet-saved many2ones
+                self.set_value(val);
+            }
+            else {
+                this.view.recursive_save().done(()=>{ self.view.recursive_reload(); }).done(function() {
+                    var change = {};
+                    change[self.name] = val;
+                    ul.attr('disabled', true);
+                    self.view.dataset.write(self.view.datarecord.id, change).done(function() {
+                        self.view.reload();
+                    }).always(function() {
+                        ul.removeAttr('disabled');
+                    });
+                })
+            }
         }
-    },
+    }, 300, true),
 });
 
 instance.web.form.FieldMonetary = instance.web.form.FieldFloat.extend({
