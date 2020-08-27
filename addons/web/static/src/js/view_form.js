@@ -722,11 +722,11 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         }
     },
     disable_button: function () {
-        this.$('.oe_form_buttons').add(this.$buttons).find('button').addClass('o_disabled').prop('disabled', true);
+        this.$('.oe_form_buttons,.o_statusbar_buttons').add(this.$buttons).find('button').addClass('o_disabled').prop('disabled', true);
         this.is_disabled = true;
     },
     enable_button: function () {
-        this.$('.oe_form_buttons').add(this.$buttons).find('button.o_disabled').removeClass('o_disabled').prop('disabled', false);
+        this.$('.oe_form_buttons,.o_statusbar_buttons').add(this.$buttons).find('button.o_disabled').removeClass('o_disabled').prop('disabled', false);
         this.is_disabled = false;
     },
     on_button_save: function(e) {
@@ -744,9 +744,10 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                     menu.do_reload_needaction();
                 }
                 instance.web.bus.trigger('form_view_saved', self);
+            }).always(function() {
                 self.enable_button();
             });
-        }).always(function(){
+        }).fail(function(){
             self.enable_button();
         });
     },
