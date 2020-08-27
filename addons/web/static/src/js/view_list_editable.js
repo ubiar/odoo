@@ -302,6 +302,17 @@
             return cells;
         },
         /**
+         * Prevent reloading content while an ongoing save
+         */
+        reload_content_when_ready: function() {
+            var self = this;
+            var self_super = this._super;
+            var original_arguments = arguments;
+            return this.saving_mutex.exec(function() {
+                return self_super.apply(self, original_arguments);
+            });
+        },
+        /**
          * If currently editing a row, resizes all registered form fields based
          * on the corresponding row cell
          */
