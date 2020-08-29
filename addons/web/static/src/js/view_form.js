@@ -2089,7 +2089,6 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
         return this.view.do_execute_action(
             _.extend({}, this.node.attrs, {context: context}),
             this.view.dataset, this.view.datarecord.id, function (reason) {
-                console.log("REASON", reason);
                 if (!_.isObject(reason)) {
                     self.view.recursive_reload();
                 }
@@ -2360,9 +2359,11 @@ instance.web.form.ReinitializeWidgetMixin =  {
 instance.web.form.ReinitializeFieldMixin =  _.extend({}, instance.web.form.ReinitializeWidgetMixin, {
     reinitialize: function() {
         instance.web.form.ReinitializeWidgetMixin.reinitialize.call(this);
-        var res = this.render_value();
-        if (this.view && this.view.render_value_defs){
-            this.view.render_value_defs.push(res);
+        if (!this.no_rerender) {
+            var res = this.render_value();
+            if (this.view && this.view.render_value_defs){
+                this.view.render_value_defs.push(res);
+            }
         }
     },
 });
