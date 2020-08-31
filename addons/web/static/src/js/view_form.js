@@ -723,12 +723,16 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
     },
     disable_button: function () {
         this.$('.oe_form_buttons,.o_statusbar_buttons').add(this.$buttons).find('button').addClass('o_disabled').prop('disabled', true);
+        this.$buttons.find('.oe_form_button_cancel').addClass('o_disabled').prop('disabled', true);
         this.is_disabled = true;
+        this.on_form_changed();
     },
-    enable_button: function () {
+    enable_button: _.debounce(function () {
         this.$('.oe_form_buttons,.o_statusbar_buttons').add(this.$buttons).find('button.o_disabled').removeClass('o_disabled').prop('disabled', false);
+        this.$buttons.find('.oe_form_button_cancel').removeClass('o_disabled').prop('disabled', false);
         this.is_disabled = false;
-    },
+        this.on_form_changed();
+    }, 500),
     on_button_save: function(e) {
         var self = this;
         if (this.is_disabled) {
@@ -2097,7 +2101,7 @@ instance.web.form.WidgetButton = instance.web.form.FormWidget.extend({
             });
     },
     check_disable: function() {
-        var disabled = (this.force_disabled || !this.view.is_interactible_record());
+        var disabled = (this.force_disabled || !this.view.is_interactible_record() || this.view.is_disabled);
         this.$el.prop('disabled', disabled);
         this.$el.css('color', disabled ? 'grey' : '');
     }
