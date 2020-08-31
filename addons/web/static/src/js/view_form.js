@@ -732,7 +732,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         this.$buttons.find('.oe_form_button_cancel').removeClass('o_disabled').prop('disabled', false);
         this.is_disabled = false;
         this.on_form_changed();
-    }, 500),
+    }, 1000),
     on_button_save: function(e) {
         var self = this;
         if (this.is_disabled) {
