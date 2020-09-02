@@ -1325,7 +1325,8 @@ instance.web.search.DateField = instance.web.search.Field.extend(/** @lends inst
         } catch (e) {
             return $.when(null);
         }
-        var m = moment(v, t === 'datetime' ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD');
+        // THIS SHOULD BE FORWARDPORTED UP TO SAAS-15, NOT LATER
+        var m = moment.utc(v, t === 'datetime' ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD');
         if (!m.isValid()) { return $.when(null); }
         var d = m.toDate();
         var date_string = instance.web.format_value(d, this.attrs);

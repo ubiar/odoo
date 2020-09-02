@@ -1475,7 +1475,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
             this.keyboard_handler = function(event){
                 var key = '';
                 if ( event.keyCode === 13 ) {         // Enter
-                    self.validate_order();
+                    // self.validate_order();
                 } else if ( event.keyCode === 190 || // Dot
                             event.keyCode === 110 ||  // Decimal point (numpad)
                             event.keyCode === 188 ) { // Comma

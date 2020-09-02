@@ -960,6 +960,7 @@ class BaseModel(object):
 
             This method is used when exporting data via client menu
         """
+        self = self.sudo()
         fields_to_export = map(fix_import_export_id_paths, fields_to_export)
         if raw_data:
             self = self.with_context(export_raw_data=True)
@@ -2070,7 +2071,7 @@ class BaseModel(object):
         if field_type == 'boolean':
             qualified_field = "coalesce(%s,false)" % qualified_field
         field = self._fields[split[0]]
-        if field.related:
+        if field.related and not field.store:
             related_model = self.pool.get(field.related_field.model_name)._table
             qualified_field = qualified_field.replace('"%s"."%s"' % (self._table, field.name), "(SELECT %(field)s FROM %(related_model)s WHERE id = %(table)s.%(field_related)s)" % {'field': field.related[1], 'table': self._table, 'related_model': related_model, 'field_related': field.related[0]})
         return {
@@ -4719,16 +4720,16 @@ class BaseModel(object):
 
         :return: the qualified field name to use in an ORDER BY clause to sort by ``order_field``
         """
-        if order_field not in self._columns and order_field in self._inherit_fields:
+        if order_field not in self._fields and order_field in self._inherit_fields:
             # also add missing joins for reaching the table containing the m2o field
             qualified_field = self._inherits_join_calc(order_field, query)
             order_field_column = self._inherit_fields[order_field][2]
         else:
             qualified_field = '"%s"."%s"' % (self._table, order_field)
-            order_field_column = self._columns[order_field]
+            order_field_column = self._fields[order_field]
 
-        assert order_field_column._type == 'many2one', 'Invalid field passed to _generate_m2o_order_by()'
-        if not order_field_column._classic_write and not getattr(order_field_column, 'store', False):
+        assert order_field_column.type == 'many2one', 'Invalid field passed to _generate_m2o_order_by()'
+        if not order_field_column.store and not getattr(order_field_column, 'store', False):
             _logger.debug("Many2one function/related fields must be stored " \
                 "to be used as ordering fields! Ignoring sorting for %s.%s",
                 self._name, order_field)
@@ -4774,26 +4775,26 @@ class BaseModel(object):
                 inner_clause = None
                 if order_field == 'id':
                     order_by_elements.append('"%s"."%s" %s' % (self._table, order_field, order_direction))
-                elif order_field in self._columns:
-                    order_column = self._columns[order_field]
-                    if order_column._classic_read:
+                elif order_field in self._fields:
+                    order_column = self._fields[order_field]
+                    if order_column.store:
                         inner_clause = '"%s"."%s"' % (self._table, order_field)
-                    elif order_column._type == 'many2one':
+                    elif order_column.type == 'many2one':
                         inner_clause = self._generate_m2o_order_by(order_field, query)
                     else:
                         continue  # ignore non-readable or "non-joinable" fields
                 elif order_field in self._inherit_fields:
                     parent_obj = self.pool[self._inherit_fields[order_field][3]]
-                    order_column = parent_obj._columns[order_field]
-                    if order_column._classic_read:
+                    order_column = parent_obj._fields[order_field]
+                    if order_column.store:
                         inner_clause = self._inherits_join_calc(order_field, query)
-                    elif order_column._type == 'many2one':
+                    elif order_column.type == 'many2one':
                         inner_clause = self._generate_m2o_order_by(order_field, query)
                     else:
                         continue  # ignore non-readable or "non-joinable" fields
                 else:
                     raise ValueError(_("Sorting field %s not found on model %s") % ( order_field, self._name))
-                if order_column and order_column._type == 'boolean':
+                if order_column and order_column.type == 'boolean':
                     inner_clause = "COALESCE(%s, false)" % inner_clause
                 if inner_clause:
                     if isinstance(inner_clause, list):
