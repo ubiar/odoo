@@ -74,6 +74,8 @@ class stock_return_picking(osv.osv_memory):
                 raise UserError(_("You may only return pickings that are Done!"))
                 
             for move in pick.move_lines:
+                if move.state == 'cancel':
+                    continue
                 lote_result_ids = []
                 if move.move_dest_id:
                     chained_move_exist = True
