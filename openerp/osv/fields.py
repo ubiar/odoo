@@ -818,8 +818,15 @@ class one2many(_column):
         rec = obj.browse(cr, user, [], context=context)
         with rec.env.norecompute():
             _table = obj._table
+            # Para optimizar primero se eliminan todos los ids juntos
+            # de manera que no se recalculen individalmente
+            unlink_ids = []
             for act in values:
-                
+                if act[0] == 2:
+                    unlink_ids.append(act[1])
+            if unlink_ids:
+                obj.unlink(cr, user, unlink_ids, context=context)
+            for act in values:
                 # UBIAR: En caso de recibir un cuarto comando, lo paso al contexto
                 # para mantener la funcionalidad del ref_hash que se utiliza desde las aplicaciones moviles
                 if len(act) == 4 and type(act[3] == type({})):
@@ -832,8 +839,8 @@ class one2many(_column):
                     result += obj._store_get_values(cr, user, [id_new], act[2].keys(), context)
                 elif act[0] == 1:
                     obj.write(cr, user, [act[1]], act[2], context=context)
-                elif act[0] == 2:
-                    obj.unlink(cr, user, [act[1]], context=context)
+                # elif act[0] == 2:
+                #     obj.unlink(cr, user, [act[1]], context=context)
                 elif act[0] == 3:
                     inverse_field = obj._fields.get(self._fields_id)
                     assert inverse_field, 'Trying to unlink the content of a o2m but the pointed model does not have a m2o'
