@@ -826,6 +826,7 @@ class one2many(_column):
                     unlink_ids.append(act[1])
             if unlink_ids:
                 obj.unlink(cr, user, unlink_ids, context=context)
+                obj.refresh(cr, user)
             for act in values:
                 # UBIAR: En caso de recibir un cuarto comando, lo paso al contexto
                 # para mantener la funcionalidad del ref_hash que se utiliza desde las aplicaciones moviles
