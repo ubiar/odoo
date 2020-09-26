@@ -131,9 +131,7 @@ class stock_return_picking(osv.osv_memory):
                             qty += cantidad
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
                 if not validar_trazabilidad:
-                    cantidad_restante = move.product_qty - move.cantidad_devuelta
-                    if qty > cantidad_restante:
-                        qty = cantidad_restante
+                    qty = move.product_qty - move.cantidad_devuelta
                 if qty:
                     result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
 
