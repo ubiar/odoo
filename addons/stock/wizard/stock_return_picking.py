@@ -130,8 +130,14 @@ class stock_return_picking(osv.osv_memory):
                         else:
                             qty += cantidad
                 qty = uom_obj._compute_qty(cr, uid, move.product_id.uom_id.id, qty, move.product_uom.id)
-                if not validar_trazabilidad:
-                    qty = move.product_qty - move.cantidad_devuelta
+                if not validar_trazabilidad and tracking == 'none':
+                    cantidad_restante = move.product_qty - move.cantidad_devuelta
+                    # Devolución de Compra
+                    if pick.picking_type_id.return_picking_type_id.code == 'outgoing':
+                        qty = cantidad_restante
+                    # Devolución de Venta
+                    elif pick.picking_type_id.return_picking_type_id.code == 'incoming' and qty > cantidad_restante:
+                        qty = cantidad_restante
                 if qty:
                     result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
 
