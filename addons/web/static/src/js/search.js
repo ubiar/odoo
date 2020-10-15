@@ -403,7 +403,7 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
                 .on('add change reset remove', this.proxy('do_search'))
                 .on('change', this.proxy('renderChangedFacets'))
                 .on('add reset remove', this.proxy('renderFacets'));
-        if (!this.action_id && !this.options.popup) return $.when();
+        if (!this.action_id && !this.options.popup && !this.options.action) return $.when();
         var load_view = instance.web.fields_view_get({
             model: this.dataset._model,
             view_id: this.view_id,
