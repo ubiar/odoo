@@ -117,7 +117,7 @@ def _check_report(report_id):
     result = self_reports[report_id]
     exc = result['exception']
     if exc:
-        raise UserError('%s: %s' % (exc.message, exc.traceback))
+        raise UserError(exc.message)
     res = {'state': result['state']}
     if res['state']:
         if tools.config['reportgz']:
