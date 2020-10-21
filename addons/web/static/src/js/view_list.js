@@ -385,9 +385,15 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         var $column = $(e.currentTarget);
         var col_name = $column.data('id');
         var field = this.fields_view.fields[col_name];
+        
+        var no_ordenar = [];
+        try{
+            no_ordenar = String(this.fields_view.arch.attrs.no_odenar).split(",");
+        }catch(e){}
+        
         // test whether the field is sortable
         // Ubiar, si no esta en un item de menu se ordena con JS y no importa si el campo es calculado
-        if (field && this.options.action && !field.sortable) {
+        if ((field && this.options.action && !field.sortable) || no_ordenar.includes(col_name)) {
             return false;
         }
         this.dataset.sort(col_name);
