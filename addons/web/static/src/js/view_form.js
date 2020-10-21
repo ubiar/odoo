@@ -5682,7 +5682,7 @@ instance.web.form.SelectCreatePopup = instance.web.form.AbstractFormPopup.extend
         }
         var $buttons = this.$('.o-search-options');
         this.searchview = new instance.web.SearchView(this,
-                this.dataset, false,  search_defaults, {$buttons: $buttons});
+                this.dataset, false,  search_defaults, {$buttons: $buttons, 'popup': true});
         this.searchview.on('search_data', self, function(domains, contexts, groupbys) {
             if (self.initial_ids) {
                 self.do_search(domains.concat([[["id", "in", self.initial_ids]], self.domain]),
@@ -6480,9 +6480,11 @@ instance.web.form.FieldStatus = instance.web.form.AbstractField.extend({
     }, 300, true),
 });
 
+
 instance.web.form.FieldMonetary = instance.web.form.FieldFloat.extend({
     template: "FieldMonetary",
     widget_class: 'oe_form_field_float oe_form_field_monetary',
+    tmp_currencys: {},
     init: function() {
         this._super.apply(this, arguments);
         this.set({"currency": false});
@@ -6509,8 +6511,13 @@ instance.web.form.FieldMonetary = instance.web.form.FieldFloat.extend({
             this.set({"currency_info": null});
             return;
         }
+        if (self.tmp_currencys[self.get("currency")]) {
+            self.set({"currency_info": self.tmp_currencys[self.get("currency")]});
+            return;
+        }
         return this.ci_dm.add(self.alive(new instance.web.Model("res.currency").query(["symbol", "position"])
             .filter([["id", "=", self.get("currency")]]).first())).then(function(res) {
+            self.tmp_currencys[self.get("currency")] = res;
             self.set({"currency_info": res});
         });
     },

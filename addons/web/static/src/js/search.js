@@ -403,6 +403,7 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
                 .on('add change reset remove', this.proxy('do_search'))
                 .on('change', this.proxy('renderChangedFacets'))
                 .on('add reset remove', this.proxy('renderFacets'));
+        if (!this.action_id && !this.options.popup && !this.options.action) return $.when();
         var load_view = instance.web.fields_view_get({
             model: this.dataset._model,
             view_id: this.view_id,
@@ -1676,7 +1677,6 @@ instance.web.search.FavoriteMenu = instance.web.Widget.extend({
             $default_filter = this.$inputs.eq(2);
         $shared_filter.click(function () {$default_filter.prop('checked', false)});
         $default_filter.click(function () {$shared_filter.prop('checked', false)});
-
         this.query
             .on('remove', function (facet) {
                 if (facet.get('is_custom_filter')) {
