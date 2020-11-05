@@ -4781,6 +4781,8 @@ class BaseModel(object):
                         inner_clause = '"%s"."%s"' % (self._table, order_field)
                     elif order_column.type == 'many2one':
                         inner_clause = self._generate_m2o_order_by(order_field, query)
+                    elif order_column.related and self._fields[order_column.related[0]].store and self.pool[self._fields[order_column.related[0]].comodel_name]._fields[order_column.related[1]].store:
+                        inner_clause = '(SELECT %s FROM %s WHERE %s.%s = %s.id)' % (order_column.related[1], self.pool[self._fields[order_column.related[0]].comodel_name]._table, self._table, order_column.related[0], self.pool[self._fields[order_column.related[0]].comodel_name]._table)
                     else:
                         continue  # ignore non-readable or "non-joinable" fields
                 elif order_field in self._inherit_fields:
