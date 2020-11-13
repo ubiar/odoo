@@ -1603,6 +1603,8 @@ class account_invoice_tax(models.Model):
         res_a = self.compute_a(invoice)
         for line in invoice.invoice_line:
             res_d = self.compute_d(invoice, line)
+            if request:
+                request.context['alicuota_iva'] = line.alicuota_iva
             taxes = line.invoice_line_tax_id.with_context(precio_unitario_con_iva=line.invoice_id.precio_unitario_con_iva).compute_all(
                 ((line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - (res_d or 0.0) / 100.0)),
                 line.quantity, line.product_id, invoice.partner_id)['taxes']
