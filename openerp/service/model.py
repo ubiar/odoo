@@ -13,6 +13,7 @@ from openerp.tools.translate import translate
 from openerp.tools.translate import _
 
 import security
+import copy
 
 _logger = logging.getLogger(__name__)
 
@@ -104,7 +105,9 @@ def check(f):
 
         def _(src):
             return tr(src, 'code')
-
+        
+        orig_args = copy.deepcopy(args)
+        kwargs_args = copy.deepcopy(kwargs)
         tries = 0
         while True:
             try:
@@ -122,6 +125,9 @@ def check(f):
                 tries += 1
                 _logger.info("%s, retry %d/%d in %.04f sec..." % (errorcodes.lookup(e.pgcode), tries, MAX_TRIES_ON_CONCURRENCY_FAILURE, wait_time))
                 time.sleep(wait_time)
+                # Se vuelven a establecer los valores originales por si algun metodo los modifico y genera una inconsistencia
+                args = orig_args
+                kwargs = kwargs_args
             except IntegrityError, inst:
                 registry = openerp.registry(dbname)
                 for key in registry._sql_error.keys():
