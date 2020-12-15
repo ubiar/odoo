@@ -105,9 +105,12 @@ def check(f):
 
         def _(src):
             return tr(src, 'code')
-        
-        orig_args = copy.deepcopy(args)
-        kwargs_args = copy.deepcopy(kwargs)
+        try:
+            orig_args = copy.deepcopy(args)
+            kwargs_args = copy.deepcopy(kwargs)
+        except Exception:
+            orig_args = args
+            kwargs_args = kwargs
         tries = 0
         while True:
             try:
