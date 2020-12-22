@@ -4033,7 +4033,7 @@ class BaseModel(object):
                 if hasattr(column, 'selection') and vals[field]:
                     self._check_selection_field_value(cr, user, field, vals[field], context=context)
                 if column._classic_write and not hasattr(column, '_fnct_inv'):
-                    if (not totranslate) or not column.translate:
+                    if (not totranslate) or not column.translate or context.get('lang') == 'es_AR':
                         update_value = column._symbol_set[1](vals[field])
                         if column._type == 'many2one' and type(update_value) in [list, tuple] and len(update_value) == 2 and type(update_value[0]) == int:
                             update_value = update_value[0]

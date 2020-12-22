@@ -617,7 +617,7 @@ class account_move_line(osv.osv):
     _defaults = {
         'blocked': False,
         'centralisation': 'normal',
-        'date': _get_date,
+        # 'date': _get_date, # No se establece mas el valor porque se completa con un triger SQL
         'date_created': fields.date.context_today,
         'state': 'draft',
         'currency_id': _get_currency,
@@ -626,7 +626,7 @@ class account_move_line(osv.osv):
         'debit': 0.0,
         'amount_currency': 0.0,
         'account_id': lambda self, cr, uid, c: c.get('account_id', False),
-        'period_id': _get_period,
+        # 'period_id': _get_period, # No se establece mas el valor porque se completa con un triger SQL
         'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'account.move.line', context=c)
     }
     _order = "date desc, id desc"
