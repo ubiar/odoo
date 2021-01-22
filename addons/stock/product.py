@@ -150,8 +150,10 @@ class product_product(osv.osv):
 
         if context.get('lot_id'):
             domain_quant.append(('lot_id', '=', context['lot_id']))
-        if context.get('subcompania_id'):
-            domain_quant.append(('subcompania_id','=',context['subcompania_id']))
+        # Se comenta porque nadie filtra el stock por subcompania de hecho la regla global
+        # esta desactivada en todos los clientes por defecto
+        # if context.get('subcompania_id'):
+        #     domain_quant.append(('subcompania_id','=',context['subcompania_id']))
         if context.get('owner_id'):
             domain_quant.append(('owner_id', '=', context['owner_id']))
             owner_domain = ('restrict_partner_id', '=', context['owner_id'])
