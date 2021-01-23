@@ -1255,7 +1255,16 @@ class procurement_order(osv.osv):
                     order_id = proc.sale_line_id.order_id.id
                     if self.pool.get('sale.order').test_procurements_done(cr, uid, [order_id], context=context):
                         workflow.trg_validate(uid, 'sale.order', order_id, 'ship_end', cr)
-                    if self.pool.get('sale.order').test_procurements_except(cr, uid, [order_id], context=context):
+                    # Se agregó la Cancelación Parcial en las OE, por lo tanto, si se da ese caso, no se debe salir por Excepción de OE sino por el circuito normal
+                    estado_moves = []
+                    cancelacion_normal = True
+                    if vals.get('state') == 'cancel':
+                        pickings = list(set([m.picking_id for m in proc.move_ids]))
+                        for p in pickings:
+                            estado_moves.extend([move.state == 'cancel' for move in p.move_lines])
+                        if estado_moves and not all(estado_moves):
+                            cancelacion_normal = False
+                    if cancelacion_normal and self.pool.get('sale.order').test_procurements_except(cr, uid, [order_id], context=context):
                         workflow.trg_validate(uid, 'sale.order', order_id, 'ship_except', cr)
         return res
 
