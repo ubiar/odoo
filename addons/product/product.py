@@ -809,7 +809,7 @@ class product_template(osv.osv):
     def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
         # Only use the product.product heuristics if there is a search term and the domain
         # does not specify a match on `product.template` IDs.
-        if not name or any(term[0] == 'id' for term in (args or [])):
+        if (not name or any(term[0] == 'id' for term in (args or []))) and not context.get('name_search_template_normal'):
             return super(product_template, self).name_search(
                 cr, user, name=name, args=args, operator=operator, context=context, limit=limit)
 
