@@ -833,6 +833,8 @@ class Field(object):
             res = record._cache[self]
         except AccessError, e:
             raise AccessError(_("%s\nModelo:%s, Campo: %s, Registro: %s") % (e.name, self.model_name, self.name, record.sudo().name_get()))
+        except KeyError, e:
+            res = self.null(record.env)
         return res
 
     def __set__(self, record, value):
