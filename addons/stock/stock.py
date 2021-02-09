@@ -808,7 +808,8 @@ class stock_picking(osv.osv):
         for pick in self.browse(cr, uid, ids, context=context):
             res[pick.id] = False
             for move in pick.move_lines:
-                if move.reserved_quant_ids:
+                # Se contempla el caso de los Consumibles, ya que no se reservan Quants para los mismos por lo que este campo daba False al Confirmar la Reserva de la OE de Compras
+                if move.reserved_quant_ids or (move.product_id.type == 'consu' and move.state in ['partially_available', 'assigned'] and 'reserva' in move and move.reserva):
                     res[pick.id] = True
                     continue
         return res
