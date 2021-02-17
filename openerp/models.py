@@ -3348,11 +3348,16 @@ class BaseModel(object):
             try:
                 values = {'id': record.id}
                 for name, field in name_fields:
-                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
+                    try:
+                        values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
+                    except AccessError, e:
+                        # Si se accedio al registro mediante el prefetch no se lanza el error de permisos
+                        # ya que es probable que sea un registro al que nunca se acceda y solo quede en cache
+                        if record.id not in self.env.prefetch_orig[self._name]:
+                            raise e
                 result.append(values)
             except MissingError:
                 pass
-
         return result
 
     @api.multi
@@ -5789,6 +5794,7 @@ class BaseModel(object):
         """
         env = self.env
         prefetch_ids = env.prefetch[self._name]
+        env.prefetch_orig[self._name] = prefetch_ids
         prefetch_ids.update(self._ids)
         ids = filter(None, prefetch_ids - set(env.cache[field]))
         recs = self.browse(ids)

@@ -716,6 +716,7 @@ class Environment(object):
         self.registry = RegistryManager.get(cr.dbname)
         self.cache = defaultdict(dict)      # {field: {id: value, ...}, ...}
         self.prefetch = defaultdict(set)    # {model_name: set(id), ...}
+        self.prefetch_orig = defaultdict(set)    # {model_name: set(id), ...}
         self.computed = defaultdict(set)    # {field: set(id), ...}
         self.computed_onchange_fields = []  # Campos ya calculados en un onchange
         self.dirty = defaultdict(set)       # {record: set(field_name), ...}
