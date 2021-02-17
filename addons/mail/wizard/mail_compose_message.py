@@ -325,6 +325,7 @@ class mail_compose_message(osv.TransientModel):
                 'attachment_ids': [attach.id for attach in wizard.attachment_ids],
                 'author_id': wizard.author_id.id,
                 'email_from': wizard.email_from,
+                'reply_to': wizard.reply_to,
                 'record_name': wizard.record_name,
                 'no_auto_thread': wizard.no_auto_thread,
             }
