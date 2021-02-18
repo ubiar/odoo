@@ -1050,15 +1050,15 @@ class account_invoice(models.Model):
             result.append((inv.id, "%s %s" % (inv.number or TYPES[inv.type], inv.name or '')))
         return result
 
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        args = args or []
-        recs = self.browse()
-        if name:
-            recs = self.search([('number', '=', name)] + args, limit=limit)
-        if not recs:
-            recs = self.search([('name', operator, name)] + args, limit=limit)
-        return recs.name_get()
+    # @api.model
+    # def name_search(self, name, args=None, operator='ilike', limit=100):
+    #     args = args or []
+    #     recs = self.browse()
+    #     if name:
+    #         recs = self.search([('number', '=', name)] + args, limit=limit)
+    #     if not recs:
+    #         recs = self.search([('name', operator, name)] + args, limit=limit)
+    #     return recs.name_get()
 
     @api.model
     def _refund_cleanup_lines(self, lines):
