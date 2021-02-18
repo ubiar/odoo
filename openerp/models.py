@@ -3348,11 +3348,16 @@ class BaseModel(object):
             try:
                 values = {'id': record.id}
                 for name, field in name_fields:
-                    values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
+                    try:
+                        values[name] = field.convert_to_read(record[name], use_name_get, context={'special_origin': [self._name, record]})
+                    except AccessError, e:
+                        # Si se accedio al registro mediante el prefetch no se lanza el error de permisos
+                        # ya que es probable que sea un registro al que nunca se acceda y solo quede en cache
+                        if record.id not in self.env.prefetch_orig[self._name]:
+                            raise e
                 result.append(values)
             except MissingError:
                 pass
-
         return result
 
     @api.multi
@@ -5789,6 +5794,7 @@ class BaseModel(object):
         """
         env = self.env
         prefetch_ids = env.prefetch[self._name]
+        env.prefetch_orig[self._name] = prefetch_ids
         prefetch_ids.update(self._ids)
         ids = filter(None, prefetch_ids - set(env.cache[field]))
         recs = self.browse(ids)
@@ -6172,8 +6178,15 @@ class RecordCache(MutableMapping):
         """ Return the cached value of ``field`` for `records[0]`. """
         if isinstance(field, basestring):
             field = self._recs._fields[field]
-        value = self._recs.env.cache[field][self._recs.id]
-        return value.get() if isinstance(value, SpecialValue) else value
+        res = False
+        try:
+            value = self._recs.env.cache[field][self._recs.id]
+            res = value.get() if isinstance(value, SpecialValue) else value
+        except AccessError, e:
+            if self._recs.id in self._recs.env.prefetch_orig[field.model_name]:
+                return field.null(self._recs.env)
+            raise
+        return res
 
     def __setitem__(self, field, value):
         """ Assign the cached value of ``field`` for all records in ``records``. """
