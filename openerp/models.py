@@ -6178,8 +6178,15 @@ class RecordCache(MutableMapping):
         """ Return the cached value of ``field`` for `records[0]`. """
         if isinstance(field, basestring):
             field = self._recs._fields[field]
-        value = self._recs.env.cache[field][self._recs.id]
-        return value.get() if isinstance(value, SpecialValue) else value
+        res = False
+        try:
+            value = self._recs.env.cache[field][self._recs.id]
+            res = value.get() if isinstance(value, SpecialValue) else value
+        except AccessError, e:
+            if self._recs.id in self._recs.env.prefetch_orig[field.model_name]:
+                return field.null(self._recs.env)
+            raise
+        return res
 
     def __setitem__(self, field, value):
         """ Assign the cached value of ``field`` for all records in ``records``. """
