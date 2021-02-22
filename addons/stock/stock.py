@@ -1286,7 +1286,7 @@ class stock_picking(osv.osv):
             # esta es estimada en la orden de compra o nota de venta, la que importa es la que se ingreso en el transfer detail
             # entonces si le falta cantidad al move se agrega
             move = move_dict['move']
-            if move.product_id.tracking == 'lote_indivisible' and move.lot_ids and move_dict['remaining_qty'] < qty_to_assign:
+            if move.product_id.tracking == 'lote_indivisible' and move.lot_ids and move_dict['remaining_qty'] and move_dict['remaining_qty'] < qty_to_assign:
                 move.write_sql({
                     'product_qty': move.product_qty + qty_to_assign - move_dict['remaining_qty'],
                     'product_uom_qty': move.product_uom_qty + qty_to_assign - move_dict['remaining_qty'],
@@ -1419,7 +1419,7 @@ class stock_picking(osv.osv):
                     #all the quants (because they leave no choice on their related move and needs to be processed with higher priority)
                     still_to_do += [(ops, ops.product_id.id, qty_to_assign)]
                     need_rereserve = True
-        
+
         #2) then, process the remaining part
         all_op_processed = True
         for ops, product_id, remaining_qty in still_to_do:
