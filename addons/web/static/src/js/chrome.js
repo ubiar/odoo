@@ -1310,6 +1310,9 @@ instance.web.WebClient = instance.web.Client.extend({
             if (jQuery.deparam !== undefined && jQuery.deparam(jQuery.param.querystring()).kitten !== undefined) {
                 self.to_kitten();
             }
+            if (jQuery.deparam !== undefined && jQuery.deparam(jQuery.param.querystring()).no_menu !== undefined) {
+                self.to_no_menu();
+            }
             if (self.session.session_is_valid()) {
                 self.show_application();
             }
@@ -1331,6 +1334,10 @@ instance.web.WebClient = instance.web.Client.extend({
             var imgkit = Math.floor(Math.random() * 2 + 1);
             $.blockUI.defaults.message = '<img src="/web/static/src/img/k-waiting' + imgkit + '.gif" class="loading-kitten">';
         }
+    },
+    to_no_menu: function() {
+        $('.oe-view-manager-switch').show();
+        $("head").append('<style>.oe_leftbar, .navbar, .breadcrumb {display: none!important;}</style>');
     },
     /**
         Sets the first part of the title of the window, dedicated to the current action.
