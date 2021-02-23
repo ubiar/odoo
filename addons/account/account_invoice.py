@@ -398,12 +398,15 @@ class account_invoice(models.Model):
         """
         assert len(self) == 1, 'This option should only be used for a single id at a time.'
         template = self.env.ref('account.email_template_edi_invoice', False)
+        template_id = False
+        if template:
+            template_id = template.id
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
         ctx = dict(
             default_model='account.invoice',
             default_res_id=self.id,
             default_use_template=bool(template),
-            default_template_id=template.id,
+            default_template_id=template_id,
             default_composition_mode='comment',
             mark_invoice_as_sent=True,
         )
