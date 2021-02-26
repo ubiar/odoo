@@ -2515,7 +2515,7 @@ class stock_move(osv.osv):
                 qty_already_assigned = move.reserved_availability
                 qty = move.product_qty - qty_already_assigned
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id:
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain[move.id], prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
                 # Si utiliza lotes indivisibles no importa la cantidad de stock si no la cantidad de ventas
@@ -2640,7 +2640,7 @@ class stock_move(osv.osv):
                 prefered_domain_list = [prefered_domain] + [fallback_domain] + [fallback_domain2]
                 dom = main_domain + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id:
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, ops.location_id, move.product_id, record.qty, domain=dom, prefered_domain_list=prefered_domain_list,
                                                           restrict_lot_id=ops.lot_id.id, restrict_partner_id=ops.owner_id.id, context=ctxx)
@@ -2675,7 +2675,7 @@ class stock_move(osv.osv):
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id:
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain, prefered_domain_list=prefered_domain_list, restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
                 quant_obj.quants_move(cr, uid, quants, move, move.location_dest_id, lot_id=move.restrict_lot_id.id, owner_id=move.restrict_partner_id.id, context=context)
