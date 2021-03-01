@@ -854,6 +854,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
     _process_save: function(save_obj, from_button) {
         var self = this;
         var prepend_on_create = save_obj.prepend_on_create;
+        var actual_mode = this.get("actual_mode");
         try {
             var form_invalid = false,
                 values = {},
@@ -862,7 +863,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
             for (var f in self.fields) {
                 if (!self.fields.hasOwnProperty(f)) { continue; }
                 f = self.fields[f];
-                if (!f.is_valid()) {
+                if (!f.is_valid() && actual_mode !== "view") {
                     form_invalid = true;
                     if (!first_invalid_field) {
                         first_invalid_field = f;
