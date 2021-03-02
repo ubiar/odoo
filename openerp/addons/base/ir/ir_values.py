@@ -431,6 +431,8 @@ class ir_values(osv.osv):
             if action_model not in self.pool:
                 continue                # unknown model? skip it!
             action = self.pool[action_model].browse(cr, uid, int(action_id), context)
+            if 'active' in action and not action.active:
+                continue
             actions.append((id, name, action))
 
         # process values and their action
