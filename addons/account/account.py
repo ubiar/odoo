@@ -33,6 +33,7 @@ from openerp.tools.translate import _
 from openerp.tools.float_utils import float_round as round
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.exceptions import UserError
+from openerp.http import request
 
 import openerp.addons.decimal_precision as dp
 
@@ -2148,6 +2149,12 @@ class account_tax(osv.osv):
 
     @api.v8
     def compute_all(self, price_unit, quantity, product=None, partner=None, force_excluded=False):
+        if request and 'tax_subcompania_id' in self._context.keys():
+            request.context['tax_subcompania_id'] = self._context['tax_subcompania_id']
+        if request and 'precio_unitario_con_iva' in self._context.keys():
+            request.context['precio_unitario_con_iva'] = self._context['precio_unitario_con_iva']
+        if request and 'calculo_impuesto_vars' in self._context.keys():
+            request.context['calculo_impuesto_vars'] = self._context['calculo_impuesto_vars']
         return self._model.compute_all(
             self._cr, self._uid, self, price_unit, quantity,
             product=product, partner=partner, force_excluded=force_excluded, context=self._context)
