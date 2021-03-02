@@ -132,6 +132,8 @@ class ir_rule(osv.osv):
             global_domains = []                 # list of domains
             group_domains = {}                  # map: group -> list of domains
             for rule in self.browse(cr, SUPERUSER_ID, rule_ids):
+                if context and context.get('disable_all_rules'):
+                    continue
                 if context and context.get('disable_rules') and rule.code and rule.code in context.get('disable_rules'):
                     continue
                 if context and context.get('disable_rules_ids') and type(context.get('disable_rules_ids')) == list and rule.id in context.get('disable_rules_ids'):
