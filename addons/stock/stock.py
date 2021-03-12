@@ -1244,6 +1244,7 @@ class stock_picking(osv.osv):
                     continue
                 move_quants = move.reserved_quant_ids
                 picking_quants += move_quants
+
                 # Si tiene lote indivisible y ya reservo la misma cantidad que las udv no importa si hay diferencia con el stock
                 # ya que los lotes pueden pesar distinto
                 if move.product_id.tracking == 'lote_indivisible' and round(len(move.reserved_quant_ids), 2) == round(move.product_uos_qty, 2):
@@ -1296,6 +1297,11 @@ class stock_picking(osv.osv):
                 })
                 move_dict['remaining_qty'] += qty_to_assign - move_dict['remaining_qty']
             qty_on_link = min(move_dict['remaining_qty'], qty_to_assign)
+            # Caso de RP parcial de REPO/PAB con dos moves en el picking para el mismo producto, uno 'waiting' y el otro 'assigned'. El 'waiting' no se está recibiendo pero esto creaba un operation.link con cantidad 0
+            # lo que hacía que se cree un Quant con cantidad 0 y se "reciba" solo, pero sin cambiar el estado del piciking 'waiting'
+            if not qty_on_link and move.state == 'waiting':
+                prod2move_ids[product_id].pop(index)
+                return qty_on_link
             self.pool.get('stock.move.operation.link').create(cr, uid, {'move_id': move_dict['move'].id, 'operation_id': operation_id, 'qty': qty_on_link, 'reserved_quant_id': quant_id}, context=context)
             if move_dict['remaining_qty'] == qty_on_link:
                 prod2move_ids[product_id].pop(index)
