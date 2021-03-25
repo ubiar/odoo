@@ -736,8 +736,14 @@ class crm_lead(format_address, osv.osv):
             'country_id': lead.country_id and lead.country_id.id or False,
             'state_id': lead.state_id and lead.state_id.id or False,
             'is_company': is_company,
-            'type': 'contact'
+            'customer': is_company,
+            'type': 'contact',
+            'city_id': lead.ciudad_id.id,
         }
+        if is_company:
+            vals['numero_documento'] = lead.numero_documento
+            vals['tipo_documento_id'] = lead.tipo_documento_id.id
+            vals['numero_documento'] = lead.numero_documento
         partner = partner.create(cr, uid, vals, context=context)
         return partner
 
