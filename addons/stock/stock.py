@@ -546,9 +546,9 @@ class stock_quant(osv.osv):
         
         # In case of serial tracking, check if the product does not exist somewhere internally already
         picking_type = move.picking_id and move.picking_id.picking_type_id or False
-        if move.product_id.tracking == 'serial' and (not picking_type or (picking_type.use_create_lots or picking_type.use_existing_lots)):
+        if move.product_id.tracking in ['serial', 'lote_indivisible'] and (not picking_type or (picking_type.use_create_lots or picking_type.use_existing_lots)):
             if qty != 1.0:
-                raise UserError(_('El producto %s solo se puede recibir con un número de serie asociado por cada unidad.') % move.product_id.name_get()[0][1])
+                raise UserError(_("El nº de Lote Indivisible o Serie '%s' ya fue ingresado.\n Línea: '%s'") % (self.pool.get('stock.production.lot').browse(cr, uid, lot_id, context=context).name, move.product_id.name_get()[0][1]))
             other_quants = self.search(cr, uid, [('product_id', '=', move.product_id.id), ('lot_id', '=', lot_id),
                                                  ('qty', '>', 0.0), ('location_id.usage', '=', 'internal')], context=context)
             if other_quants:
