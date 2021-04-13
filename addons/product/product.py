@@ -809,22 +809,18 @@ class product_template(osv.osv):
     def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
         # Only use the product.product heuristics if there is a search term and the domain
         # does not specify a match on `product.template` IDs.
-        if (not name or any(term[0] == 'id' for term in (args or []))) and not context.get('name_search_template_normal'):
-            return super(product_template, self).name_search(
-                cr, user, name=name, args=args, operator=operator, context=context, limit=limit)
-
         product_product = self.pool['product.product']
-        results = product_product.name_search(
-            cr, user, name, args, operator=operator, context=context, limit=limit)
+        if not name or any(term[0] == 'id' for term in (args or [])):
+            if not name:
+                return super(product_template, self).name_search(cr, user, name=name, args=args, operator=operator, context=context, limit=limit)
+            else:
+                producto_ids = self.search(cr, user, ['|', ('barcode', 'ilike', name), '|', ('default_code', 'ilike', name), ('name', 'ilike', name)] + args, limit=limit)
+                return self.name_get(cr, user, producto_ids, context)
+        results = product_product.name_search(cr, user, name, args, operator=operator, context=context, limit=limit)
         product_ids = [p[0] for p in results]
-        template_ids = [p.product_tmpl_id.id
-                            for p in product_product.browse(
-                                cr, user, product_ids, context=context)]
-
+        template_ids = [p.product_tmpl_id.id for p in product_product.browse(cr, user, product_ids, context=context)]
         # re-apply product.template order + name_get
-        return super(product_template, self).name_search(
-            cr, user, '', args=[('id', 'in', template_ids)],
-            operator='ilike', context=context, limit=limit)
+        return super(product_template, self).name_search(cr, user, '', args=[('id', 'in', template_ids)], operator='ilike', context=context, limit=limit)
 
 class product_product(osv.osv):
     _name = "product.product"
