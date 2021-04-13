@@ -4560,7 +4560,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
             return _.every(fields, function(field){
                 field.process_modifiers();
                 field._check_css_flags();
-                return field.is_valid();
+                return _.keys(record.values).includes(field.name) ? field.is_valid() : true;
             });
         });
         _.each(fields, function(field){

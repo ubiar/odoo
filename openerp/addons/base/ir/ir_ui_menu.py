@@ -98,6 +98,14 @@ class ir_ui_menu(osv.osv):
                     fname = model_fname.get(menu.action._name)
                     if not fname or not menu.sudo().action[fname] or \
                             access.check(menu.sudo().action[fname], 'read', False):
+                        if menu.action._name == 'ir.actions.act_window' and menu.action.res_model == 'ir.actions.report.promptwizard':
+                            service_name = False
+                            try:
+                                service_name = eval(menu.action.context or '{}').get('service_name')
+                            except Exception, e:
+                                pass
+                            if service_name and not self.env['ir.actions.report.xml'].search([('report_name', '=', service_name)], limit=1):
+                                continue
                         # make menu visible, and its folder ancestors, too
                         visible += menu
                         menu = menu.parent_id
