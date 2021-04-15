@@ -2491,7 +2491,7 @@ class stock_move(osv.osv):
                 if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
                 # No Valida Trazabilidad
-                elif move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                elif 'subtipo' in move.picking_id and move.picking_id.subtipo == 'return' and move.origin_returned_move_id and move.product_id.tracking == 'lot':
                     lote_ids = list(set([q.lot_id.id for q in move.origin_returned_move_id.quant_ids])) # Sólo Quants pertenecientes a los Lotes que se Recibieron originalmente
                     main_domain[move.id] += [('lot_id', 'in', lote_ids)]
                 for link in move.linked_move_operation_ids:
