@@ -382,6 +382,11 @@ class BaseModel(object):
                 cr.execute("INSERT INTO ir_model_data (name,date_init,date_update,module,model,res_id) VALUES (%s, (now() at time zone 'UTC'), (now() at time zone 'UTC'), %s, %s, %s)", \
                     (name_id, context['module'], 'ir.model', model_id)
                 )
+                
+        # Si no existe el campo lleva_seguimiento en ir_model_fields lo creo para que no de un error de sql
+        cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_model_fields' and column_name='lleva_seguimiento';")
+        if not cr.fetchone():
+            cr.execute("ALTER TABLE ir_model_fields ADD COLUMN lleva_seguimiento BOOLEAN;")
 
         cr.execute("SELECT * FROM ir_model_fields WHERE model=%s", (self._name,))
         cols = {}
@@ -389,11 +394,6 @@ class BaseModel(object):
             cols[rec['name']] = rec
 
         ir_model_fields_obj = self.pool.get('ir.model.fields')
-        
-        # Si no existe el campo lleva_seguimiento en ir_model_fields lo creo para que no de un error de sql
-        cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_model_fields' and column_name='lleva_seguimiento';")
-        if not cr.fetchone():
-            cr.execute("ALTER TABLE ir_model_fields ADD COLUMN lleva_seguimiento BOOLEAN;")
 
         # sparse field should be created at the end, as it depends on its serialized field already existing
         model_fields = sorted(self._fields.items(), key=lambda x: 1 if x[1].type == 'sparse' else 0)
