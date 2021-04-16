@@ -546,9 +546,9 @@ class stock_quant(osv.osv):
         
         # In case of serial tracking, check if the product does not exist somewhere internally already
         picking_type = move.picking_id and move.picking_id.picking_type_id or False
-        if move.product_id.tracking == 'serial' and (not picking_type or (picking_type.use_create_lots or picking_type.use_existing_lots)):
+        if move.product_id.tracking in ['serial', 'lote_indivisible'] and (not picking_type or (picking_type.use_create_lots or picking_type.use_existing_lots)):
             if qty != 1.0:
-                raise UserError(_('El producto %s solo se puede recibir con un número de serie asociado por cada unidad.') % move.product_id.name_get()[0][1])
+                raise UserError(_("El nº de Lote Indivisible o Serie '%s' ya fue ingresado.\n Línea: '%s'") % (self.pool.get('stock.production.lot').browse(cr, uid, lot_id, context=context).name, move.product_id.name_get()[0][1]))
             other_quants = self.search(cr, uid, [('product_id', '=', move.product_id.id), ('lot_id', '=', lot_id),
                                                  ('qty', '>', 0.0), ('location_id.usage', '=', 'internal')], context=context)
             if other_quants:
@@ -2491,7 +2491,7 @@ class stock_move(osv.osv):
                 if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
                 # No Valida Trazabilidad
-                elif move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                elif 'subtipo' in move.picking_id and move.picking_id.subtipo == 'return' and move.origin_returned_move_id and move.product_id.tracking == 'lot':
                     lote_ids = list(set([q.lot_id.id for q in move.origin_returned_move_id.quant_ids])) # Sólo Quants pertenecientes a los Lotes que se Recibieron originalmente
                     main_domain[move.id] += [('lot_id', 'in', lote_ids)]
                 for link in move.linked_move_operation_ids:
@@ -2504,15 +2504,15 @@ class stock_move(osv.osv):
             for record in ops.linked_move_operation_ids:
                 move = record.move_id
                 if move.id in main_domain:
-                    domain = main_domain[move.id] + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
+                    domain = main_domain[move.id] + self.pool.get('stock.move.operation.link').get_specific_domain(cr, SUPERUSER_ID, record, context=context)
                     qty = record.qty
                     if qty:
                         ctxx = context.copy()
                         # Se hace para OE de Ventas y TI
-                        if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
+                        if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
                             ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
-                        quants = quant_obj.quants_get_prefered_domain(cr, uid, ops.location_id, move.product_id, qty, domain=domain, prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
-                        quant_obj.quants_reserve(cr, uid, quants, move, record, context=context)
+                        quants = quant_obj.quants_get_prefered_domain(cr, SUPERUSER_ID, ops.location_id, move.product_id, qty, domain=domain, prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
+                        quant_obj.quants_reserve(cr, SUPERUSER_ID, quants, move, record, context=context)
         for move in todo_moves:
             if move.linked_move_operation_ids:
                 continue
@@ -2521,9 +2521,9 @@ class stock_move(osv.osv):
                 qty_already_assigned = move.reserved_availability
                 qty = move.product_qty - qty_already_assigned
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
-                quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain[move.id], prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
+                quants = quant_obj.quants_get_prefered_domain(cr, SUPERUSER_ID, move.location_id, move.product_id, qty, domain=main_domain[move.id], prefered_domain_list=[], restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
                 # Si utiliza lotes indivisibles no importa la cantidad de stock si no la cantidad de ventas
                 # o sea se pretenden reservar 3 cajas independientemente de la cantidad que haya adentro
                 if move.product_id.tracking == 'lote_indivisible':
@@ -2538,8 +2538,7 @@ class stock_move(osv.osv):
                         quants.append([quant, quant.qty])
                     if len(quants) == product_uos_qty:
                         move.state = 'assigned'
-                quant_obj.quants_reserve(cr, uid, quants, move, context=context)
-
+                quant_obj.quants_reserve(cr, SUPERUSER_ID, quants, move, context=context)
         #force assignation of consumable products and incoming from supplier/inventory/production
         if to_assign_moves:
             self.force_assign(cr, uid, list(set(to_assign_moves)), context=context)
