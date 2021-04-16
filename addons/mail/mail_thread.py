@@ -488,7 +488,7 @@ class mail_thread(osv.AbstractModel):
         return {}
 
     def message_track(self, cr, uid, ids, tracked_fields, initial_values, context=None):
-
+        
         def convert_for_display(value, col_info):
             if col_info['type'] == 'boolean':
                 if value:
@@ -526,7 +526,6 @@ class mail_thread(osv.AbstractModel):
             initial = initial_values[browse_record.id]
             changes = set()
             tracked_values = {}
-
             # generate tracked_values data structure: {'col_name': {col_info, new_value, old_value}}
             for col_name, col_info in tracked_fields.items():
                 field = self._fields[col_name]
@@ -539,7 +538,7 @@ class mail_thread(osv.AbstractModel):
                         new_value=convert_for_display(record_value, col_info),
                     )
                 elif record_value != initial_value and (record_value or initial_value):  # because browse null != False
-                    if getattr(field, 'track_visibility', None) in ['always', 'onchange']:
+                    if getattr(field, 'track_visibility', 'onchange') in ['always', 'onchange']:
                         tracked_values[col_name] = dict(
                             col_info=col_info['string'],
                             old_value=convert_for_display(initial_value, col_info),
@@ -549,7 +548,7 @@ class mail_thread(osv.AbstractModel):
                         changes.add(col_name)
             if not changes:
                 continue
-
+            
             # find subtypes and post messages or log if no subtype found
             subtypes = []
             # By passing this key, that allows to let the subtype empty and so don't sent email because partners_to_notify from mail_message._notify will be empty
@@ -562,19 +561,25 @@ class mail_thread(osv.AbstractModel):
                             subtypes.append(subtype)
 
             posted = False
+            message_id = False
             for subtype in subtypes:
                 subtype_rec = self.pool.get('ir.model.data').xmlid_to_object(cr, uid, subtype, context=context)
                 if not (subtype_rec and subtype_rec.exists()):
                     _logger.debug('subtype %s not found' % subtype)
                     continue
                 message = format_message(subtype_rec.description if subtype_rec.description else subtype_rec.name, tracked_values)
-                self.message_post(cr, uid, browse_record.id, body=message, subtype=subtype, context=context)
+                message_id = self.message_post(cr, uid, browse_record.id, body=message, subtype=subtype, context=context)
                 posted = True
             if not posted:
                 message = format_message('', tracked_values)
                 if message != '':
-                    self.message_post(cr, uid, browse_record.id, body=message, context=context)
+                    message_id = self.message_post(cr, uid, browse_record.id, body=message, context=context)
+            if message_id and tracked_values:
+                self.save_origin_tracked_values(cr, uid, message_id, tracked_values, context=context)
         return True
+    
+    def save_origin_tracked_values(self, cr, uid, message_id, values, context=None):
+        pass
 
     #------------------------------------------------------
     # mail.message wrappers and tools

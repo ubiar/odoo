@@ -389,6 +389,11 @@ class BaseModel(object):
             cols[rec['name']] = rec
 
         ir_model_fields_obj = self.pool.get('ir.model.fields')
+        
+        # Si no existe el campo lleva_seguimiento en ir_model_fields lo creo para que no de un error de sql
+        cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_model_fields' and column_name='lleva_seguimiento';")
+        if not cr.fetchone():
+            cr.execute("ALTER TABLE ir_model_fields ADD COLUMN lleva_seguimiento BOOLEAN;")
 
         # sparse field should be created at the end, as it depends on its serialized field already existing
         model_fields = sorted(self._fields.items(), key=lambda x: 1 if x[1].type == 'sparse' else 0)
@@ -407,6 +412,7 @@ class BaseModel(object):
                 'translate': (f.translate if hasattr(f,'translate') else False and 1) or 0,
                 'relation_field': f.inverse_name if hasattr(f, 'inverse_name') else '',
                 'serialization_field_id': None,
+                'lleva_seguimiento': True if getattr(f, 'track_visibility', False) else False,
             }
             if getattr(f, 'serialization_field', None):
                 # resolve link to serialization_field if specified by name
@@ -429,13 +435,13 @@ class BaseModel(object):
                 vals['id'] = id
                 cr.execute("""INSERT INTO ir_model_fields (
                     id, model_id, model, name, field_description, ttype,
-                    relation,state,select_level,relation_field, translate, serialization_field_id
+                    relation,state,select_level,relation_field, translate, serialization_field_id, lleva_seguimiento
                 ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
                 )""", (
                     id, vals['model_id'], vals['model'], vals['name'], vals['field_description'], vals['ttype'],
                      vals['relation'], 'base',
-                    vals['select_level'], vals['relation_field'], bool(vals['translate']), vals['serialization_field_id']
+                    vals['select_level'], vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento']
                 ))
                 if 'module' in context:
                     name1 = 'field_' + self._table + '_' + k
@@ -458,12 +464,12 @@ class BaseModel(object):
                         cr.execute('update ir_model_fields set field_description=%s where model=%s and name=%s', (vals['field_description'], vals['model'], vals['name']))
                         cr.execute("""UPDATE ir_model_fields SET
                             model_id=%s, field_description=%s, ttype=%s, relation=%s,
-                            select_level=%s, readonly=%s ,required=%s, selectable=%s, relation_field=%s, translate=%s, serialization_field_id=%s
+                            select_level=%s, readonly=%s ,required=%s, selectable=%s, relation_field=%s, translate=%s, serialization_field_id=%s, lleva_seguimiento=%s
                         WHERE
                             model=%s AND name=%s""", (
                                 vals['model_id'], vals['field_description'], vals['ttype'],
                                 vals['relation'],
-                                vals['select_level'], bool(vals['readonly']), bool(vals['required']), bool(vals['selectable']), vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['model'], vals['name']
+                                vals['select_level'], bool(vals['readonly']), bool(vals['required']), bool(vals['selectable']), vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento'], vals['model'], vals['name']
                             ))
                         break
         self.invalidate_cache(cr, SUPERUSER_ID)
