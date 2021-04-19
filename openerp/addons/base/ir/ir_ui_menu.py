@@ -230,6 +230,21 @@ class ir_ui_menu(osv.osv):
         for menu_id in ids:
             res[menu_id] = values_action.get(menu_id, False)
         return res
+    
+    def _search_action(self, cursor, user, obj, name, args, domain=None, context=None):
+        domain = []
+        for cond in args:
+            operator = cond[1]
+            value = cond[2]
+            if operator in ['!=', '='] and not value:
+                cursor.execute("SELECT array_agg(DISTINCT(res_id)) FROM ir_values WHERE key = 'action' AND key2 = 'tree_but_open' and model = 'ir.ui.menu'")
+                res = cursor.fetchone()
+                res = res and res[0] or []
+                if operator == '!=':
+                    domain = [('id', 'in', res)]
+                else:
+                    domain = [('id', 'not in', res)]
+        return domain
 
     def _action_inv(self, cursor, user, menu_id, name, value, arg, context=None):
         if context is None:
@@ -482,7 +497,7 @@ class ir_ui_menu(osv.osv):
             store=True,
             string='Target model uses the need action mechanism',
             help='If the menu entry action is an act_window action, and if this action is related to a model that uses the need_action mechanism, this field is set to true. Otherwise, it is false.'),
-        'action': fields.function(_action, fnct_inv=_action_inv,
+        'action': fields.function(_action, fnct_inv=_action_inv, fnct_search=_search_action,
             type='reference', string='Action', size=21,
             selection=[
                 ('ir.actions.report.xml', 'ir.actions.report.xml'),
