@@ -275,6 +275,7 @@ class configmanager(object):
                          help="Absolute path to the GeoIP database file.")
         group.add_option("--newrelic-config-file", dest="newrelic_config_file", my_default=False, help="New Relic Config File")
         group.add_option("--fast-update", dest="fast_update", my_default=False)
+        group.add_option("--update-only", dest="update_only", my_default=False)
         parser.add_option_group(group)
 
         if os.name == 'posix':
@@ -384,7 +385,7 @@ class configmanager(object):
                 'db_name', 'db_user', 'db_password', 'db_host',
                 'db_port', 'db_template', 'logfile', 'pidfile', 'smtp_port',
                 'email_from', 'smtp_server', 'smtp_user', 'smtp_password',
-                'db_maxconn', 'import_partial', 'addons_path', 'newrelic_config_file', 'fast_update',
+                'db_maxconn', 'import_partial', 'addons_path', 'newrelic_config_file', 'fast_update', 'update_only',
                 'xmlrpc', 'syslog', 'without_demo',
                 'dbfilter', 'log_level', 'log_db',
                 'log_db_level', 'geoip_database',
@@ -450,7 +451,8 @@ class configmanager(object):
 
         self.options['init'] = opt.init and dict.fromkeys(opt.init.split(','), 1) or {}
         self.options["demo"] = not opt.without_demo and self.options['init'] or {}
-        self.options['update'] = opt.update and dict.fromkeys(opt.update.split(','), 1) or {}
+        self.options['update'] = (opt.update or opt.update_only) and dict.fromkeys((opt.update or opt.update_only).split(','), 1) or {}
+        self.options['update_only'] = opt.update_only and dict.fromkeys(opt.update_only.split(','), 1) or {}
         self.options['translate_modules'] = opt.translate_modules and map(lambda m: m.strip(), opt.translate_modules.split(',')) or ['all']
         self.options['translate_modules'].sort()
 

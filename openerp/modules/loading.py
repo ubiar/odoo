@@ -168,6 +168,11 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
     _logger.info('loading %d modules...', len(graph))
 
     registry.clear_manual_fields()
+    update_only = False
+    
+    if tools.config.get('update_only') and not tools.config.get('servidor_produccion'):
+        update_only = tools.config.get('update_only').keys()
+        cr.execute("UPDATE ir_module_module SET state = 'installed' WHERE state = 'to upgrade' AND name NOT IN (%s)" % str(update_only)[1:-1])
 
     # register, instantiate and initialize models for each modules
     t0 = time.time()
@@ -179,7 +184,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         
         if skip_modules and module_name in skip_modules:
             continue
-
+        
         migrations.migrate_module(package, 'pre')
         load_openerp_module(package.name)
 
@@ -193,6 +198,12 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         models = registry.load(cr, package)
 
         loaded_modules.append(package.name)
+        
+        if update_only and module_name not in update_only and package.state == 'to upgrade':
+            package.state = 'installed'
+            if hasattr(package, 'update'):
+                delattr(package, 'update')
+        
         if hasattr(package, 'init') or hasattr(package, 'update') or package.state in ('to install', 'to upgrade'):
             registry.setup_models(cr, partial=True)
             init_module_models(cr, package.name, models)
@@ -206,7 +217,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True, skip_modules=
         # No actualizo los modulos que estan por desinstalarse si no quedan como instalados y no se puede automatizar una desinstalacion desde ir_upgrade_data
         cr.execute("SELECT state FROM ir_module_module WHERE name='%s'" % package.name)
         actual_state = cr.fetchone()[0]
-
+        
         if (hasattr(package, 'init') or hasattr(package, 'update') or package.state in ('to install', 'to upgrade')) and actual_state != 'to remove':
             # Can't put this line out of the loop: ir.module.module will be
             # registered by init_module_models() above.
