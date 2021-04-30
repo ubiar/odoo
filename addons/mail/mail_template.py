@@ -206,7 +206,13 @@ class mail_template(osv.osv):
         for res_id, record in res_to_rec.iteritems():
             variables['object'] = record
             try:
-                render_result = template.render(variables)
+                # TODO: Por alguna razon a veces cuando se ejecuta desde un cron da el siguiente error -> object unbound
+                # pero si se le ejecuta un read al record funciona bien, por lo tanto por el momento se soluciona de esta manera
+                try:
+                    render_result = template.render(variables)
+                except Exception, e:
+                    record.read()
+                    render_result = template.render(variables)
             except Exception, e:
                 _logger.info("Failed to render template %r using values %r" % (template, variables), exc_info=True)
                 raise UserError(_("Failed to render template %r using values %r message: %s")% (template, variables, e))
