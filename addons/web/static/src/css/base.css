@@ -1888,6 +1888,7 @@
 .openerp .oe_form_field_progressbar {
   display: inline-block;
   min-width: 70px;
+  opacity: 1;
 }
 .openerp .oe_form_field_progressbar.ui-progressbar {
   height: 22px;
@@ -1900,13 +1901,21 @@
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
-  background: white;
+  background: #eeeeee;
   min-width: 50px;
+}
+.openerp .oe_form_field_progressbar.ui-progressbar div {
+  background-image: linear-gradient(to bottom, #729fcf, #3465a4);
+  margin-top: -3px;
+  height: 22px;
 }
 .openerp .oe_form_field_progressbar.ui-progressbar span {
   position: absolute;
   margin-left: 10px;
   font-weight: bold;
+  font-size: 12px;
+  margin-top: 0px;
+  color: white;
 }
 .openerp .oe_form .oe_form_field_text {
   width: 100%;

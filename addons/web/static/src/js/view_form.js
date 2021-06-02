@@ -3113,7 +3113,7 @@ instance.web.form.FieldProgressBar = instance.web.form.AbstractField.extend({
             disabled: this.get("effective_readonly")
         });
         var formatted_value = instance.web.format_value(this.get('value') || 0, { type : 'float' });
-        this.$('span').html(formatted_value + '%');
+        this.$('span').html(formatted_value + ' %');
     }
 });
 
