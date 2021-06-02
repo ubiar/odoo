@@ -387,6 +387,11 @@ class BaseModel(object):
         cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_model_fields' and column_name='lleva_seguimiento';")
         if not cr.fetchone():
             cr.execute("ALTER TABLE ir_model_fields ADD COLUMN lleva_seguimiento BOOLEAN;")
+            
+        # Si no existe el campo copy en ir_model_fields lo creo para que no de un error de sql
+        cr.execute("SELECT 1 FROM information_schema.columns WHERE table_name='ir_model_fields' and column_name='copy';")
+        if not cr.fetchone():
+            cr.execute("ALTER TABLE ir_model_fields ADD COLUMN copy BOOLEAN;")
 
         cr.execute("SELECT * FROM ir_model_fields WHERE model=%s", (self._name,))
         cols = {}
@@ -413,6 +418,7 @@ class BaseModel(object):
                 'relation_field': f.inverse_name if hasattr(f, 'inverse_name') else '',
                 'serialization_field_id': None,
                 'lleva_seguimiento': True if getattr(f, 'track_visibility', False) else False,
+                'copy': True if getattr(f, 'copy', False) else False,
             }
             if getattr(f, 'serialization_field', None):
                 # resolve link to serialization_field if specified by name
@@ -435,13 +441,13 @@ class BaseModel(object):
                 vals['id'] = id
                 cr.execute("""INSERT INTO ir_model_fields (
                     id, model_id, model, name, field_description, ttype,
-                    relation,state,select_level,relation_field, translate, serialization_field_id, lleva_seguimiento
+                    relation,state,select_level,relation_field, translate, serialization_field_id, lleva_seguimiento, copy
                 ) VALUES (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
                 )""", (
                     id, vals['model_id'], vals['model'], vals['name'], vals['field_description'], vals['ttype'],
                      vals['relation'], 'base',
-                    vals['select_level'], vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento']
+                    vals['select_level'], vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento'], vals['copy']
                 ))
                 if 'module' in context:
                     name1 = 'field_' + self._table + '_' + k
@@ -464,12 +470,12 @@ class BaseModel(object):
                         cr.execute('update ir_model_fields set field_description=%s where model=%s and name=%s', (vals['field_description'], vals['model'], vals['name']))
                         cr.execute("""UPDATE ir_model_fields SET
                             model_id=%s, field_description=%s, ttype=%s, relation=%s,
-                            select_level=%s, readonly=%s ,required=%s, selectable=%s, relation_field=%s, translate=%s, serialization_field_id=%s, lleva_seguimiento=%s
+                            select_level=%s, readonly=%s ,required=%s, selectable=%s, relation_field=%s, translate=%s, serialization_field_id=%s, lleva_seguimiento=%s, copy=%s
                         WHERE
                             model=%s AND name=%s""", (
                                 vals['model_id'], vals['field_description'], vals['ttype'],
                                 vals['relation'],
-                                vals['select_level'], bool(vals['readonly']), bool(vals['required']), bool(vals['selectable']), vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento'], vals['model'], vals['name']
+                                vals['select_level'], bool(vals['readonly']), bool(vals['required']), bool(vals['selectable']), vals['relation_field'], bool(vals['translate']), vals['serialization_field_id'], vals['lleva_seguimiento'], vals['copy'], vals['model'], vals['name']
                             ))
                         break
         self.invalidate_cache(cr, SUPERUSER_ID)
@@ -707,6 +713,7 @@ class BaseModel(object):
                 'required': bool(field['required']),
                 'readonly': bool(field['readonly']),
                 'usuario_calculado': bool(field.get('usuario_calculado')),
+                'copy': bool(field.get('copy')),
                 'help': field.get('usuario_help'),
             }
             # FIXME: ignore field['serialization_field_id']
@@ -4931,7 +4938,6 @@ class BaseModel(object):
                     blacklist.add(name)
 
         blacklist_given_fields(self)
-
 
         fields_to_copy = dict((f,fi) for f, fi in self._fields.iteritems()
                                      if fi.copy
