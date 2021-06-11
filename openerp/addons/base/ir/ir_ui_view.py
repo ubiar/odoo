@@ -603,6 +603,8 @@ class view(osv.osv):
         """
         if context is None: context = {}
         context = context.copy()
+        if not context.get('read_combined_origin_view_id'):
+            context['read_combined_origin_view_id'] = view_id
 
         # if view_id is not a root view, climb back to the top.
         base = v = self.browse(cr, uid, view_id, context=context)
@@ -641,9 +643,9 @@ class view(osv.osv):
         arch = self.apply_view_inheritance(
             cr, uid, arch_tree, root_id, base.model, context=context)
 
-        view, arch, special_ctx = self.read_combined_a(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=None)
+        view, arch, special_ctx = self.read_combined_a(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=context)
         arch = etree.tostring(arch, encoding='utf-8')
-        view, arch = self.read_combined_b(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=None, special_ctx=special_ctx)
+        view, arch = self.read_combined_b(cr, uid, view_id=view_id, view=view, arch=arch, fields=None, context=context, special_ctx=special_ctx)
         return dict(view, arch=arch)
 
     def read_combined_a(self, cr, uid, view_id, view, arch, fields=None, context=None):
