@@ -237,6 +237,7 @@ openerp.barcodes = function(instance) {
                             parsed_result.base_code = match.base_code;
                         }
                         if (match.codigo_producto) parsed_result.codigo_producto = match.codigo_producto;
+                        if (match.codigo_lote) parsed_result.codigo_lote = match.codigo_lote;
                         return parsed_result;
                     }
                 }
