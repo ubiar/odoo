@@ -267,11 +267,13 @@ instance.web.CrashManager = instance.web.Class.extend({
             var timeinterval = setInterval(function(){
                 openerp.jsonRpc('/web/webclient/version_info').then(function() {
                     clearInterval(timeinterval);
-                    self.$indicator.html(_t("Usted está de nuevo en línea"));
-                    self.$indicator.delay(2000).fadeOut('slow', function() {
-                        $(this).remove();
-                        self.$indicator = null;
-                    });
+                    if (self.$indicator){
+                        self.$indicator.html(_t("Usted está de nuevo en línea"));
+                        self.$indicator.delay(2000).fadeOut('slow', function() {
+                            $(this).remove();
+                            self.$indicator = null;
+                        });
+                    }
                     $.unblockUI();
                 });
             }, 2000);
