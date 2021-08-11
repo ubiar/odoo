@@ -3814,18 +3814,18 @@ class BaseModel(object):
                 pool_model_data.unlink(cr, SUPERUSER_ID, reference_ids)
 
             # For the same reason, removing the record relevant to ir_values
-            ir_value_ids = ir_values_obj.search(cr, uid,
+            ir_value_ids = ir_values_obj.search(cr, SUPERUSER_ID,
                     ['|',('value','in',['%s,%s' % (self._name, sid) for sid in sub_ids]),'&',('res_id','in',list(sub_ids)),('model','=',self._name)],
                     context=context)
             if ir_value_ids:
-                ir_values_obj.unlink(cr, uid, ir_value_ids, context=context)
+                ir_values_obj.unlink(cr, SUPERUSER_ID, ir_value_ids, context=context)
 
             # For the same reason, removing the record relevant to ir_attachment
             # The search is performed with sql as the search method of ir_attachment is overridden to hide attachments of deleted records
             cr.execute('select id from ir_attachment where res_model = %s and res_id in %s', (self._name, sub_ids))
             ir_attachment_ids = [ir_attachment[0] for ir_attachment in cr.fetchall()]
             if ir_attachment_ids:
-                ir_attachment_obj.unlink(cr, uid, ir_attachment_ids, context=context)
+                ir_attachment_obj.unlink(cr, SUPERUSER_ID, ir_attachment_ids, context=context)
 
         # invalidate the *whole* cache, since the orm does not handle all
         # changes made in the database, like cascading delete!
