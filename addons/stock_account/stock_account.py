@@ -119,7 +119,7 @@ class stock_quant(osv.osv):
         if move.product_id.valuation != 'real_time':
             return False
         for q in quants:
-            if q.owner_id:
+            if q.owner_id and not context.get('desde_asignacion_producto'):
                 #if the quant isn't owned by the company, we don't make any valuation entry
                 return False
             if q.qty <= 0:
