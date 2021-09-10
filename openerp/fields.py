@@ -1743,7 +1743,15 @@ class _RelationalMulti(_Relational):
                 values = record._convert_to_write(values)
                 result.append((0, 0, values))
             elif record._is_dirty():
-                values = {k: record._cache[k] for k in record._get_dirty() if k in fnames}
+                values = {}
+                # TODO: Ver problema de fondo, se reproduce en Canje de Puntos (sale.sp.canje.punto) agregando lineas en un comprobante ya almacenado
+                # Se agrega ya que en algunos casos los onchange dentro de los o2m calculan registros que no cambiaron
+                # y los mimos no estan en la cache, debido a que la solucion del problema raiz es demasiado compleja
+                # por el momento se soluciona de esta manera
+                try:
+                    values = {k: record._cache[k] for k in record._get_dirty() if k in fnames}
+                except KeyError, e:
+                    values = {k: v for k, v in record._cache.iteritems() if k in fnames}
                 values = record._convert_to_write(values)
                 result.append((1, record.id, values))
             else:
