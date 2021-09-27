@@ -90,7 +90,12 @@ class WorkflowInstance(object):
         cr = self.session.cr
         instance_id = self.instance['id']
         cr.execute('select wkf_id from wkf_instance where id=%s', (instance_id,))
-        wkf_id = cr.fetchone()[0]
+        try:
+            wkf_id = cr.fetchone()[0]
+        except Exception, e:
+            # Esto se hizo cuando un Wkf se "reinicia" en el mismo hilo en que se está validando
+            # En ese caso el query de arriba no encuentra nada porque el Wkf se eliminó (y el nuevo ya se creó) y falla el fetchone()[0]
+            return True
         cr.execute('select state,flow_stop from wkf_workitem w left join wkf_activity a on (a.id=w.act_id) where w.inst_id=%s', (instance_id,))
         ok=True
         for r in cr.fetchall():
