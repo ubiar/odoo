@@ -3475,8 +3475,19 @@ the specific language governing permissions and limitations under the Apache Lic
          formatLoadMore: function (pageNumber) { return "Loading more results…"; },
          formatSearching: function () { return "Searching…"; },
     };
+    
+    $.fn.select2.locales['es'] = {
+         formatMatches: function (matches) { if (matches === 1) { return "Un resultado disponible, presione Enter para seleccionar."; } return matches + " resultados disponibles, use las flechas arriba y abajo para seleccionar."; },
+         formatNoMatches: function () { return "No se encontraron resultados"; },
+         formatAjaxError: function (jqXHR, textStatus, errorThrown) { return "No se pudo cargar"; },
+         formatInputTooShort: function (input, min) { var n = min - input.length; return "Por favor, introduzca " + n + " caracter" + (n == 1 ? "" : "es"); },
+         formatInputTooLong: function (input, max) { var n = input.length - max; return "Por favor, elimine " + n + " character" + (n == 1 ? "" : "es"); },
+         formatSelectionTooBig: function (limit) { return "Solo puede seleccionar " + limit + " item" + (limit == 1 ? "" : "s"); },
+         formatLoadMore: function (pageNumber) { return "Cargando más resultados…"; },
+         formatSearching: function () { return "Buscando…"; },
+    };
 
-    $.extend($.fn.select2.defaults, $.fn.select2.locales['en']);
+    $.extend($.fn.select2.defaults, $.fn.select2.locales['es']);
 
     $.fn.select2.ajaxDefaults = {
         transport: $.ajax,
