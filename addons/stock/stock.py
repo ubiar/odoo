@@ -668,6 +668,12 @@ class stock_quant(osv.osv):
         offset = 0
         while float_compare(quantity, 0, precision_rounding=product.uom_id.rounding) > 0:
             quants = self.search(cr, uid, domain, order=orderby, limit=10, offset=offset, context=context)
+            # Se realiza para el caso de la cancelación de controles de inventario con lote indivisible en donde tiene que encontrar
+            # el quant por la misma cantidad para volverlo a stock
+            if context.get('returned_move'):
+                qts = self.search(cr, uid, domain + [('qty', '=', quantity)], order=orderby, limit=1, offset=offset, context=context)
+                if qts:
+                    quants = qts
             if not quants:
                 res.append((None, quantity))
                 break
