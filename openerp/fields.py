@@ -1484,7 +1484,8 @@ class Reference(Selection):
         elif isinstance(value, basestring):
             res_model, res_id = value.split(',')
             if res_id and res_id != 'False':
-                return record.env[res_model].browse(int(res_id))
+                # Se cambió el browse por un search porque daba error en los Estados Configurables cuando quedaba configurado un registro de prueba que luego se eliminó
+                return record.env[res_model].search([('id', '=', int(res_id))])
             else:
                 return record.env[res_model]
         elif not value:
