@@ -1483,9 +1483,9 @@ class Reference(Selection):
                 return value.with_env(record.env) or False
         elif isinstance(value, basestring):
             res_model, res_id = value.split(',')
-            if res_id and res_id != 'False':
-                # Se cambió el browse por un search porque daba error en los Estados Configurables cuando quedaba configurado un registro de prueba que luego se eliminó
-                return record.env[res_model].search([('id', '=', int(res_id))])
+            # Se agrego un search porque daba error en los Estados Configurables cuando quedaba configurado un registro de prueba que luego se eliminó
+            if res_id and res_id != 'False' and record.env[res_model].sudo().search([('id', '=', int(res_id))]):
+                return record.env[res_model].browse(int(res_id))
             else:
                 return record.env[res_model]
         elif not value:
