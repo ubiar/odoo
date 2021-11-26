@@ -3556,10 +3556,6 @@ class BaseModel(object):
         fetched = self.browse(ids)
         missing = self - fetched
         if missing:
-            self.invalidate_cache()
-            fetched = self.browse(ids)
-            missing = self - fetched
-        if missing:
             extras = fetched - self
             if extras:
                 raise AccessError(
