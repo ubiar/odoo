@@ -72,7 +72,23 @@ class stock_return_picking(osv.osv_memory):
         if pick:
             if pick.state != 'done':
                 raise UserError(_("You may only return pickings that are Done!"))
-                
+
+            cr.execute('''
+                SELECT
+                    quant.ID
+                FROM
+                    stock_picking_wave remito
+                    LEFT JOIN stock_picking devolucion ON devolucion.wave_id = remito.ID
+                    LEFT JOIN stock_move MOVE ON MOVE.picking_id = devolucion.ID
+                    LEFT JOIN stock_quant_move_rel quant_x_move ON quant_x_move.move_id = MOVE.ID
+                    LEFT JOIN stock_quant quant ON quant.ID = quant_x_move.quant_id
+                    LEFT JOIN stock_picking_type picking_type ON picking_type.ID = devolucion.picking_type_id
+                WHERE
+                    picking_type.code = 'incoming'
+                    AND remito.ID = %s
+                    ''', [pick.wave_id.id])
+            quants_devueltos = [r[0] for r in cr.fetchall()]
+
             for move in pick.move_lines:
                 if move.state == 'cancel':
                     continue
@@ -88,7 +104,7 @@ class stock_return_picking(osv.osv_memory):
                     validar_trazabilidad = move.product_id.categ_id.validar_trazabilidad
                 # Lote Indivisible y Serie siempre validan Trazabilidad (sólo los Quants originales)
                 if validar_trazabilidad or tracking in ['lote_indivisible', 'serial']:
-                    quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
+                    quant_search = quant_obj.search(cr, uid, [('history_ids', 'in', move.id), ('id', 'not in', quants_devueltos), ('qty', '>', 0.0), ('location_id', 'child_of', move.location_dest_id.id)], context=context)
                 # Lote permite no validar Trazabilidad, pero los posibles quants igual quedan atados a los Lotes que se recibieron originalmente (cualquier Quant pero de los Lotes originales)
                 elif tracking == 'lot':
                     lote_ids = list(set([q.lot_id.id for q in move.quant_ids]))
