@@ -73,21 +73,23 @@ class stock_return_picking(osv.osv_memory):
             if pick.state != 'done':
                 raise UserError(_("You may only return pickings that are Done!"))
 
-            cr.execute('''
-                SELECT
-                    quant.ID
-                FROM
-                    stock_picking_wave remito
-                    LEFT JOIN stock_picking devolucion ON devolucion.wave_id = remito.ID
-                    LEFT JOIN stock_move MOVE ON MOVE.picking_id = devolucion.ID
-                    LEFT JOIN stock_quant_move_rel quant_x_move ON quant_x_move.move_id = MOVE.ID
-                    LEFT JOIN stock_quant quant ON quant.ID = quant_x_move.quant_id
-                    LEFT JOIN stock_picking_type picking_type ON picking_type.ID = devolucion.picking_type_id
-                WHERE
-                    picking_type.code = 'incoming'
-                    AND remito.ID = %s
-                    ''', [pick.wave_id.id])
-            quants_devueltos = [r[0] for r in cr.fetchall()]
+            quants_devueltos = []
+            if pick.wave_id:
+                cr.execute('''
+                    SELECT
+                        quant.ID
+                    FROM
+                        stock_picking_wave remito
+                        LEFT JOIN stock_picking devolucion ON devolucion.wave_id = remito.ID
+                        LEFT JOIN stock_move MOVE ON MOVE.picking_id = devolucion.ID
+                        LEFT JOIN stock_quant_move_rel quant_x_move ON quant_x_move.move_id = MOVE.ID
+                        LEFT JOIN stock_quant quant ON quant.ID = quant_x_move.quant_id
+                        LEFT JOIN stock_picking_type picking_type ON picking_type.ID = devolucion.picking_type_id
+                    WHERE
+                        picking_type.code = 'incoming'
+                        AND remito.ID = %s
+                        ''', [pick.wave_id.id])
+                quants_devueltos = [r[0] for r in cr.fetchall()]
 
             for move in pick.move_lines:
                 if move.state == 'cancel':
