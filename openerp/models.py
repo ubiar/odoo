@@ -48,7 +48,7 @@ import pickle
 import pytz
 import re
 import time
-from collections import defaultdict, MutableMapping
+from collections import defaultdict, MutableMapping, OrderedDict
 from inspect import getmembers, currentframe
 from operator import itemgetter
 
@@ -65,7 +65,7 @@ from .api import Environment
 from .exceptions import AccessError, MissingError, ValidationError, Warning, UserError
 from .osv import fields
 from .osv.query import Query
-from .tools import frozendict, lazy_property, ormcache
+from .tools import frozendict, lazy_property, ormcache, OrderedSet
 from .tools.config import config
 from .tools.func import frame_codeinfo
 from .tools.misc import CountingStream, DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
@@ -256,6 +256,7 @@ class MetaModel(api.Meta):
 
 class NewId(object):
     """ Pseudo-ids for new records. """
+    
     def __nonzero__(self):
         return False
 
@@ -6004,11 +6005,10 @@ class BaseModel(object):
                 result.setdefault('domain', {}).update(method_res['domain'])
             if 'warning' in method_res:
                 result['warning'] = method_res['warning']
-
+    
     @api.multi
     def onchange(self, values, field_name, field_onchange):
         """ Perform an onchange on the given field.
-
             :param values: dictionary mapping field names to values, giving the
                 current state of modification
             :param field_name: name of the modified field, or list of field
@@ -6026,92 +6026,207 @@ class BaseModel(object):
 
         if not all(name in self._fields for name in names):
             return {}
+        
+        o2m_delete_commands = {}
+        for key, val in values.iteritems():
+            if val and type(val) in [list, tuple] and type(val[0]) in [list, tuple] and self._fields[key].type == 'one2many':
+                for command in val:
+                    if command[0] == 2:
+                        if not o2m_delete_commands.get(key):
+                            o2m_delete_commands[key] = []
+                        o2m_delete_commands[key].append(command)
 
-        # determine subfields for field.convert_to_write() below
-        secondary = []
-        subfields = defaultdict(set)
-        for dotname in field_onchange:
-            if '.' in dotname:
-                secondary.append(dotname)
-                name, subname = dotname.split('.')
-                subfields[name].add(subname)
+        def PrefixTree(model, dotnames):
+            """ Return a prefix tree for sequences of field names. """
+            if not dotnames:
+                return {}
+            # group dotnames by prefix
+            suffixes = defaultdict(list)
+            for dotname in dotnames:
+                # name, *names = dotname.split('.', 1)
+                names = dotname.split('.', 1)
+                name = names.pop(0)
+                suffixes[name].extend(names)
+            # fill in prefix tree in fields order
+            tree = OrderedDict()
+            for name, field in model._fields.items():
+                if name in suffixes:
+                    tree[name] = subtree = PrefixTree(model[name], suffixes[name])
+                    if subtree and field.type == 'one2many':
+                        subtree.pop(field.inverse_name, None)
+            return tree
+
+        class Snapshot(dict):
+            """ A dict with the values of a record, following a prefix tree. """
+            __slots__ = ()
+            
+            # Se toman los valores del snapshot0 de los valores que recibe el onchange para evitar
+            # leer los campos calculados del objeto ya que no los lee de la cache y los recalcula
+            # lo cual hace que no se pueda detectar que cambio ese valor ya que al recalcularse toma el
+            # valor nuevo
+            def __init__(self, record, tree, init_values=False):
+                
+                def get_value(name):
+                    if init_values and name in init_values.keys():
+                        val = init_values[name]
+                        if record._fields[name].type == 'many2one':
+                            if type(val) == int:
+                                return env[record._fields[name].comodel_name].browse(val) if val else env[record._fields[name].comodel_name]
+                            else:
+                                return record[name]
+                        elif record._fields[name].type == 'many2many':
+                            val_ids = []
+                            if val and type(val) in (list, tuple):
+                                for v in val:
+                                    if type(v) == int:
+                                        val_ids.append(v)
+                                    elif v[0] == 6:
+                                        val_ids += v[2]
+                            return env[record._fields[name].comodel_name].browse(val_ids) if val_ids else env[record._fields[name].comodel_name]
+                        elif record._fields[name].type == 'one2many':
+                            return record[name]
+                        return val
+                    else:
+                        return record[name]
+                
+                # put record in dict to include it when comparing snapshots
+                super(Snapshot, self).__init__({'<record>': record, '<tree>': tree})
+                for name, subnames in tree.items():
+                    # x2many fields are serialized as a list of line snapshots
+                    self[name] = (
+                        [Snapshot(line, subnames) for line in record[name]]
+                        if subnames else get_value(name)
+                    )
+
+            def has_changed(self, name):
+                """ Return whether a field on record has changed. """
+                record = self['<record>']
+                subnames = self['<tree>'][name]
+                if not subnames:
+                    return self[name] != record[name]
+                else:
+                    return len(self[name]) != len(record[name]) or any(
+                        line_snapshot.has_changed(subname)
+                        for line_snapshot in self[name]
+                        for subname in subnames
+                    )
+
+            def diff(self, other):
+                """ Return the values in ``self`` that differ from ``other``.
+                    Requires record cache invalidation for correct output!
+                """
+                record = self['<record>']
+                result = {}
+                for name, subnames in self['<tree>'].items():
+                    if (name == 'id') or (other.get(name) == self[name]):
+                        continue
+                    if not subnames:
+                        field = record._fields[name]
+                        result[name] = field.convert_to_onchange(self[name])
+                    else:
+                        # x2many fields: serialize value as commands
+                        result[name] = commands = []
+                        for line_snapshot in self[name]:
+                            line = line_snapshot['<record>']
+                            if not line.id:
+                                # new line: send diff from scratch
+                                line_diff = line_snapshot.diff({})
+                                commands.append((0, line.id or 0, line_diff))
+                            else:
+                                # existing line: check diff from database
+                                # (requires a clean record cache!)
+                                line_diff = line_snapshot.diff(Snapshot(line, subnames))
+                                if line_diff:
+                                    # send all fields because the web client
+                                    # might need them to evaluate modifiers
+                                    line_diff = line_snapshot.diff({})
+                                    commands.append((1, line.id, line_diff))
+                                else:
+                                    commands.append((4, line.id))
+                return result
+
+        nametree = PrefixTree(self.browse(), field_onchange)
+
+        # prefetch x2many lines without data (for the initial snapshot)
+        for name, subnames in nametree.items():
+            if subnames and values.get(name):
+                # retrieve all ids in commands, and read the expected fields
+                line_ids = []
+                for cmd in values[name]:
+                    if cmd[0] in (1, 4):
+                        line_ids.append(cmd[1])
+                    elif cmd[0] == 6:
+                        line_ids.extend(cmd[2])
+                lines = self.browse()[name].browse(line_ids)
+                lines.read(list(subnames), load='_classic_write')
 
         # create a new record with values, and attach ``self`` to it
         with env.do_in_onchange():
             record = self.new(values)
-            values = dict(record._cache)
             # attach ``self`` with a different context (for cache consistency)
             record._origin = self.with_context(__onchange=True)
 
-        # load fields on secondary records, to avoid false changes
+        # make a snapshot based on the initial values of record
         with env.do_in_onchange():
-            for field_seq in secondary:
-                try:
-                    record.mapped(field_seq)
-                except MissingError as e: 
-                    secondary.remove(field_seq)
+            snapshot0 = snapshot1 = Snapshot(record, nametree, values)
 
         # determine which field(s) should be triggered an onchange
-        todo = list(names) or list(values)
+        todo = list(names or nametree)
         done = set()
 
         # dummy assignment: trigger invalidations on the record
-        for name in todo:
-            if name == 'id':
-                continue
-            value = record[name]
-            field = self._fields[name]
-            if field.type == 'many2one' and field.delegate and not value:
-                # do not nullify all fields of parent record for new records
-                continue
-            record[name] = value
+        with env.do_in_onchange():
+            for name in todo:
+                if name == 'id':
+                    continue
+                value = record[name]
+                field = self._fields[name]
+                if field.type == 'many2one' and field.delegate and not value:
+                    # do not nullify all fields of parent record for new records
+                    continue
+                record[name] = value
 
-        result = {'value': {}}
+        result = {'warnings': OrderedSet()}
 
-        # process names in order (or the keys of values if no name given)
-        while todo:
-            name = todo.pop(0)
-            if name in done:
-                continue
-            done.add(name)
-
-            with env.do_in_onchange():
+        # process names in order
+        with env.do_in_onchange():
+            while todo:
                 # apply field-specific onchange methods
-                if field_onchange.get(name):
-                    record._onchange_eval(name, field_onchange[name], result)
-                    self.env.computed_onchange_fields.append(str(name))
+                for name in todo:
+                    if field_onchange.get(name):
+                        record._onchange_eval(name, field_onchange[name], result)
+                        self.env.computed_onchange_fields.append(str(name))
+                    done.add(name)
 
-                # force re-evaluation of function fields on secondary records
-                for field_seq in secondary:
-                    try:
-                        record.mapped(field_seq)
-                    except MissingError as e: 
-                        secondary.remove(field_seq)
+                # determine which fields to process for the next pass
+                todo = [
+                    name
+                    for name in nametree
+                    if name not in done and snapshot0.has_changed(name)
+                ]
 
-                # determine which fields have been modified
-                for name, oldval in values.iteritems():
-                    field = self._fields[name]
-                    newval = record[name]
-                    if field.type in ('one2many', 'many2many'):
-                        if newval != oldval or newval._is_dirty():
-                            # put new value in result
-                            result['value'][name] = field.convert_to_write(
-                                newval, record._origin, subfields.get(name),
-                            )
-                            todo.append(name)
-                        else:
-                            # keep result: newval may have been dirty before
-                            pass
-                    else:
-                        if newval != oldval:
-                            # put new value in result
-                            result['value'][name] = field.convert_to_write(
-                                newval, record._origin, subfields.get(name),
-                            )
-                            todo.append(name)
-                        else:
-                            # clean up result to not return another value
-                            result['value'].pop(name, None)
+            # make the snapshot with the final values of record
+            snapshot1 = Snapshot(record, nametree)
+        # determine values that have changed by comparing snapshots
+        self.invalidate_cache()
+        result['value'] = snapshot1.diff(snapshot0)
+        
+        if o2m_delete_commands:
+            for key, val in o2m_delete_commands.iteritems():
+                if not result['value'].get(key):
+                    result['value'][key] = []
+                result['value'][key] += val
+        
+        # format warnings
+        warnings = result.pop('warnings')
+        if len(warnings) == 1:
+            title, message = warnings.pop()
+            result['warning'] = dict(title=title, message=message)
+        elif len(warnings) > 1:
+            # concatenate warning titles and messages
+            title = _("Warnings")
+            message = "\n\n".join(itertools.chain(*warnings))
+            result['warning'] = dict(title=title, message=message)
 
         # Se comento ya que se agrego la funcionalidad en el set_value del FieldMany2Many
         # At the moment, the client does not support updates on a *2many field

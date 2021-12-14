@@ -360,6 +360,7 @@ instance.web.ActionManager = instance.web.Widget.extend({
             action.context.special_clear_breadcrumbs = false;
         }
         action.context.params = _.extend({ 'action' : action.id }, action.context.params);
+        action.context.params.action = action.id;
         if (!(type in this)) {
             console.error("Action manager can't handle action of type " + action.type, action);
             return $.Deferred().reject();
