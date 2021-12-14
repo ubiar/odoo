@@ -6195,6 +6195,7 @@ class BaseModel(object):
                 for name in todo:
                     if field_onchange.get(name):
                         record._onchange_eval(name, field_onchange[name], result)
+                        self.env.computed_onchange_fields.append(str(name))
                     done.add(name)
 
                 # determine which fields to process for the next pass
