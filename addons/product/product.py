@@ -1169,6 +1169,14 @@ class product_product(osv.osv):
         ctx = dict(context or {}, create_product_product=True)
         return super(product_product, self).create(cr, uid, vals, context=ctx)
 
+    @api.multi
+    def write(self, vals): 
+        for obj in self:
+            if obj.product_tmpl_id:
+                if 'product_tmpl_id' in vals and vals.get('product_tmpl_id') != obj.product_tmpl_id.id:
+                    raise Warning(_("No es posible modificar la relacion del Producto '%s' con su Template") % obj.name_get()[0][1])
+        res = super(product_product, self).write(vals)
+        return res
 
 
     def need_procurement(self, cr, uid, ids, context=None):
