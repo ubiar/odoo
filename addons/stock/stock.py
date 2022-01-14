@@ -2481,7 +2481,7 @@ class stock_move(osv.osv):
                 todo_moves.append(move)
 
                 #we always keep the quants already assigned and try to find the remaining quantity on quants not assigned only
-                main_domain[move.id] = [('reservation_id', '=', False), ('qty', '>', 0)]
+                main_domain[move.id] = [('reservation_id', '=', False), ('package_id', '=', False), ('qty', '>', 0)]
                 
                 #if the move is preceeded, restrict the choice of quants in the ones moved previously in original move
                 ancestors = self.find_move_ancestors(cr, uid, move, context=context)
