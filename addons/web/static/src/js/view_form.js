@@ -6174,7 +6174,11 @@ instance.web.form.FieldMany2ManyBinaryMultiFiles = instance.web.form.AbstractFie
         $(window).on(this.fileupload_id, _.bind(this.on_file_loaded, this));
     },
     initialize_content: function() {
+        let self = this;
         this.$el.on('change', 'input.oe_form_binary_file', this.on_file_change );
+        this.$el.find('.oe_attach,.oe_attach_label').click(function(event){
+            self.$el.find('input.oe_form_binary_file').click();
+        });
     },
     // WARNING: duplicated in 4 other M2M widgets
     set_value: function(value_) {
@@ -6226,6 +6230,8 @@ instance.web.form.FieldMany2ManyBinaryMultiFiles = instance.web.form.AbstractFie
             var render = $(instance.web.qweb.render('FieldBinaryFileUploader.files', {'widget': self, 'values': ids}));
             render.on('click', '.oe_delete', _.bind(self.on_file_delete, self));
             self.$('.oe_placeholder_files, .oe_attachments').replaceWith( render );
+            
+            
 
             // reinit input type file
             var $input = self.$('input.oe_form_binary_file');
