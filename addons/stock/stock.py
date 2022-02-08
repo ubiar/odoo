@@ -2648,8 +2648,9 @@ class stock_move(osv.osv):
                 self.check_tracking(cr, uid, move, not ops.product_id and ops.package_id.id or ops.lot_id.id, context=context)
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
-                fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
-                prefered_domain_list = [prefered_domain] + [fallback_domain] + [fallback_domain2]
+                # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
+                # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
+                prefered_domain_list = [prefered_domain] + [fallback_domain]
                 dom = main_domain + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
                 ctxx = context.copy()
                 if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
@@ -2682,8 +2683,9 @@ class stock_move(osv.osv):
                 main_domain = [('qty', '>', 0)]
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
-                fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
-                prefered_domain_list = [prefered_domain] + [fallback_domain] + [fallback_domain2]
+                # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
+                # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
+                prefered_domain_list = [prefered_domain] + [fallback_domain]
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()

@@ -248,16 +248,17 @@ class sale_order(osv.osv):
     _order = 'date_order desc, id desc'
 
     # Form filling
-    def unlink(self, cr, uid, ids, context=None):
-        sale_orders = self.read(cr, uid, ids, ['state'], context=context)
-        unlink_ids = []
-        for s in sale_orders:
-            if s['state'] in ['draft', 'cancel']:
-                unlink_ids.append(s['id'])
-            else:
-                raise UserError(_('In order to delete a confirmed sales order, you must cancel it before!'))
+    # Se comenta porque no tiene sentido este código, además de que no hace el Super por lo que no se llama el unlink() de res_numeracion
+    # def unlink(self, cr, uid, ids, context=None):
+    #     sale_orders = self.read(cr, uid, ids, ['state'], context=context)
+    #     unlink_ids = []
+    #     for s in sale_orders:
+    #         if s['state'] in ['draft', 'cancel']:
+    #             unlink_ids.append(s['id'])
+    #         else:
+    #             raise UserError(_('In order to delete a confirmed sales order, you must cancel it before!'))
 
-        return osv.osv.unlink(self, cr, uid, unlink_ids, context=context)
+    #     return osv.osv.unlink(self, cr, uid, unlink_ids, context=context)
 
     def copy_quotation(self, cr, uid, ids, context=None):
         id = self.copy(cr, uid, ids[0], context=context)
