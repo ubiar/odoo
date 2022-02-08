@@ -615,6 +615,7 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 flushed.always(function(ids){
                     pushed.resolve();
                 });
+                return flushed;
             });
             return pushed;
         },
@@ -714,7 +715,12 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
 
             var self = this;
             var timeout = typeof options.timeout === 'number' ? options.timeout : 25000 * orders.length;
-
+            
+            // Keep the order ids that are about to be sent to the
+            // backend. In between create_from_ui and the success callback
+            // new orders may have been added to it.
+            var order_ids_to_sync = _.pluck(orders, 'id');
+            
             // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
             // then we want to notify the user that we are waiting on something )
             var posOrderModel = new instance.web.Model('pos.order');
@@ -729,8 +735,8 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                     timeout: timeout
                 }
             ).then(function (server_ids) {
-                _.each(orders, function (order) {
-                    self.db.remove_order(order.id);
+                _.each(order_ids_to_sync, function (order_id) {
+                    self.db.remove_order(order_id);
                 });
                 self.set('failed',false);
                 return server_ids;
