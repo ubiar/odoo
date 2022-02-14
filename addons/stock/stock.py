@@ -2689,7 +2689,7 @@ class stock_move(osv.osv):
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal') or (move.inventory_id.tipo == 'control')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain, prefered_domain_list=prefered_domain_list, restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
                 quant_obj.quants_move(cr, uid, quants, move, move.location_dest_id, lot_id=move.restrict_lot_id.id, owner_id=move.restrict_partner_id.id, context=context)
