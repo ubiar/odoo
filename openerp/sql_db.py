@@ -42,6 +42,7 @@ import time
 import traceback
 import md5
 import tools.config as config
+import exceptions
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
@@ -232,7 +233,7 @@ class Cursor(object):
                 exc_info=_logger.isEnabledFor(logging.DEBUG))
         if params and not isinstance(params, (tuple, list, dict)):
             _logger.info("SQL query parameters should be a tuple, list or dict; got %r", params)
-            raise ValueError("SQL query parameters should be a tuple, list or dict; got %r" % (params,))
+            raise exceptions.ValueError("SQL query parameters should be a tuple, list or dict; got %r" % (params,))
 
         if self.sql_log:
             now = mdt.now()
@@ -245,7 +246,11 @@ class Cursor(object):
                 _logger.info("Programming error: %s, in query %s", pe, query)
             self._add_slow_query_buffer(query, time.time() - start_time, True)
             raise
-        except Exception:
+        except psycopg2.errors.QueryCanceled, e:
+            if e.pgcode == '57014':
+                raise exceptions.Warning(u"Se supero el tiempo máximo de ejecución del query establecido en %s minutos\nDebe acotar los filtros o contactarse con un administrador del sistema" % int((time.time() - start_time) / 60))
+            raise
+        except Exception, e:
             if self._default_log_exceptions if log_exceptions is None else log_exceptions:
                 _logger.info("bad query: %s", self._obj.query or query)
             self._add_slow_query_buffer(query, time.time() - start_time, True)
@@ -673,7 +678,7 @@ def db_connect(to, allow_uri=False):
 
     db, info = connection_info_for(to)
     if not allow_uri and db != to:
-        raise ValueError('URI connections not allowed')
+        raise exceptions.ValueError('URI connections not allowed')
     return Connection(_Pool, db, info)
 
 def close_db(db_name):
