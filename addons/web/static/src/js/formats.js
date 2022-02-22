@@ -332,7 +332,7 @@ instance.web.round_precision = function(value, precision){
  * @param {Number} the number of decimals. eg: round_decimals(3.141592,2) -> 3.14
  */
 instance.web.round_decimals = function(value, decimals){
-    return instance.web.round_precision(value, Math.pow(10,-decimals));
+    return instance.web.round_precision(value, parseFloat('1e' + -decimals));
 };
 
 /**
