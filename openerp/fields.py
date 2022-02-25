@@ -882,7 +882,10 @@ class Field(object):
         if config.get('log_level') == 'debug_function_fields':
             import time
             inicio = time.time()
-        self.compute(records)
+        if not records.env.in_onchange_diff:
+            # Se evita computar los campos calculados cuando se ejecuta un diff para comparar cambios en los campos
+            # Esto es para optimizar el tiempo de carga, ver Tarea FASA-PRODD-000349
+            self.compute(records)
         if config.get('log_level') == 'debug_function_fields':
             from openerp.addons import funciones
             if time.time() - inicio > 0.01:

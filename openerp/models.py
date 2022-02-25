@@ -6209,7 +6209,9 @@ class BaseModel(object):
             snapshot1 = Snapshot(record, nametree)
         # determine values that have changed by comparing snapshots
         self.invalidate_cache()
+        env.in_onchange_diff = True
         result['value'] = snapshot1.diff(snapshot0)
+        env.in_onchange_diff = False
         
         if o2m_delete_commands:
             for key, val in o2m_delete_commands.iteritems():

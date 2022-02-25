@@ -675,6 +675,7 @@ class Environment(object):
     """
     _local = Local()
     computed_onchange_fields = []
+    in_onchange_diff = False
 
     @classproperty
     def envs(cls):
