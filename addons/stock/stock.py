@@ -1280,7 +1280,9 @@ class stock_picking(osv.osv):
             pack_line_to_unreserve += [p.id for p in picking.pack_operation_ids]
         if moves_to_unreserve:
             if pack_line_to_unreserve:
+                print len(pack_line_to_unreserve)
                 self.pool.get('stock.pack.operation').unlink(cr, uid, pack_line_to_unreserve, context=context)
+                print 'ok'
             self.pool.get('stock.move').do_unreserve(cr, uid, moves_to_unreserve, context=context)
 
     def recompute_remaining_qty(self, cr, uid, picking, context=None):
@@ -2505,6 +2507,7 @@ class stock_move(osv.osv):
                     operations.add(link.operation_id)
         # Check all ops and sort them: we want to process first the packages, then operations with lot then the rest
         operations = list(operations)
+        print operations
         operations.sort(key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
         for ops in operations:
             #first try to find quants based on specific domains given by linked operations
@@ -4539,8 +4542,8 @@ class stock_move_operation_link(osv.osv):
 
     _columns = {
         'qty': fields.float('Quantity', help="Quantity of products to consider when talking about the contribution of this pack operation towards the remaining quantity of the move (and inverse). Given in the product main uom."),
-        'operation_id': fields.many2one('stock.pack.operation', 'Operation', required=True, ondelete="cascade"),
-        'move_id': fields.many2one('stock.move', 'Move', required=True, ondelete="cascade"),
+        'operation_id': fields.many2one('stock.pack.operation', 'Operation', required=True, ondelete="cascade", select=True),
+        'move_id': fields.many2one('stock.move', 'Move', required=True, ondelete="cascade", select=True),
         'reserved_quant_id': fields.many2one('stock.quant', 'Reserved Quant', help="Technical field containing the quant that created this link between an operation and a stock move. Used at the stock_move_obj.action_done() time to avoid seeking a matching quant again"),
     }
 
