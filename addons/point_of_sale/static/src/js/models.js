@@ -953,7 +953,9 @@ openerp.point_of_sale.load_models = function load_models(instance, module){ //mo
                 var unit = this.get_unit();
                 if(unit){
                     if (unit.rounding) {
-                        this.quantity    = round_pr(quant, unit.rounding);
+                        var decimals = this.pos.dp['Product Unit of Measure'];
+                        var rounding = Math.max(unit.rounding, parseFloat('1e' + -decimals));
+                        this.quantity    = round_pr(quant, rounding);
                         this.quantityStr = this.quantity.toFixed(Math.ceil(Math.log(1.0 / unit.rounding) / Math.log(10)));
                     } else {
                         this.quantity    = round_pr(quant, 1);
