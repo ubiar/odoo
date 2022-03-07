@@ -5042,7 +5042,7 @@ instance.web.form.FieldMany2Many = instance.web.form.AbstractField.extend(instan
                     val.push(command[1]);                   // (4, id[, _])
                 } else if (command[0] === commands.UPDATE) {
                     val.push(command[1]);
-                    if (!_.isEmpty(command[2])) {
+                    if (!_.isEmpty(command[2]) && !self.get("effective_readonly")) {
                         self.list_view.dataset.write(command[1], command[2]);
                     }
                 } else if (command[0] === commands.REPLACE_WITH) {
