@@ -36,7 +36,7 @@ class event_event(models.Model):
         default=lambda self: self.env.user,
         readonly=False, states={'done': [('readonly', True)]})
     company_id = fields.Many2one(
-        'res.company', string='Company', change_default=True,
+        'res.company', string='Company',
         default=lambda self: self.env['res.company']._company_default_get('event.event'),
         required=False, readonly=False, states={'done': [('readonly', True)]})
     organizer_id = fields.Many2one(

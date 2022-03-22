@@ -251,7 +251,7 @@ class crm_lead(format_address, osv.osv):
         # Fields for address, due to separation from crm and res.partner
         'street': fields.char('Street'),
         'street2': fields.char('Street2'),
-        'zip': fields.char('Zip', change_default=True, size=24),
+        'zip': fields.char('Zip', size=24),
         'city': fields.char('City'),
         'state_id': fields.many2one("res.country.state", 'State'),
         'country_id': fields.many2one('res.country', 'Country'),
