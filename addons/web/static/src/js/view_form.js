@@ -872,7 +872,7 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                     // Special case 'id' field, do not save this field
                     // on 'create' : save all non readonly fields
                     // on 'edit' : save non readonly modified fields
-                    if (!f.get("readonly")) {
+                    if (!f.get("readonly") || f.get("force_save")) {
                         values[f.name] = f.get_value(true);
                     } else {
                         readonly_values[f.name] = f.get_value(true);
@@ -1914,6 +1914,7 @@ instance.web.form.FormWidget = instance.web.Widget.extend(instance.web.form.Invi
             required: false,
             readonly: false,
         });
+        if (this.node.attrs.force_save) this.set('force_save', true);
         // some events to make the property "effective_readonly" sync automatically with "readonly" and
         // "mode" on field_manager
         var self = this;
