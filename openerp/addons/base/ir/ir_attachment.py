@@ -306,9 +306,9 @@ class ir_attachment(osv.osv):
         'res_id': fields.integer('Resource ID', readonly=True, help="The record id this is attached to"),
         'create_date': fields.datetime('Date Created', readonly=True),
         'create_uid':  fields.many2one('res.users', 'Owner', readonly=True),
-        'company_id': fields.many2one('res.company', 'Company', change_default=True),
+        'company_id': fields.many2one('res.company', 'Company'),
         'type': fields.selection( [ ('url','URL'), ('binary','Binary'), ],
-                'Type', help="Binary File or URL", required=True, change_default=True),
+                'Type', help="Binary File or URL", required=True),
         'url': fields.char('Url', size=1024),
         # al: We keep shitty field names for backward compatibility with document
         'datas': fields.function(_data_get, fnct_inv=_data_set, string='File Content', type="binary", nodrop=True),

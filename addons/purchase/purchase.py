@@ -243,7 +243,7 @@ class purchase_order(osv.osv):
         'date_approve':fields.date('Date Approved', readonly=1, select=True, copy=False,
                                    help="Date on which purchase order has been approved"),
         'partner_id':fields.many2one('res.partner', 'Supplier', required=True, states=READONLY_STATES,
-            change_default=True, select=True),
+            select=True),
         'dest_address_id':fields.many2one('res.partner', 'Customer Address (Direct Delivery)',
             states=READONLY_STATES,
             help="Put an address if you want to deliver directly from the supplier to the customer. " \
@@ -1023,7 +1023,7 @@ class purchase_order_line(osv.osv):
         'date_planned': fields.datetime('Scheduled Date', required=True, select=True),
         'taxes_id': fields.many2many('account.tax', 'purchase_order_taxe', 'ord_id', 'tax_id', 'Taxes'),
         'product_uom': fields.many2one('product.uom', 'Product Unit of Measure', required=True),
-        'product_id': fields.many2one('product.product', 'Product', domain=[('purchase_ok','=',True)], change_default=True),
+        'product_id': fields.many2one('product.product', 'Product', domain=[('purchase_ok','=',True)]),
         'move_ids': fields.one2many('stock.move', 'purchase_line_id', 'Reservation', readonly=True, ondelete='set null'),
         'price_unit': fields.float('Unit Price', required=True, digits_compute= dp.get_precision('Product Price')),
         # Como se pisan con los metodos de la version 8 de la api genera un bug al tener los dos function en distintas versiones

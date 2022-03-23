@@ -1099,7 +1099,7 @@ class ir_server_object_lines(osv.osv):
         'type': fields.selection([
             ('value', 'Value'),
             ('equation', 'Python expression')
-        ], 'Evaluation Type', required=True, change_default=True),
+        ], 'Evaluation Type', required=True),
     }
 
     _defaults = {

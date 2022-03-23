@@ -206,7 +206,7 @@ class account_invoice(models.Model):
             ('in_invoice','Supplier Invoice'),
             ('out_refund','Customer Refund'),
             ('in_refund','Supplier Refund'),
-        ], string='Type', readonly=True, index=True, change_default=True,
+        ], string='Type', readonly=True, index=True,
         default=lambda self: self._context.get('type', 'out_invoice'))
 
     number = fields.Char(related='move_id.name', store=True, readonly=True, copy=False)
@@ -246,7 +246,7 @@ class account_invoice(models.Model):
              "now and 50% in one month, but if you want to force a due date, make sure that the payment "
              "term is not set on the invoice. If you keep the payment term and the due date empty, it "
              "means direct payment.")
-    partner_id = fields.Many2one('res.partner', string='Partner', change_default=True,
+    partner_id = fields.Many2one('res.partner', string='Partner',
         required=True, readonly=True, states={'draft': [('readonly', False)]}, index=True)
     payment_term = fields.Many2one('account.payment.term', string='Payment Terms',
         readonly=True, states={'draft': [('readonly', False)]}, index=True,
@@ -282,7 +282,7 @@ class account_invoice(models.Model):
         required=True, readonly=True, states={'draft': [('readonly', False)]},
         default=_default_journal,
         domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale_refund'], 'in_refund': ['purchase_refund'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]")
-    company_id = fields.Many2one('res.company', string='Company', change_default=True,
+    company_id = fields.Many2one('res.company', string='Company',
         required=True, readonly=True, states={'draft': [('readonly', False)]},
         default=lambda self: self.env['res.company']._company_default_get('account.invoice'))
     check_total = fields.Float(string='Verification Total', digits=dp.get_precision('Account'),

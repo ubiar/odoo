@@ -180,7 +180,7 @@ class sale_order(osv.osv):
         'create_date': fields.datetime('Creation Date', readonly=True, select=True, help="Date on which sales order is created."),
         'date_confirm': fields.date('Confirmation Date', readonly=True, select=True, help="Date on which sales order is confirmed.", copy=False),
         'user_id': fields.many2one('res.users', 'Salesperson', states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, select=True),
-        'partner_id': fields.many2one('res.partner', 'Customer', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, required=True, change_default=True, select=True),
+        'partner_id': fields.many2one('res.partner', 'Customer', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, required=True, select=True),
         'partner_invoice_id': fields.many2one('res.partner', 'Invoice Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Invoice address for current sales order."),
         'partner_shipping_id': fields.many2one('res.partner', 'Delivery Address', readonly=True, required=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Delivery address for current sales order."),
         'order_policy': fields.selection([
@@ -224,7 +224,7 @@ class sale_order(osv.osv):
         'payment_term': fields.many2one('account.payment.term', 'Payment Term', select=True),
         'fiscal_position': fields.many2one('account.fiscal.position', 'Fiscal Position'),
         'company_id': fields.many2one('res.company', 'Company', select=True),
-        'team_id': fields.many2one('crm.team', 'Sales Team', oldname='section_id', change_default=True),
+        'team_id': fields.many2one('crm.team', 'Sales Team', oldname='section_id'),
         'procurement_group_id': fields.many2one('procurement.group', 'Procurement group', copy=False),
         'product_id': fields.related('order_line', 'product_id', type='many2one', relation='product.product', string='Product'),
         'precio_unitario_con_iva': fields.boolean('Los precios unitarios son con I.V.A.'),
@@ -248,16 +248,17 @@ class sale_order(osv.osv):
     _order = 'date_order desc, id desc'
 
     # Form filling
-    def unlink(self, cr, uid, ids, context=None):
-        sale_orders = self.read(cr, uid, ids, ['state'], context=context)
-        unlink_ids = []
-        for s in sale_orders:
-            if s['state'] in ['draft', 'cancel']:
-                unlink_ids.append(s['id'])
-            else:
-                raise UserError(_('In order to delete a confirmed sales order, you must cancel it before!'))
+    # Se comenta porque no tiene sentido este código, además de que no hace el Super por lo que no se llama el unlink() de res_numeracion
+    # def unlink(self, cr, uid, ids, context=None):
+    #     sale_orders = self.read(cr, uid, ids, ['state'], context=context)
+    #     unlink_ids = []
+    #     for s in sale_orders:
+    #         if s['state'] in ['draft', 'cancel']:
+    #             unlink_ids.append(s['id'])
+    #         else:
+    #             raise UserError(_('In order to delete a confirmed sales order, you must cancel it before!'))
 
-        return osv.osv.unlink(self, cr, uid, unlink_ids, context=context)
+    #     return osv.osv.unlink(self, cr, uid, unlink_ids, context=context)
 
     def copy_quotation(self, cr, uid, ids, context=None):
         id = self.copy(cr, uid, ids[0], context=context)
@@ -886,7 +887,7 @@ class sale_order_line(osv.osv):
         'order_id': fields.many2one('sale.order', 'Order Reference', required=True, ondelete='cascade', select=True, readonly=True, states={'draft':[('readonly',False)]}),
         'name': fields.text('Description', required=True, readonly=True, states={'draft': [('readonly', False)]}),
         'sequence': fields.integer('Sequence', help="Gives the sequence order when displaying a list of sales order lines."),
-        'product_id': fields.many2one('product.product', 'Product', domain=[('sale_ok', '=', True)], change_default=True, readonly=True, states={'draft': [('readonly', False)]}, ondelete='restrict'),
+        'product_id': fields.many2one('product.product', 'Product', domain=[('sale_ok', '=', True)], readonly=True, states={'draft': [('readonly', False)]}, ondelete='restrict'),
         'invoice_lines': fields.many2many('account.invoice.line', 'sale_order_line_invoice_rel', 'order_line_id', 'invoice_id', 'Invoice Lines', readonly=True, copy=False),
         'invoiced': fields.function(_fnct_line_invoiced, string='Invoiced', type='boolean',
             store={

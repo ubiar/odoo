@@ -803,7 +803,7 @@ class task(osv.osv):
         'date_end': fields.datetime('Ending Date', select=True, copy=False),
         'date_deadline': fields.date('Deadline', select=True, copy=False),
         'date_last_stage_update': fields.datetime('Last Stage Update', select=True, copy=False),
-        'project_id': fields.many2one('project.project', 'Project', ondelete='set null', select=True, track_visibility='onchange', change_default=True),
+        'project_id': fields.many2one('project.project', 'Project', ondelete='set null', select=True, track_visibility='onchange'),
         'parent_ids': fields.many2many('project.task', 'project_task_parent_rel', 'task_id', 'parent_id', 'Parent Tasks'),
         'child_ids': fields.many2many('project.task', 'project_task_parent_rel', 'parent_id', 'task_id', 'Delegated Tasks'),
         'notes': fields.text('Notes'),

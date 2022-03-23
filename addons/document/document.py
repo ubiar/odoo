@@ -62,7 +62,7 @@ class document_file(osv.osv):
         'write_uid':  fields.many2one('res.users', 'Last Modification User', readonly=True),
         # Fields of document:
         'user_id': fields.many2one('res.users', 'Owner', select=1),
-        'parent_id': fields.many2one('document.directory', 'Directory', select=1, change_default=True),
+        'parent_id': fields.many2one('document.directory', 'Directory', select=1),
         'partner_id':fields.many2one('res.partner', 'Partner', select=1),
     }
     _order = "id desc"
@@ -169,21 +169,21 @@ class document_directory(osv.osv):
         'create_uid':  fields.many2one('res.users', 'Creator', readonly=True),
         'user_id': fields.many2one('res.users', 'Owner'),
         'group_ids': fields.many2many('res.groups', 'document_directory_group_rel', 'item_id', 'group_id', 'Groups'),
-        'parent_id': fields.many2one('document.directory', 'Parent Directory', select=1, change_default=True),
+        'parent_id': fields.many2one('document.directory', 'Parent Directory', select=1),
         'child_ids': fields.one2many('document.directory', 'parent_id', 'Children'),
         'file_ids': fields.one2many('ir.attachment', 'parent_id', 'Files'),
         'content_ids': fields.one2many('document.directory.content', 'directory_id', 'Virtual Files'),
         'type': fields.selection([ ('directory','Static Directory'), ('ressource','Folders per resource'), ],
-            'Type', required=True, select=1, change_default=True,
+            'Type', required=True, select=1,
             help="Each directory can either have the type Static or be linked to another resource. A static directory, as with Operating Systems, is the classic directory that can contain a set of files. The directories linked to systems resources automatically possess sub-directories for each of resource types defined in the parent directory."),
         'domain': fields.char('Domain', help="Use a domain if you want to apply an automatic filter on visible resources."),
-        'ressource_type_id': fields.many2one('ir.model', 'Resource model', change_default=True,
+        'ressource_type_id': fields.many2one('ir.model', 'Resource model',
             help="Select an object here and there will be one folder per record of that resource."),
         'resource_field': fields.many2one('ir.model.fields', 'Name field', help='Field to be used as name on resource directories. If empty, the "name" will be used.'),
         'resource_find_all': fields.boolean('Find all resources',
                 help="If true, all attachments that match this resource will " \
                     " be located. If false, only ones that have this as parent." ),
-        'ressource_parent_type_id': fields.many2one('ir.model', 'Parent Model', change_default=True,
+        'ressource_parent_type_id': fields.many2one('ir.model', 'Parent Model',
             help="If you put an object here, this directory template will appear bellow all of these objects. " \
                  "Such directories are \"attached\" to the specific model or record, just like attachments. " \
                  "Don't put a parent directory if you select a parent model."),
@@ -192,7 +192,7 @@ class document_directory(osv.osv):
         'ressource_tree': fields.boolean('Tree Structure',
             help="Check this if you want to use the same tree structure as the object selected in the system."),
         'dctx_ids': fields.one2many('document.directory.dctx', 'dir_id', 'Context fields'),
-        'company_id': fields.many2one('res.company', 'Company', change_default=True),
+        'company_id': fields.many2one('res.company', 'Company'),
     }
 
     _defaults = {

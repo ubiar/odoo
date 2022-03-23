@@ -1280,7 +1280,9 @@ class stock_picking(osv.osv):
             pack_line_to_unreserve += [p.id for p in picking.pack_operation_ids]
         if moves_to_unreserve:
             if pack_line_to_unreserve:
+                print len(pack_line_to_unreserve)
                 self.pool.get('stock.pack.operation').unlink(cr, uid, pack_line_to_unreserve, context=context)
+                print 'ok'
             self.pool.get('stock.move').do_unreserve(cr, uid, moves_to_unreserve, context=context)
 
     def recompute_remaining_qty(self, cr, uid, picking, context=None):
@@ -2481,7 +2483,7 @@ class stock_move(osv.osv):
                 todo_moves.append(move)
 
                 #we always keep the quants already assigned and try to find the remaining quantity on quants not assigned only
-                main_domain[move.id] = [('reservation_id', '=', False), ('qty', '>', 0)]
+                main_domain[move.id] = [('reservation_id', '=', False), ('package_id', '=', False), ('qty', '>', 0)]
                 
                 #if the move is preceeded, restrict the choice of quants in the ones moved previously in original move
                 ancestors = self.find_move_ancestors(cr, uid, move, context=context)
@@ -2496,13 +2498,16 @@ class stock_move(osv.osv):
                 if move.origin_returned_move_id and not ('devolucion_no_validar_trazabilidad' in move and move.devolucion_no_validar_trazabilidad):
                     main_domain[move.id] += [('history_ids', 'in', move.origin_returned_move_id.id)]
                 # No Valida Trazabilidad
-                elif 'subtipo' in move.picking_id and move.picking_id.subtipo == 'return' and move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                #                                   Devolución                                          Anulación de RP
+                elif (('subtipo' in move.picking_id and move.picking_id.subtipo == 'return') or context.get('anulacion_recepcion')) and move.origin_returned_move_id and move.product_id.tracking == 'lot':
+                    # En la Anualción de RP, se hace un contra_move, el mismo debe tomar los Quants del mismo Lote que se recibió, a pesar de no validar trazabilidad
                     lote_ids = list(set([q.lot_id.id for q in move.origin_returned_move_id.quant_ids])) # Sólo Quants pertenecientes a los Lotes que se Recibieron originalmente
                     main_domain[move.id] += [('lot_id', 'in', lote_ids)]
                 for link in move.linked_move_operation_ids:
                     operations.add(link.operation_id)
         # Check all ops and sort them: we want to process first the packages, then operations with lot then the rest
         operations = list(operations)
+        print operations
         operations.sort(key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
         for ops in operations:
             #first try to find quants based on specific domains given by linked operations
@@ -2646,8 +2651,9 @@ class stock_move(osv.osv):
                 self.check_tracking(cr, uid, move, not ops.product_id and ops.package_id.id or ops.lot_id.id, context=context)
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
-                fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
-                prefered_domain_list = [prefered_domain] + [fallback_domain] + [fallback_domain2]
+                # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
+                # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
+                prefered_domain_list = [prefered_domain] + [fallback_domain]
                 dom = main_domain + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
                 ctxx = context.copy()
                 if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
@@ -2680,12 +2686,13 @@ class stock_move(osv.osv):
                 main_domain = [('qty', '>', 0)]
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
-                fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
-                prefered_domain_list = [prefered_domain] + [fallback_domain] + [fallback_domain2]
+                # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
+                # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
+                prefered_domain_list = [prefered_domain] + [fallback_domain]
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()
-                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
+                if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal') or (move.inventory_id.tipo == 'control')):
                     ctxx['stock_no_utilizar_ubicaciones_hijas'] = move.subcompania_id.config_ubiar_id.stock_no_utilizar_ubicaciones_hijas
                 quants = quant_obj.quants_get_prefered_domain(cr, uid, move.location_id, move.product_id, qty, domain=main_domain, prefered_domain_list=prefered_domain_list, restrict_lot_id=move.restrict_lot_id.id, restrict_partner_id=move.restrict_partner_id.id, context=ctxx)
                 quant_obj.quants_move(cr, uid, quants, move, move.location_dest_id, lot_id=move.restrict_lot_id.id, owner_id=move.restrict_partner_id.id, context=context)
@@ -4535,8 +4542,8 @@ class stock_move_operation_link(osv.osv):
 
     _columns = {
         'qty': fields.float('Quantity', help="Quantity of products to consider when talking about the contribution of this pack operation towards the remaining quantity of the move (and inverse). Given in the product main uom."),
-        'operation_id': fields.many2one('stock.pack.operation', 'Operation', required=True, ondelete="cascade"),
-        'move_id': fields.many2one('stock.move', 'Move', required=True, ondelete="cascade"),
+        'operation_id': fields.many2one('stock.pack.operation', 'Operation', required=True, ondelete="cascade", select=True),
+        'move_id': fields.many2one('stock.move', 'Move', required=True, ondelete="cascade", select=True),
         'reserved_quant_id': fields.many2one('stock.quant', 'Reserved Quant', help="Technical field containing the quant that created this link between an operation and a stock move. Used at the stock_move_obj.action_done() time to avoid seeking a matching quant again"),
     }
 

@@ -267,7 +267,7 @@ class res_partner(osv.Model, format_address):
             help="Used to select automatically the right address according to the context in sales and purchases documents."),
         'street': fields.char('Street'),
         'street2': fields.char('Street2'),
-        'zip': fields.char('Zip', size=24, change_default=True),
+        'zip': fields.char('Zip', size=24),
         'city': fields.char('City'),
         'state_id': fields.many2one("res.country.state", 'State', ondelete='restrict'),
         'country_id': fields.many2one('res.country', 'Country', ondelete='restrict'),

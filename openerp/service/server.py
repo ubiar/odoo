@@ -93,6 +93,7 @@ class RequestHandler(werkzeug.serving.WSGIRequestHandler):
         super(RequestHandler, self).setup()
         me = threading.currentThread()
         me.name = 'openerp.service.http.request.%s' % (me.ident,)
+    
 
 # _reexec() should set LISTEN_* to avoid connection refused during reload time. It
 # should also work with systemd socket activation. This is currently untested
@@ -249,6 +250,12 @@ class ThreadedServer(CommonServer):
             _logger.debug("cron%d started!" % i)
 
     def http_thread(self):
+        try:
+            log_folder = '%s/%s' % (os.path.dirname(config.get('logfile')), config.get('db_name')) if config.get('logfile') and config.get('db_name') else False
+            if log_folder:
+                os.system('echo "{}" > %s/http_%s.json' % (log_folder, threading.currentThread().ident))
+        except Exception, e:
+            pass
         def app(e, s):
             return self.app(e, s)
         self.httpd = ThreadedWSGIServerReloadable(self.interface, self.port, app)
@@ -363,7 +370,10 @@ class GeventServer(CommonServer):
 
     def start(self):
         import gevent
-        from gevent.wsgi import WSGIServer
+        try:
+            from gevent.pywsgi import WSGIServer
+        except ImportError:
+            from gevent.wsgi import WSGIServer
 
         if os.name == 'posix':
             signal.signal(signal.SIGQUIT, dumpstacks)
@@ -415,6 +425,12 @@ class PreforkServer(CommonServer):
             if config.get('db_name'):
                 newrelic_agent.global_settings().app_name = config.get('db_name')
             _logger.info("Newrelic agent initialized")
+        try:
+            log_folder = '%s/%s' % (os.path.dirname(config.get('logfile')), config.get('db_name')) if config.get('logfile') and config.get('db_name') else False
+            if log_folder:
+                os.system('rm -rf %s/*.json' % log_folder)
+        except Exception, e:
+            pass
 
     def pipe_new(self):
         pipe = os.pipe()
@@ -646,6 +662,7 @@ class Worker(object):
         self.watchdog_timeout = multi.timeout
         self.ppid = os.getpid()
         self.pid = None
+        self.worker_type = None
         self.alive = True
         # should we rename into lifetime ?
         self.request_max = multi.limit_request
@@ -703,6 +720,13 @@ class Worker(object):
 
     def start(self):
         self.pid = os.getpid()
+        self.worker_type = 'http' if self.__class__.__name__ == 'WorkerHTTP' else 'cron'
+        try:
+            log_folder = '%s/%s' % (os.path.dirname(config.get('logfile')), config.get('db_name')) if config.get('logfile') and config.get('db_name') else False
+            if log_folder:
+                os.system('echo "{}" > %s/%s_%s.json' % (log_folder, self.worker_type, self.pid))
+        except Exception, e:
+            pass
         self.setproctitle()
         _logger.info("Worker %s (%s) alive", self.__class__.__name__, self.pid)
         # Reseed the random number generator
@@ -725,6 +749,8 @@ class Worker(object):
             while self.alive:
                 self.process_limit()
                 self.multi.pipe_ping(self.watchdog_pipe)
+                if not self.alive:
+                    break
                 self.sleep()
                 self.process_work()
             _logger.info("Worker (%s) exiting. request_count: %s, registry count: %s.",
@@ -735,6 +761,16 @@ class Worker(object):
             _logger.exception("Worker (%s) Exception occured, exiting..." % self.pid)
             # should we use 3 to abort everything ?
             sys.exit(1)
+    
+    def __del__(self):
+        try:
+            log_folder = '%s/%s' % (os.path.dirname(config.get('logfile')), config.get('db_name')) if config.get('logfile') and config.get('db_name') else False
+            if log_folder and self.worker_type and self.pid:
+                os.remove('%s/%s_%s.json' % (log_folder, self.worker_type, self.pid))
+            else:
+                self.worker_type
+        except Exception, e:
+            pass
 
 class WorkerHTTP(Worker):
     """ HTTP Request workers """
