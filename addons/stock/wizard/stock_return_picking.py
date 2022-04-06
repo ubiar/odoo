@@ -90,8 +90,8 @@ class stock_return_picking(osv.osv_memory):
                         AND remito.ID = %s
                         ''', [pick.wave_id.id])
                 quants_devueltos = [r[0] for r in cr.fetchall()]
-
             for move in pick.move_lines:
+                procesada = False
                 if move.state == 'cancel':
                     continue
                 lote_result_ids = []
@@ -131,19 +131,23 @@ class stock_return_picking(osv.osv_memory):
                     cantidad = quant.qty
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
                         if lote and tracking in ['lote_indivisible', 'serial']:
-                            result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id})
+                            result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id, 'procesada': True})
                         elif lote and tracking == 'lot':
                             if lote.id not in lote_result_ids:
                                 lote_result_ids.append(lote.id)
                                 if cantidad > lote_cantidad.get(lote.id, 0.0):
                                     cantidad = lote_cantidad.get(lote.id, 0.0)
-                                result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id})
+                                    procesada = True
+                                result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id, 'procesada': procesada})
                             else:
                                 for linea in result1:
-                                    if lote.id in linea.values():
+                                    if linea.get('procesada'):
+                                        continue
+                                    if lote.id == linea['lot_id']:
                                         linea['quantity'] += cantidad
                                         if linea['quantity'] > lote_cantidad.get(lote.id, 0.0):
                                             linea['quantity'] = lote_cantidad.get(lote.id, 0.0)
+                                            linea['procesada'] = True
                                         break
                         else:
                             qty += cantidad
@@ -157,8 +161,7 @@ class stock_return_picking(osv.osv_memory):
                     elif pick.picking_type_id.return_picking_type_id.code == 'incoming' and qty > cantidad_restante:
                         qty = cantidad_restante
                 if qty:
-                    result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id})
-
+                    result1.append({'product_id': move.product_id.id, 'quantity': qty, 'move_id': move.id, 'procesada': True})
             if len(result1) == 0:
                 raise UserError(_("No products to return (only lines in Done state and not fully returned yet can be returned)!"))
             if 'product_return_moves' in fields:
