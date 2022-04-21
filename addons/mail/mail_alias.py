@@ -189,7 +189,10 @@ class mail_alias(osv.Model):
         """
         if context is None:
             context = {}
-
+        
+        # Se evita la ejecucion de este metodo ya que se ejecutaba siempre al actualizar
+        # y no hace falta que se vuelva a ejecutar ya que todas las bases de datos son actuales
+        return child_model_auto_init_fct(cr, context=context)
         # disable the unique alias_id not null constraint, to avoid spurious warning during
         # super.auto_init. We'll reinstall it afterwards.
         alias_id_column.required = False
