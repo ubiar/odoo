@@ -241,6 +241,8 @@ class Cursor(object):
         try:
             params = params or None
             res = self._obj.execute(query, params)
+        except psycopg2.errors.RaiseException, e:
+            raise exceptions.Warning(u"%s" % e.message.split('CONTEXT:')[0] if 'CONTEXT:' in e.message else e.message)
         except psycopg2.ProgrammingError, pe:
             if self._default_log_exceptions if log_exceptions is None else log_exceptions:
                 _logger.info("Programming error: %s, in query %s", pe, query)
