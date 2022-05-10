@@ -577,7 +577,7 @@ class stock_quant(osv.osv):
 
     def _get_latest_move(self, cr, uid, quant, context=None):
         move = False
-        for m in quant.history_ids:
+        for m in quant.sudo().history_ids:
             if not move or m.date > move.date:
                 move = m
         return move
