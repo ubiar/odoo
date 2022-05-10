@@ -393,7 +393,8 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         
         // test whether the field is sortable
         // Ubiar, si no esta en un item de menu se ordena con JS y no importa si el campo es calculado
-        if ((field && this.options.action && !field.sortable) || no_ordenar.includes(col_name)) {
+        // Si es un related si se ordena en la vista de lista
+        if ((field && this.options.action && !field.sortable && !field.related) || no_ordenar.includes(col_name)) {
             return false;
         }
         this.dataset.sort(col_name);
