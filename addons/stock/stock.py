@@ -618,7 +618,9 @@ class stock_quant(osv.osv):
                 self._quant_split(cr, uid, to_solve_quant, min(solving_qty, to_solve_quant.qty), context=context)
                 solving_qty -= min(solving_qty, to_solve_quant.qty)
             remaining_solving_quant = self._quant_split(cr, uid, solving_quant, qty, context=context)
-            remaining_neg_quant = self._quant_split(cr, uid, quant_neg, -qty, context=context)
+            ctx = context.copy()
+            ctx['no_validar_quant_negativo'] = True
+            remaining_neg_quant = self._quant_split(cr, uid, quant_neg, -qty, context=ctx)
             #if the reconciliation was not complete, we need to link together the remaining parts
             if remaining_neg_quant:
                 remaining_to_solve_quant_ids = self.search(cr, uid, [('propagated_from_id', '=', quant_neg.id), ('id', 'not in', solved_quant_ids)], context=context)
