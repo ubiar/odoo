@@ -4792,7 +4792,7 @@ class stock_picking_type(osv.osv):
         res = []
         if not ids:
             return res
-        for record in self.browse(cr, uid, ids, context=context):
+        for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
             name = record.name
             if record.warehouse_id:
                 name = record.warehouse_id.name + ': ' +name
