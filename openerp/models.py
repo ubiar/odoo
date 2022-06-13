@@ -6027,6 +6027,8 @@ class BaseModel(object):
         if not all(name in self._fields for name in names):
             return {}
         
+        context = self._context
+        
         o2m_delete_commands = {}
         for key, val in values.iteritems():
             if val and type(val) in [list, tuple] and type(val[0]) in [list, tuple] and self._fields[key].type == 'one2many':
@@ -6144,10 +6146,11 @@ class BaseModel(object):
                                     commands.append((1, line.id, line_diff))
                                 else:
                                     commands.append((4, line.id))
-                        for line_snapshot in other[name]:
-                            line = line_snapshot['<record>']
-                            if line.id and line.id not in line_ids:
-                                commands.append((2 if record._fields[name].type == 'one2many' else 3, line.id))
+                        if context and not context.get('onchange_o2m_no_delete'):
+                            for line_snapshot in other[name]:
+                                line = line_snapshot['<record>']
+                                if line.id and line.id not in line_ids:
+                                    commands.append((2 if record._fields[name].type == 'one2many' else 3, line.id))
                 return result
 
         nametree = PrefixTree(self.browse(), field_onchange)
