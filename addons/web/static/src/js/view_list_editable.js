@@ -347,14 +347,13 @@
         /**
          * @return {jQuery.Deferred}
          */
-        save_edition: function (cancel_onfail) {
+        save_edition: function () {
             var self = this;
             return self.saving_mutex.exec(function() {
                 if (!self.editor.is_editing()) {
-                    // var def = $.Deferred();
-                    // setTimeout(() => { def.resolve(); }, 100);
-                    // return def;
-                    return $.when();
+                    var def = $.Deferred();
+                    setTimeout(() => { def.resolve(); }, 100);
+                    return def;
                 }
                 return self.with_event('save', {
                     editor: self.editor,
@@ -374,18 +373,11 @@
                         // onwrite callback could be altering & reloading the
                         // record which has *just* been saved, so first perform all
                         // onwrites then do a final reload of the record
-                        return self.cancel_edition(true)
-                            .then(function() {
-                                return self.handle_onwrite(record);
-                            })
+                        return self.handle_onwrite(record)
                             .then(function () {
                                 return self.reload_record(record); })
                             .then(function () {
                                 return { created: created, record: record }; });
-                    }, function() {
-                        if (cancel_onfail) {
-                            return self.cancel_edition();
-                        }
                     });
                 });
             });
@@ -402,7 +394,7 @@
                 cancel: false
             }, function () {
                 return this.editor.cancel(force).then(function (attrs) {
-                    if (attrs && attrs.id) {
+                    if (attrs.id) {
                         var record = self.records.get(attrs.id);
                         if (!record) {
                             // Record removed by third party during edition
