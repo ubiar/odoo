@@ -6027,6 +6027,8 @@ class BaseModel(object):
         if not all(name in self._fields for name in names):
             return {}
         
+        context = self._context
+        
         o2m_delete_commands = {}
         for key, val in values.iteritems():
             if val and type(val) in [list, tuple] and type(val[0]) in [list, tuple] and self._fields[key].type == 'one2many':
@@ -6035,7 +6037,6 @@ class BaseModel(object):
                         if not o2m_delete_commands.get(key):
                             o2m_delete_commands[key] = []
                         o2m_delete_commands[key].append(command)
-
         def PrefixTree(model, dotnames):
             """ Return a prefix tree for sequences of field names. """
             if not dotnames:
@@ -6125,6 +6126,7 @@ class BaseModel(object):
                         result[name] = field.convert_to_onchange(self[name])
                     else:
                         # x2many fields: serialize value as commands
+                        line_ids = []
                         result[name] = commands = []
                         for line_snapshot in self[name]:
                             line = line_snapshot['<record>']
@@ -6133,6 +6135,7 @@ class BaseModel(object):
                                 line_diff = line_snapshot.diff({})
                                 commands.append((0, line.id or 0, line_diff))
                             else:
+                                line_ids.append(line.id)
                                 # existing line: check diff from database
                                 # (requires a clean record cache!)
                                 line_diff = line_snapshot.diff(Snapshot(line, subnames))
@@ -6143,6 +6146,11 @@ class BaseModel(object):
                                     commands.append((1, line.id, line_diff))
                                 else:
                                     commands.append((4, line.id))
+                        if context and not context.get('onchange_o2m_no_delete'):
+                            for line_snapshot in other[name]:
+                                line = line_snapshot['<record>']
+                                if line.id and line.id not in line_ids:
+                                    commands.append((2 if record._fields[name].type == 'one2many' else 3, line.id))
                 return result
 
         nametree = PrefixTree(self.browse(), field_onchange)

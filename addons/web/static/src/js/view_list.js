@@ -367,8 +367,11 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         //Sort
         var default_order = this.fields_view.arch.attrs.default_order,
             unsorted = !this.dataset._sort.length;
-        if (unsorted && default_order && !this.grouped) {
+        if (unsorted && default_order) {
             this.dataset.set_sort(default_order.split(','));
+            if (this.grouped){
+                this.groups.datagroup.sort = this.dataset._sort;
+            }
         }
 
         if(this.dataset._sort.length){
@@ -393,7 +396,8 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         
         // test whether the field is sortable
         // Ubiar, si no esta en un item de menu se ordena con JS y no importa si el campo es calculado
-        if ((field && this.options.action && !field.sortable) || no_ordenar.includes(col_name)) {
+        // Si es un related si se ordena en la vista de lista
+        if ((field && this.options.action && !field.sortable && !field.related) || no_ordenar.includes(col_name)) {
             return false;
         }
         this.dataset.sort(col_name);

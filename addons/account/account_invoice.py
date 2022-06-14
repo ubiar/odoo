@@ -197,7 +197,7 @@ class account_invoice(models.Model):
         readonly=True, states={'draft': [('readonly', False)]})
     origin = fields.Char(string='Source Document',
         help="Reference of the document that produced this invoice.",
-        readonly=True, states={'draft': [('readonly', False)]})
+        readonly=True, states={'draft': [('readonly', False)]}, copy=False)
     supplier_invoice_number = fields.Char(string='Supplier Invoice Number',
         help="The reference of this invoice as provided by the supplier.",
         readonly=True, states={'draft': [('readonly', False)]})
@@ -214,7 +214,7 @@ class account_invoice(models.Model):
         default=False, copy=False,
         help="Unique number of the invoice, computed automatically when the invoice is created.")
     reference = fields.Char(string='Invoice Reference',
-        help="The partner reference of this invoice.")
+        help="The partner reference of this invoice.", copy=False)
     reference_type = fields.Selection('_get_reference_type', string='Payment Reference',
         required=True, readonly=True, states={'draft': [('readonly', False)]},
         default='none')

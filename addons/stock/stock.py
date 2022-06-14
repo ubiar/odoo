@@ -577,7 +577,7 @@ class stock_quant(osv.osv):
 
     def _get_latest_move(self, cr, uid, quant, context=None):
         move = False
-        for m in quant.history_ids:
+        for m in quant.sudo().history_ids:
             if not move or m.date > move.date:
                 move = m
         return move
@@ -618,7 +618,9 @@ class stock_quant(osv.osv):
                 self._quant_split(cr, uid, to_solve_quant, min(solving_qty, to_solve_quant.qty), context=context)
                 solving_qty -= min(solving_qty, to_solve_quant.qty)
             remaining_solving_quant = self._quant_split(cr, uid, solving_quant, qty, context=context)
-            remaining_neg_quant = self._quant_split(cr, uid, quant_neg, -qty, context=context)
+            ctx = context.copy()
+            ctx['no_validar_quant_negativo'] = True
+            remaining_neg_quant = self._quant_split(cr, uid, quant_neg, -qty, context=ctx)
             #if the reconciliation was not complete, we need to link together the remaining parts
             if remaining_neg_quant:
                 remaining_to_solve_quant_ids = self.search(cr, uid, [('propagated_from_id', '=', quant_neg.id), ('id', 'not in', solved_quant_ids)], context=context)
@@ -1280,9 +1282,7 @@ class stock_picking(osv.osv):
             pack_line_to_unreserve += [p.id for p in picking.pack_operation_ids]
         if moves_to_unreserve:
             if pack_line_to_unreserve:
-                print len(pack_line_to_unreserve)
                 self.pool.get('stock.pack.operation').unlink(cr, uid, pack_line_to_unreserve, context=context)
-                print 'ok'
             self.pool.get('stock.move').do_unreserve(cr, uid, moves_to_unreserve, context=context)
 
     def recompute_remaining_qty(self, cr, uid, picking, context=None):
@@ -2507,7 +2507,6 @@ class stock_move(osv.osv):
                     operations.add(link.operation_id)
         # Check all ops and sort them: we want to process first the packages, then operations with lot then the rest
         operations = list(operations)
-        print operations
         operations.sort(key=lambda x: ((x.package_id and not x.product_id) and -4 or 0) + (x.package_id and -2 or 0) + (x.lot_id and -1 or 0))
         for ops in operations:
             #first try to find quants based on specific domains given by linked operations
@@ -3031,7 +3030,9 @@ class stock_inventory(osv.osv):
                 #compute the inventory lines and create them
                 vals = self._get_inventory_lines(cr, uid, inventory, context=context)
                 for product_line in vals:
-                    inventory_line_obj.create(cr, uid, product_line, context=context)
+                    # inventory_line_obj.create(cr, uid, product_line, context=context)
+                    linea = inventory_line_obj.create(cr, uid, product_line, context=context)
+                    inventory_line_obj.browse(cr, uid, linea, context=context).refresh()
         return self.write(cr, uid, ids, {'state': 'confirm', 'date': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
 
     def _get_inventory_lines(self, cr, uid, inventory, context=None):
@@ -3166,8 +3167,8 @@ class stock_inventory_line(osv.osv):
     def create(self, cr, uid, values, context=None):
         if context is None:
             context = {}
-        product_obj = self.pool.get('product.product')
         if 'product_id' in values and not 'product_uom_id' in values:
+            product_obj = self.pool.get('product.product')
             values['product_uom_id'] = product_obj.browse(cr, uid, values.get('product_id'), context=context).uom_id.id
         return super(stock_inventory_line, self).create(cr, uid, values, context=context)
 
@@ -4791,7 +4792,7 @@ class stock_picking_type(osv.osv):
         res = []
         if not ids:
             return res
-        for record in self.browse(cr, uid, ids, context=context):
+        for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
             name = record.name
             if record.warehouse_id:
                 name = record.warehouse_id.name + ': ' +name
