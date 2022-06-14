@@ -269,7 +269,7 @@ msgstr "Parte de horas de proyectos"
 #. module: sale_stock
 #: view:sale.order:sale_stock.view_order_form_inherit
 msgid "Recreate Delivery Order"
-msgstr "Recrear órden de entrega"
+msgstr "Recrear OE"
 
 #. module: sale_stock
 #: field:sale.order.line,route_id:0
