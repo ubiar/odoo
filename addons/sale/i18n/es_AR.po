@@ -496,7 +496,7 @@ msgstr ""
 #. module: sale
 #: view:sale.order:sale.view_order_form
 msgid "Cancel Order"
-msgstr "Cancelar orden"
+msgstr "Cancelar"
 
 #. module: sale
 #: view:sale.order:sale.view_order_form
@@ -634,7 +634,7 @@ msgstr "Crear y visualizar factura"
 #: field:sale.order,order_policy:0
 #: view:sale.order.line:sale.view_order_line_form2
 msgid "Create Invoice"
-msgstr "Crear factura"
+msgstr "Crear FC"
 
 #. module: sale
 #: view:sale.make.invoice:sale.view_sale_order_make_invoice

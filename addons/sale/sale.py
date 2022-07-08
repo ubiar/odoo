@@ -816,6 +816,16 @@ class sale_order(osv.osv):
                     return False
         return True
 
+    # Método similar al test_procurements_done, pero que considera los 'cancel' como válidos
+    def test_procurements_cancel_done(self, cr, uid, ids, context=None):
+        for sale in self.browse(cr, uid, ids, context=context):
+            for line in sale.order_line:
+                if line.state == 'cancel':
+                    continue
+                if not all([x.state in ['done', 'cancel'] for x in line.procurement_ids]):
+                    return False
+        return True
+
     def test_procurements_except(self, cr, uid, ids, context=None):
         for sale in self.browse(cr, uid, ids, context=context):
             for line in sale.order_line:
@@ -1256,6 +1266,12 @@ class procurement_order(osv.osv):
                     order_id = proc.sale_line_id.order_id.id
                     if self.pool.get('sale.order').test_procurements_done(cr, uid, [order_id], context=context):
                         workflow.trg_validate(uid, 'sale.order', order_id, 'ship_end', cr)
+                        continue
+                    # Cuando se escribe 'done', voy a ignorar los proc que estén cancelados por completo, esto sólo se da si la cantidad total del Proc se canceló
+                    # es decir, cuando se canceló un move completo, que nunca tuvo remisiones parciales
+                    if vals.get('state') == 'done' and self.pool.get('sale.order').test_procurements_cancel_done(cr, uid, [order_id], context=context):
+                        workflow.trg_validate(uid, 'sale.order', order_id, 'ship_end', cr)
+                        continue
                     # Se agregó la Cancelación Parcial en las OE, por lo tanto, si se da ese caso, no se debe salir por Excepción de OE sino por el circuito normal
                     estado_moves = []
                     cancelacion_normal = True

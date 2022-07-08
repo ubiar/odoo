@@ -386,7 +386,6 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
         this.defaults = defaults || {};
         this.headless = this.options.hidden &&  _.isEmpty(this.defaults);
         this.$buttons = this.options.$buttons;
-
         this.filter_menu = undefined;
         this.groupby_menu = undefined;
         this.favorite_menu = undefined;
@@ -403,7 +402,7 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
                 .on('add change reset remove', this.proxy('do_search'))
                 .on('change', this.proxy('renderChangedFacets'))
                 .on('add reset remove', this.proxy('renderFacets'));
-        if (!this.action_id && !this.options.popup && !this.options.action) return $.when();
+        if (!this.action_id && !this.options.popup && !this.options.action && !this.options.load_view) return $.when();
         var load_view = instance.web.fields_view_get({
             model: this.dataset._model,
             view_id: this.view_id,
