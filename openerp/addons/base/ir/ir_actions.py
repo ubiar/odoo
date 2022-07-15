@@ -410,6 +410,7 @@ VIEW_TYPES = [
     ('graph', 'Graph'),
     ('pivot', 'Pivot'),
     ('cubo', 'Cubo'),
+    ('tablero', 'Tablero'),
     ('orga', 'Organigrama'),
     ('calendar', 'Calendar'),
     ('gantt', 'Gantt'),

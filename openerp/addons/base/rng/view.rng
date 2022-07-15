@@ -660,6 +660,7 @@
                         <rng:value>line</rng:value>
                         <rng:value>pivot</rng:value>
                         <rng:value>cubo</rng:value>
+                        <rng:value>tablero</rng:value>
                         <rng:value>orga</rng:value>
                     </rng:choice>
                 </rng:attribute>
@@ -690,6 +691,15 @@
 
     <rng:define name="cubo">
         <rng:element name="cubo">
+            <rng:optional><rng:attribute name="string" /></rng:optional>
+            <rng:zeroOrMore>
+                <rng:ref name="field"/>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:define>
+    
+    <rng:define name="tablero">
+        <rng:element name="tablero">
             <rng:optional><rng:attribute name="string" /></rng:optional>
             <rng:zeroOrMore>
                 <rng:ref name="field"/>
@@ -779,6 +789,7 @@
                     <rng:ref name="graph" />
                     <rng:ref name="pivot" />
                     <rng:ref name="cubo" />
+                    <rng:ref name="tablero" />
                     <rng:ref name="orga" />
                     <rng:ref name="calendar" />
                     <rng:ref name="gantt" />
@@ -809,6 +820,7 @@
             <rng:ref name="graph" />
             <rng:ref name="pivot" />
             <rng:ref name="cubo" />
+            <rng:ref name="tablero" />
             <rng:ref name="orga" />
             <rng:ref name="calendar" />
             <rng:ref name="data" />

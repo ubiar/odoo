@@ -206,6 +206,7 @@ class view(osv.osv):
             ('graph', 'Graph'),
             ('pivot', 'Pivot'),
             ('cubo', 'Cubo'),
+            ('tablero', 'Tablero'),
             ('orga', 'Organigrama'),
             ('calendar', 'Calendar'),
             ('diagram','Diagram'),
