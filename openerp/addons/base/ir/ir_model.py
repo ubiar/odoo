@@ -149,7 +149,7 @@ class ir_model(osv.osv):
         (_check_model_name, _model_name_msg, ['model']),
     ]
     _sql_constraints = [
-        ('obj_name_uniq', 'unique (model)', 'Each model must be unique!'),
+        ('obj_name_uniq', 'unique (model)', 'El Modelo ya existe'),
     ]
 
     # overridden to allow searching both on model name (model field)
