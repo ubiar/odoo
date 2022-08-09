@@ -61,10 +61,10 @@ class utm_mixin(osv.AbstractModel):
     _name = 'utm.mixin'
 
     _columns = {
-        'campaign_id': fields.many2one('utm.campaign', 'Campaign',  # old domain ="['|',('team_id','=',team_id),('team_id','=',False)]"
+        'campaign_id': fields.many2one('utm.campaign', 'Campaña',  # old domain ="['|',('team_id','=',team_id),('team_id','=',False)]"
                                        help="This is a name that helps you keep track of your different campaign efforts Ex: Fall_Drive, Christmas_Special"),
-        'source_id': fields.many2one('utm.source', 'Source', help="This is the source of the link Ex: Search Engine, another domain, or name of email list"),
-        'medium_id': fields.many2one('utm.medium', 'Medium', help="This is the method of delivery. Ex: Postcard, Email, or Banner Ad", oldname='channel_id'),
+        'source_id': fields.many2one('utm.source', 'Canal', help="This is the source of the link Ex: Search Engine, another domain, or name of email list"),
+        'medium_id': fields.many2one('utm.medium', 'Medio', help="This is the method of delivery. Ex: Postcard, Email, or Banner Ad", oldname='channel_id'),
     }
 
     def tracking_fields(self):
