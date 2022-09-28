@@ -531,6 +531,10 @@ class Home(http.Controller):
     ], type='http', auth='public')
     def js_bundle(self, xmlid, version=None, **kw):
         try:
+            try:
+                xmlid = request.httprequest.url.split('/web/')[1].split('/')[1]
+            except Exception, e:
+                pass
             bundle = AssetsBundle(xmlid)
         except QWebTemplateNotFound:
             return request.not_found()
@@ -545,6 +549,10 @@ class Home(http.Controller):
     ], type='http', auth='public')
     def css_bundle(self, xmlid, version=None, page=None, **kw):
         try:
+            try:
+                xmlid = request.httprequest.url.split('/web/')[1].split('/')[1]
+            except Exception, e:
+                pass
             bundle = AssetsBundle(xmlid)
         except QWebTemplateNotFound:
             return request.not_found()
