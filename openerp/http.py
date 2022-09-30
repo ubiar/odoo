@@ -143,8 +143,11 @@ def local_redirect(path, query=None, keep_hash=False, forward_debug=True, code=3
     url = path
     if not query:
         query = {}
-    if forward_debug and request and request.debug:
-        query['debug'] = None
+    if request and request.debug:
+        if forward_debug:
+            query['debug'] = ''
+        else:
+            query['debug'] = None
     if query:
         url += '?' + werkzeug.url_encode(query)
     if keep_hash:
@@ -159,6 +162,9 @@ def redirect_with_hash(url, code=303):
     # See extensive test page at http://greenbytes.de/tech/tc/httpredirects/
     if request.httprequest.user_agent.browser in ('firefox',):
         return werkzeug.utils.redirect(url, code)
+    if urlparse.urlparse(url, scheme='http').scheme not in ('http', 'https'):
+        url = 'http://' + url
+    url = url.replace("'", "%27").replace("<", "%3C")
     return "<html><head><script>window.location = '%s' + location.hash;</script></head></html>" % url
 
 class WebRequest(object):
@@ -187,6 +193,7 @@ class WebRequest(object):
         self.disable_db = False
         self.uid = None
         self.endpoint = None
+        self.endpoint_arguments = None
         self.auth_method = None
         self._cr = None
 
@@ -208,7 +215,7 @@ class WebRequest(object):
         to a database.
         """
         if not self.db:
-            return RuntimeError('request not bound to a database')
+            raise RuntimeError('request not bound to a database')
         return openerp.api.Environment(self.cr, self.uid, self.context)
 
     @lazy_property
@@ -244,7 +251,7 @@ class WebRequest(object):
         # can not be a lazy_property because manual rollback in _call_function
         # if already set (?)
         if not self.db:
-            return RuntimeError('request not bound to a database')
+            raise RuntimeError('request not bound to a database')
         if not self._cr:
             self._cr = self.registry.cursor()
         return self._cr
@@ -269,7 +276,7 @@ class WebRequest(object):
         arguments = dict((k, v) for k, v in arguments.iteritems()
                          if not k.startswith("_ignored_"))
 
-        endpoint.arguments = arguments
+        self.endpoint_arguments = arguments
         self.endpoint = endpoint
         self.auth_method = auth
 
@@ -293,7 +300,8 @@ class WebRequest(object):
             _logger.info(msg, *params)
             raise werkzeug.exceptions.BadRequest(msg % params)
 
-        kwargs.update(self.endpoint.arguments)
+        if self.endpoint_arguments:
+            kwargs.update(self.endpoint_arguments)
 
         # Backward for 7.0
         if self.endpoint.first_arg_is_req:
@@ -306,6 +314,7 @@ class WebRequest(object):
             # case, the request cursor is unusable. Rollback transaction to create a new one.
             if self._cr:
                 self._cr.rollback()
+                self.env.clear()
             return self.endpoint(*a, **kw)
 
         if self.db:
@@ -380,8 +389,8 @@ def route(route=None, **kw):
 
                  * ``user``: The user must be authenticated and the current request
                    will perform using the rights of the user.
-                 * ``admin``: The user may not be authenticated and the current request
-                   will perform using the admin user.
+                 * ``public``: The user may or may not be authenticated. If she isn't,
+                   the current request will perform using the shared Public user.
                  * ``none``: The method is always active, even if there is no
                    database. Mainly used by the framework and authentication
                    modules. There request code will not have any facilities to access
@@ -597,29 +606,22 @@ def serialize_exception(e):
         "debug": traceback.format_exc(),
         "message": ustr(e),
         "arguments": to_jsonable(e.args),
-        "exception_type": "internal_error",
-        "context": getattr(e, 'context', {})
+        "exception_type": "internal_error"
     }
     if isinstance(e, openerp.exceptions.UserError):
         tmp["exception_type"] = "user_error"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.Warning):
         tmp["exception_type"] = "warning"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.RedirectWarning):
         tmp["exception_type"] = "warning"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.AccessError):
         tmp["exception_type"] = "access_error"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.MissingError):
         tmp["exception_type"] = "missing_error"
     elif isinstance(e, openerp.exceptions.AccessDenied):
         tmp["exception_type"] = "access_denied"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.ValidationError):
         tmp["exception_type"] = "validation_error"
-        tmp["debug"] = ""
     elif isinstance(e, openerp.exceptions.except_orm):
         tmp["exception_type"] = "except_orm"
     return tmp
@@ -695,7 +697,7 @@ class HttpRequest(WebRequest):
         if request.httprequest.method == 'OPTIONS' and request.endpoint and request.endpoint.routing.get('cors'):
             headers = {
                 'Access-Control-Max-Age': 60 * 60 * 24,
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, X-Debug-Mode'
             }
             return Response(status=200, headers=headers)
 
@@ -1320,6 +1322,8 @@ class Root(object):
                     path_static = os.path.join(addons_path, module, 'static')
                     if os.path.isfile(manifest_path) and os.path.isdir(path_static):
                         manifest = ast.literal_eval(open(manifest_path).read())
+                        if not manifest.get('installable', True):
+                            continue
                         manifest['addons_path'] = addons_path
                         _logger.debug("Loading %s", module)
                         if 'openerp.addons' in sys.modules:
@@ -1366,9 +1370,16 @@ class Root(object):
             httprequest.session.db = db_monodb(httprequest)
 
     def setup_lang(self, httprequest):
-        if not "lang" in httprequest.session.context:
-            lang = httprequest.accept_languages.best or "en_US"
-            lang = babel.core.LOCALE_ALIASES.get(lang, lang).replace('-', '_')
+        if "lang" not in httprequest.session.context:
+            alang = httprequest.accept_languages.best or "en-US"
+            try:
+                code, territory, _, _ = babel.core.parse_locale(alang, sep='-')
+                if territory:
+                    lang = '%s_%s' % (code, territory)
+                else:
+                    lang = babel.core.LOCALE_ALIASES[code]
+            except (ValueError, KeyError):
+                lang = 'en_US'
             httprequest.session.context["lang"] = lang
 
     def get_request(self, httprequest):
