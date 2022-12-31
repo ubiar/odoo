@@ -2683,6 +2683,12 @@ class stock_move(osv.osv):
             move_qty_cmp = float_compare(move_qty[move.id], 0, precision_rounding=move.product_id.uom_id.rounding)
             if move_qty_cmp > 0:  # (=In case no pack operations in picking)
                 main_domain = [('qty', '>', 0)]
+                # Si se le envian paquetes filtra solo esos o los quants
+                # que no tengan paquetes
+                if 'filter_package_ids' in context.keys():
+                    package_ids = list(context.get('filter_package_ids') or [])
+                    package_ids.append(False)
+                    main_domain += [('package_id', 'in', package_ids)]
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
                 # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
