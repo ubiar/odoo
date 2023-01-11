@@ -662,14 +662,14 @@ class account_account(osv.osv):
         line_obj = self.pool.get('account.move.line')
         account_ids = self.search(cr, uid, [('id', 'child_of', ids)], context=context)
 
-        if line_obj.search(cr, uid, [('account_id', 'in', account_ids)], context=context):
+        if line_obj.search(cr, SUPERUSER_ID, [('account_id', 'in', account_ids)], context=context):
             if method == 'write':
                 raise UserError(_('You cannot deactivate an account that contains journal items.'))
             elif method == 'unlink':
                 raise UserError(_('You cannot remove an account that contains journal items.'))
         #Checking whether the account is set as a property to any Partner or not
         values = ['account.account,%s' % (account_id,) for account_id in ids]
-        partner_prop_acc = self.pool.get('ir.property').search(cr, uid, [('value_reference','in', values)], context=context)
+        partner_prop_acc = self.pool.get('ir.property').search(cr, SUPERUSER_ID, [('value_reference','in', values)], context=context)
         if partner_prop_acc:
             raise UserError(_('You cannot remove/deactivate an account which is set on a customer or supplier.'))
         return True
