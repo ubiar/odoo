@@ -717,16 +717,16 @@ class product_template(osv.osv):
                 }
                 id = product_obj.create(cr, uid, values, context=ctx)
                 variants_active_ids.append(id)
-
-            # unlink or inactive product
-            for variant_id in map(int,variants_inactive):
-                try:
-                    with cr.savepoint(), tools.mute_logger('openerp.sql_db'):
-                        product_obj.unlink(cr, uid, [variant_id], context=ctx)
-                #We catch all kind of exception to be sure that the operation doesn't fail.
-                except (psycopg2.Error, except_orm):
-                    product_obj.write(cr, uid, [variant_id], {'active': False}, context=ctx)
-                    pass
+            if tmpl_id.attribute_line_ids:
+                # unlink or inactive product
+                for variant_id in map(int,variants_inactive):
+                    try:
+                        with cr.savepoint(), tools.mute_logger('openerp.sql_db'):
+                            product_obj.unlink(cr, uid, [variant_id], context=ctx)
+                    #We catch all kind of exception to be sure that the operation doesn't fail.
+                    except (psycopg2.Error, except_orm):
+                        product_obj.write(cr, uid, [variant_id], {'active': False}, context=ctx)
+                        pass
         return True
 
     def create(self, cr, uid, vals, context=None):
