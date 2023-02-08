@@ -1245,7 +1245,7 @@ class account_invoice_line(models.Model):
     def _compute_price(self):
         price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
         precio_unitario_con_iva = False
-        if request and request.context:
+        if hasattr(request, 'context'):
             if 'alicuota_iva' in self:
                 request.context['alicuota_iva'] = self.alicuota_iva
             if 'precio_unitario_con_iva' in self:
@@ -1606,7 +1606,7 @@ class account_invoice_tax(models.Model):
         res_a = self.compute_a(invoice)
         for line in invoice.invoice_line:
             res_d = self.compute_d(invoice, line)
-            if request:
+            if hasattr(request, 'context'):
                 request.context['alicuota_iva'] = line.alicuota_iva
             taxes = line.invoice_line_tax_id.with_context(precio_unitario_con_iva=line.invoice_id.precio_unitario_con_iva).compute_all(
                 ((line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - (res_d or 0.0) / 100.0)),

@@ -2149,11 +2149,11 @@ class account_tax(osv.osv):
 
     @api.v8
     def compute_all(self, price_unit, quantity, product=None, partner=None, force_excluded=False):
-        if request and 'tax_subcompania_id' in self._context.keys():
+        if hasattr(request, 'context') and 'tax_subcompania_id' in self._context.keys():
             request.context['tax_subcompania_id'] = self._context['tax_subcompania_id']
-        if request and 'precio_unitario_con_iva' in self._context.keys():
+        if hasattr(request, 'context') and 'precio_unitario_con_iva' in self._context.keys():
             request.context['precio_unitario_con_iva'] = self._context['precio_unitario_con_iva']
-        if request and 'calculo_impuesto_vars' in self._context.keys():
+        if hasattr(request, 'context') and 'calculo_impuesto_vars' in self._context.keys():
             request.context['calculo_impuesto_vars'] = self._context['calculo_impuesto_vars']
         return self._model.compute_all(
             self._cr, self._uid, self, price_unit, quantity,
