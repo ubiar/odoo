@@ -485,6 +485,13 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
                 field_values[parent_name] = parent_values;
             }
         }
+        // Evito que se envien los campos que pueden ser pesados ya que eso hace que funciona muy lento
+        // el sistema y son campos que no se suelen usar en un on_change
+        _.each(this.fields, f=>{
+            if (f.field !== undefined && ['html', 'binary'].includes(f.field.type)) {
+                field_values[f.name] = false;
+            }
+        });
         return field_values;
     },
 
