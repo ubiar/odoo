@@ -49,7 +49,7 @@
                                 <field name="partner_id"/>
                                 <field name="email" widget="email"/>
                                 <field name="test_entry" groups="base.group_no_one"/>
-                                <field name="quizz_score" groups="base.group_no_one"/>
+                                <field name="quizz_score"/>
                             </group>
                         </group>
                         <field name="user_input_line_ids" mode="tree" attrs="{'readonly': False}">
@@ -59,7 +59,7 @@
                                 <field name="answer_type"/>
                                 <field name="skipped"/>
                                 <field name="date_create"/>
-                                <field name="quizz_mark" groups="base.group_no_one"/>
+                                <field name="quizz_mark"/>
                             </tree>
                         </field>
                     </sheet>
@@ -79,7 +79,7 @@
                     <field name="type"/>
                     <field name="state"/>
                     <field name="test_entry" invisible="True"/>
-                    <field name="quizz_score" groups="base.group_no_one"/>
+                    <field name="quizz_score"/>
                 </tree>
             </field>
         </record>
@@ -313,7 +313,7 @@
                                     <tree editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="value" string="Answers"/>
-                                        <field name="quizz_mark" groups="base.group_no_one"/>
+                                        <field name="quizz_mark"/>
                                     </tree>
                                 </field>
                                 <separator />
@@ -407,7 +407,7 @@
                     <field name="question_id"/>
                     <field name="question_id_2"/>
                     <field name="value"/>
-                    <field name="quizz_mark" groups="base.group_no_one"/>
+                    <field name="quizz_mark"/>
                 </tree>
             </field>
         </record>
@@ -444,7 +444,7 @@
                             <field name="date_create"/>
                             <field name="answer_type"/>
                             <field name="skipped" />
-                            <field name="quizz_mark" groups="base.group_no_one"/>
+                            <field name="quizz_mark"/>
                         </group>
                         <group>
                             <field name="value_text" colspan='2' attrs="{'invisible': [('answer_type','!=','text')]}"/>
@@ -470,7 +470,7 @@
                     <field name="date_create"/>
                     <field name="answer_type"/>
                     <field name="skipped"/>
-                    <field name="quizz_mark" groups="base.group_no_one"/>
+                    <field name="quizz_mark"/>
                 </tree>
             </field>
         </record>
