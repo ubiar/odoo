@@ -2276,7 +2276,7 @@ class account_tax(osv.osv):
         """
         if not precision:
             precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
-        res = self._unit_compute_inv(cr, uid, taxes, price_unit, product, partner=None)
+        res = self._unit_compute_inv(cr, uid, taxes, price_unit, product, partner=partner)
         total = 0.0
         for r in res:
             if r.get('balance',False):
