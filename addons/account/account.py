@@ -662,14 +662,14 @@ class account_account(osv.osv):
         line_obj = self.pool.get('account.move.line')
         account_ids = self.search(cr, uid, [('id', 'child_of', ids)], context=context)
 
-        if line_obj.search(cr, uid, [('account_id', 'in', account_ids)], context=context):
+        if line_obj.search(cr, SUPERUSER_ID, [('account_id', 'in', account_ids)], context=context):
             if method == 'write':
                 raise UserError(_('You cannot deactivate an account that contains journal items.'))
             elif method == 'unlink':
                 raise UserError(_('You cannot remove an account that contains journal items.'))
         #Checking whether the account is set as a property to any Partner or not
         values = ['account.account,%s' % (account_id,) for account_id in ids]
-        partner_prop_acc = self.pool.get('ir.property').search(cr, uid, [('value_reference','in', values)], context=context)
+        partner_prop_acc = self.pool.get('ir.property').search(cr, SUPERUSER_ID, [('value_reference','in', values)], context=context)
         if partner_prop_acc:
             raise UserError(_('You cannot remove/deactivate an account which is set on a customer or supplier.'))
         return True
@@ -2149,11 +2149,11 @@ class account_tax(osv.osv):
 
     @api.v8
     def compute_all(self, price_unit, quantity, product=None, partner=None, force_excluded=False):
-        if request and 'tax_subcompania_id' in self._context.keys():
+        if hasattr(request, 'context') and 'tax_subcompania_id' in self._context.keys():
             request.context['tax_subcompania_id'] = self._context['tax_subcompania_id']
-        if request and 'precio_unitario_con_iva' in self._context.keys():
+        if hasattr(request, 'context') and 'precio_unitario_con_iva' in self._context.keys():
             request.context['precio_unitario_con_iva'] = self._context['precio_unitario_con_iva']
-        if request and 'calculo_impuesto_vars' in self._context.keys():
+        if hasattr(request, 'context') and 'calculo_impuesto_vars' in self._context.keys():
             request.context['calculo_impuesto_vars'] = self._context['calculo_impuesto_vars']
         return self._model.compute_all(
             self._cr, self._uid, self, price_unit, quantity,
@@ -2276,7 +2276,7 @@ class account_tax(osv.osv):
         """
         if not precision:
             precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
-        res = self._unit_compute_inv(cr, uid, taxes, price_unit, product, partner=None)
+        res = self._unit_compute_inv(cr, uid, taxes, price_unit, product, partner=partner)
         total = 0.0
         for r in res:
             if r.get('balance',False):

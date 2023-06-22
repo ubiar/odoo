@@ -410,7 +410,7 @@ class sale_order(osv.osv):
                 if invoice_line_id.invoice_id.id not in from_line_invoice_ids:
                     from_line_invoice_ids.append(invoice_line_id.invoice_id.id)
         for preinv in order.invoice_ids:
-            if preinv.state not in ('cancel',) and preinv.id not in from_line_invoice_ids:
+            if preinv.state not in ('cancel') and preinv.id not in from_line_invoice_ids and hasattr(inv_obj, 'anulada') and not preinv.anulada:
                 for preline in preinv.invoice_line:
                     inv_line_id = obj_invoice_line.copy(cr, uid, preline.id, {'invoice_id': False, 'price_unit': -preline.price_unit})
                     lines.append(inv_line_id)
@@ -875,7 +875,7 @@ class sale_order_line(osv.osv):
         res = dict.fromkeys(ids, False)
         for this in self.browse(cr, uid, ids, context=context):
             res[this.id] = this.invoice_lines and \
-                all(iline.invoice_id.state != 'cancel' for iline in this.invoice_lines) 
+                all((iline.invoice_id.state != 'cancel' and not iline.invoice_id.anulada) for iline in this.invoice_lines)
         return res
 
     def _order_lines_from_invoice(self, cr, uid, ids, context=None):

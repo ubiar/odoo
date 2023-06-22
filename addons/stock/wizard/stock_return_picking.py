@@ -87,6 +87,7 @@ class stock_return_picking(osv.osv_memory):
                         LEFT JOIN stock_picking_type picking_type ON picking_type.ID = devolucion.picking_type_id
                     WHERE
                         picking_type.code = 'incoming'
+                        AND quant.id is not NULL
                         AND remito.ID = %s
                         ''', [pick.wave_id.id])
                 quants_devueltos = [r[0] for r in cr.fetchall()]
