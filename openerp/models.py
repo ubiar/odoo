@@ -265,6 +265,7 @@ IdType = (int, long, basestring, NewId)
 
 # maximum number of prefetched records
 PREFETCH_MAX = 1000
+PREFETCH_BROWSE_MAX = 50
 
 # special columns automatically created by the ORM
 LOG_ACCESS_COLUMNS = ['create_uid', 'create_date', 'write_uid', 'write_date']
@@ -5427,7 +5428,8 @@ class BaseModel(object):
         records = object.__new__(cls)
         records.env = env
         records._ids = ids
-        env.prefetch[cls._name].update(ids)
+        if ids and len(ids) < PREFETCH_BROWSE_MAX:
+            env.prefetch[cls._name].update(ids)
         return records
 
     @api.v7
