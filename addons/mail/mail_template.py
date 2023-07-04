@@ -524,7 +524,7 @@ class mail_template(osv.osv):
                     sent_by = _('Enviado por %(company)s mediante %(odoo)s')
                     signature_company = '<br /><br /><small>%s</small>' % (sent_by % {
                         'company': company,
-                        'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/page/advance_erp'>Advance ERP</a>"
+                        'odoo': "<a target='_blank' style='color:#7C7BAD' href='https://ubiar.com/advance-erp'>Advance ERP</a>"
                     })
                     values['body_html'] = '%s\n\n<div>%s</div>' % (values['body_html'], signature_company)
                     # No se utiliza mas porque el metodo append_content_to_html modificaba el html y genera que en algunos casos se vea mal
