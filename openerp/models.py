@@ -1361,6 +1361,7 @@ class BaseModel(object):
         # Se movio aca para que no se ejecute una vez por cada campo
         action_id = self._context.get('params') and self._context.get('params').get('action')
         ir_values_dict = self.env['ir.values'].get_defaults_dict(self._name, action_id=action_id)
+
         for name in fields_list:
             # 1. look up context
             key = 'default_' + name
@@ -1427,6 +1428,15 @@ class BaseModel(object):
                                         va[2][n] = self.env[self_rel._fields[n].comodel_name].sudo().browse(v).name_get()[0]
                 except:
                     pass
+        if defaults and type(defaults) == dict:
+            for name, val in defaults.iteritems():
+                if val and self._fields[name].type == 'many2one' and type(val) == int:
+                    try:
+                        defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                    except MissingError, e:
+                        raise Warning(_("El Valor por Defecto definido para el campo %s, no esta correctamente configurado. Por favor elimine el valor por defecto.") % name)
+                    except Exception, e:
+                        pass
         return defaults
 
     def fields_get_keys(self, cr, user, context=None):
