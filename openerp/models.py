@@ -1432,7 +1432,8 @@ class BaseModel(object):
             for name, val in defaults.iteritems():
                 if val and self._fields[name].type == 'many2one' and type(val) == int:
                     try:
-                        defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                        # defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).name_get()[0]
+                        defaults[name] = self.env[self._fields[name].comodel_name].sudo().browse(val).id
                     except MissingError, e:
                         raise Warning(_("El Valor por Defecto definido para el campo %s, no esta correctamente configurado. Por favor elimine el valor por defecto.") % name)
                     except Exception, e:
