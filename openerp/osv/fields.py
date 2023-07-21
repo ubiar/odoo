@@ -44,14 +44,15 @@ import re
 import xmlrpclib
 from operator import itemgetter
 from contextlib import contextmanager
+import psycopg2
 from psycopg2 import Binary
-
 import openerp
 import openerp.tools as tools
 from openerp.tools.translate import _
 from openerp.tools import float_repr, float_round, frozendict, html_sanitize
 import simplejson
 from openerp import SUPERUSER_ID, registry
+import ast
 
 @contextmanager
 def _get_cursor():
@@ -1841,3 +1842,41 @@ class column_info(object):
         return '%s(%s, %s, %s, %s, %s)' % (
             self.__class__.__name__, self.name, self.column,
             self.parent_model, self.parent_column, self.original_parent)
+
+class vector(_column):
+    _classic_read = False
+    _classic_write = False
+    _type = 'vector'
+
+    def __init__(self, string='Vector', size=1536, **args):
+        super(vector, self).__init__(string=string, **args)
+        self.size = size
+        self.column_type = ('vector', 'vector(%s)' % size)
+
+    def get(self, cr, obj, ids, name, user=None, offset=0, context=None, values=None):
+        if not values:
+            values = {}
+        if not context:
+            context = {}
+        
+        cr.execute('SELECT id, "%s" FROM "%s" WHERE id IN %%s' % (name, obj._table), (tuple(ids),))
+        result = cr.fetchall()
+        
+        for record_id, value in result:
+            if value is not None:
+                value = value
+            if not values[record_id]:
+                values[record_id] = {}
+            values[record_id][name] = value
+
+        return values
+
+    def set(self, cr, obj, id, name, value, user=None, context=None):
+        if not context:
+            context = {}
+        
+        if value is not None:
+            if not(isinstance(value, list) and len(value) == self.size):
+                raise ValueError("El valor del campo debe ser una lista de tamaño %s" % self.size)
+        import pdb; pdb.set_trace()
+        cr.execute('UPDATE "%s" SET "%s"=%%s WHERE id = %%s' % (obj._table, name), (value, id))

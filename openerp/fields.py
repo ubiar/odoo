@@ -1951,6 +1951,37 @@ class Id(Field):
     def __set__(self, record, value):
         raise TypeError("field 'id' cannot be assigned")
 
+class Vector(Field):
+    type = 'vector'
+    column_type = ('vector', 'vector')
+
+    def __init__(self, string='Vector', size=1536, **kwargs):
+        super(Vector, self).__init__(string=string, **kwargs)
+        self.size = size
+        self.column_type = ('vector', 'vector({})'.format(size))
+
+    def convert_to_column(self, value, record):
+        if value is not None:
+            if isinstance(value, list) and len(value) == self.size:
+                return NumericRange(value)
+            else:
+                raise ValueError("El valor del campo debe ser una lista de tamaño %s" % self.size)
+        return None
+
+    def convert_to_cache(self, value, record, validate=True):
+        if value is not None:
+            return value.tolist()
+        return None
+
+    def convert_to_export(self, value, record):
+        return self.convert_to_cache(value, record)
+
+    def convert_to_read(self, value, record, use_name_get=True):
+        return self.convert_to_cache(value, record)
+
+    def convert_to_write(self, value, record):
+        return self.convert_to_column(value, record)
+
 # imported here to avoid dependency cycle issues
 from openerp import SUPERUSER_ID, registry
 from .exceptions import Warning, AccessError, MissingError

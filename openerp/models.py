@@ -164,7 +164,7 @@ FIELDS_TO_PGTYPES = {
     fields.datetime: 'timestamp',
     fields.binary: 'bytea',
     fields.many2one: 'int4',
-    fields.serialized: 'text',
+    fields.serialized: 'text'
 }
 
 def get_pg_type(f, type_override=None):
@@ -190,6 +190,8 @@ def get_pg_type(f, type_override=None):
             pg_type = ('float8', 'DOUBLE PRECISION')
     elif issubclass(field_type, (fields.char, fields.reference)):
         pg_type = ('varchar', pg_varchar(f.size))
+    elif issubclass(field_type, fields.vector):
+        pg_type = ('vector', 'VECTOR(%d)' % f.size)
     elif issubclass(field_type, fields.selection):
         if (f.selection and isinstance(f.selection, list) and isinstance(f.selection[0][0], int))\
                 or getattr(f, 'size', None) == -1:
