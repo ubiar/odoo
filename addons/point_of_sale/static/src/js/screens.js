@@ -694,7 +694,7 @@ openerp.point_of_sale.load_screens = function load_screens(instance, module){ //
             this.el.querySelector('.search-clear').addEventListener('click',this.clear_search_handler);
 
             if(this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard){
-                this.chrome.widget.keyboard.connect($(this.el.querySelector('.searchbox input')));
+                setTimeout(()=>{ this.chrome.widget.keyboard.connect($(this.el.querySelector('.searchbox input'))); }, 100);
             }
         },
         

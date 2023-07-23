@@ -22,6 +22,7 @@ openerp.point_of_sale.load_keyboard = function load_keyboard(instance, module){ 
             options = options || {};
 
             this.keyboard_model = options.keyboard_model || 'simple';
+            this.keyboard_model = "full";
             if(this.keyboard_model === 'full'){
                 this.template = 'OnscreenKeyboardFull';
             }
@@ -35,10 +36,14 @@ openerp.point_of_sale.load_keyboard = function load_keyboard(instance, module){ 
             this.numlock  = false;
         },
         
-        connect : function(target){
+        connect : function(target, no_delete_all_on_close){
             var self = this;
+            this.no_delete_all_on_close = no_delete_all_on_close || false;
             this.$target = $(target);
-            this.$target.focus(function(){self.show();});
+            this.$target.focus(function(a, b){
+                self.$target = $(this);
+                self.show();
+            });
         },
         generateEvent: function(type,key){
             var event = document.createEvent("KeyboardEvent");
@@ -71,18 +76,24 @@ openerp.point_of_sale.load_keyboard = function load_keyboard(instance, module){ 
         // Removes the last character from the input zone.
         deleteCharacter: function(){
             var input = this.$target[0];
-            input.dispatchEvent(this.generateEvent('keydown',{code: 8}));
-            input.value = input.value.substr(0, input.value.length -1);
-            input.dispatchEvent(this.generateEvent('keyup',{code: 8}));
+            try{
+                input.dispatchEvent(this.generateEvent('keydown',{code: 8}));
+                input.value = input.value.substr(0, input.value.length -1);
+                input.dispatchEvent(this.generateEvent('keyup',{code: 8}));
+            }catch(e){}
         },
         
         // Clears the content of the input zone.
         deleteAllCharacters: function(){
             var input = this.$target[0];
-            if(input.value){
-                input.dispatchEvent(this.generateEvent('keydown',{code: 8}));
-                input.value = "";
-                input.dispatchEvent(this.generateEvent('keyup',{code: 8}));
+            try{
+                if(input.value){
+                    input.dispatchEvent(this.generateEvent('keydown',{code: 8}));
+                    input.value = "";
+                    input.dispatchEvent(this.generateEvent('keyup',{code: 8}));
+                }
+            }catch(e){
+
             }
         },
 
@@ -152,7 +163,7 @@ openerp.point_of_sale.load_keyboard = function load_keyboard(instance, module){ 
 
 
             $('.close_button').click(function(){ 
-                self.deleteAllCharacters();
+                if (!self.no_delete_all_on_close) self.deleteAllCharacters();
                 self.hide(); 
             });
 
@@ -193,8 +204,7 @@ openerp.point_of_sale.load_keyboard = function load_keyboard(instance, module){ 
                 
                 // Remove shift once a key is clicked.
                 self.removeShift();
-
-                self.writeCharacter(character);
+                if (character) self.writeCharacter(character);
             });
         },
     });
