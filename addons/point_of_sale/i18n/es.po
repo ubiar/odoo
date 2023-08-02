@@ -4385,7 +4385,7 @@ msgstr "en"
 #: code:addons/point_of_sale/static/src/xml/pos.xml:1078
 #, python-format
 msgid "caps lock"
-msgstr "bloqueo mayúsculas"
+msgstr "bloq mayús"
 
 #. module: point_of_sale
 #. openerp-web
@@ -4401,7 +4401,7 @@ msgstr "cerrar"
 #: code:addons/point_of_sale/static/src/xml/pos.xml:1140
 #, python-format
 msgid "delete"
-msgstr "eliminar"
+msgstr "borrar"
 
 #. module: point_of_sale
 #. openerp-web
@@ -4442,7 +4442,7 @@ msgstr "método de pago."
 #: code:addons/point_of_sale/static/src/xml/pos.xml:1145
 #, python-format
 msgid "return"
-msgstr "devolver"
+msgstr "enter"
 
 #. module: point_of_sale
 #. openerp-web
@@ -4457,7 +4457,7 @@ msgstr "mayúscula"
 #: code:addons/point_of_sale/static/src/xml/pos.xml:1064
 #, python-format
 msgid "tab"
-msgstr "pestaña"
+msgstr "tab"
 
 #. module: point_of_sale
 #: view:pos.session:point_of_sale.view_pos_session_form

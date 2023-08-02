@@ -161,7 +161,7 @@ openerp.point_of_sale.load_popups = function load_popups(instance, module) {
             this._super(options);
 
             this.renderElement();
-            this.$('input,textarea').focus();
+            setTimeout(()=>{ this.$('input,textarea').focus(); }, 80);
         },
         click_confirm: function(){
             var value = this.$('input,textarea').val();
