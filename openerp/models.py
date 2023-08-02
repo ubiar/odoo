@@ -5353,9 +5353,20 @@ class BaseModel(object):
         # was presumably only meant for the main search().
         # TODO: Move this to read() directly?                                                                                                
         read_ctx = dict(context or {})                                                                                                       
-        read_ctx.pop('active_test', None)                                                                                                    
+        read_ctx.pop('active_test', None)
                                                                                                                                              
-        result = self.read(cr, uid, record_ids, fields, context=read_ctx) 
+        result = self.read(cr, uid, record_ids, fields, context=read_ctx)
+        if result and context and context.get('search_read_name_get') and len(record_ids) > 1:
+            m2m_fields = []
+            for field_name in result[0].keys():
+                field = self._fields.get(field_name)
+                if field and field.type == 'many2many':
+                    m2m_fields.append(field_name)
+            if m2m_fields:
+                for res in result:
+                    for field in m2m_fields:
+                        if self._fields.get(field).comodel_name:
+                            res[field] = self.pool.get(self._fields.get(field).comodel_name).name_get(cr, uid, res[field], context)
         if len(result) <= 1:
             return result
         # reorder read

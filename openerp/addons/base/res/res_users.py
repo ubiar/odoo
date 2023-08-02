@@ -990,7 +990,7 @@ class change_password_user(osv.TransientModel):
     _name = 'change.password.user'
     _description = 'Change Password Wizard User'
     _columns = {
-        'wizard_id': fields.many2one('change.password.wizard', string='Wizard', required=True),
+        'wizard_id': fields.many2one('change.password.wizard', string='Wizard', required=True, ondelete='cascade'),
         'user_id': fields.many2one('res.users', string='User', required=True),
         'user_login': fields.char('User Login', readonly=True),
         'new_passwd': fields.char('New Password'),

@@ -627,6 +627,9 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         }
         this.no_leaf = !!context['group_by_no_leaf'];
         this.grouped = !!group_by;
+        if (this.ViewManager && this.ViewManager.active_view && this.ViewManager.active_view.type == "list") {
+            context['search_read_name_get'] = true;
+        }
 
         return this.alive(this.load_view(context)).then(
             this.proxy('reload_content'));
@@ -1134,27 +1137,36 @@ instance.web.ListView.List = instance.web.Class.extend( /** @lends instance.web.
             if (value instanceof Array && !_.isEmpty(value)
                     && !record.get(column.id + '__display')) {
                 var ids;
+                var name_ids = false;
                 // they come in two shapes:
                 if (value[0] instanceof Array) {
-                    var command = value[0];
-                    // 1. an array of m2m commands (usually (6, false, ids))
-                    if (command[0] !== 6) {
-                        throw new Error(_.str.sprintf( _t("Unknown m2m command %s"), command[0]));
+                    if (value[0].length == 2) {
+                        record.set(column.id + '__display', _(value).pluck(1).join(', '));
+                        record.set(column.id, _(value).pluck(0));
+                        name_ids = true;
+                    } else {
+                        var command = value[0];
+                        // 1. an array of m2m commands (usually (6, false, ids))
+                        if (command[0] !== 6) {
+                            throw new Error(_.str.sprintf( _t("Unknown m2m command %s"), command[0]));
+                        }
+                        ids = command[2];
                     }
-                    ids = command[2];
                 } else {
                     // 2. an array of ids
                     ids = value;
                 }
-                new instance.web.Model(column.relation)
+                if (!name_ids){
+                    new instance.web.Model(column.relation)
                     .call('name_get', [ids, this.dataset.context]).done(function (names) {
                         // FIXME: nth horrible hack in this poor listview
                         record.set(column.id + '__display',
                                    _(names).pluck(1).join(', '));
                         record.set(column.id, ids);
                     });
-                // temporary empty display name
-                record.set(column.id + '__display', false);
+                    // temporary empty display name
+                    record.set(column.id + '__display', false);
+                }
             }
         }
         return column.format(record.toForm().data, {
