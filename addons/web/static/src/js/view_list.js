@@ -559,6 +559,7 @@ instance.web.ListView = instance.web.View.extend( /** @lends instance.web.ListVi
         return this.reload_content();
     },
     reload_record: function (record) {
+        if (!record) return;
         var self = this;
         var fields = this.fields_view.fields;
         return this.dataset.read_ids(

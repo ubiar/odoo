@@ -4751,7 +4751,7 @@ instance.web.form.One2ManyListView = instance.web.ListView.extend({
         }
     },
     reload_record: function (record, options) {
-        if (!options || !options['do_not_evict']) {
+        if ((!options || !options['do_not_evict']) && record) {
             // Evict record.id from cache to ensure it will be reloaded correctly
             this.dataset.evict_record(record.get('id'));
         }
