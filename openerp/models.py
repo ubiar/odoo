@@ -5368,7 +5368,7 @@ class BaseModel(object):
         read_ctx.pop('active_test', None)
                                                                                                                                              
         result = self.read(cr, uid, record_ids, fields, context=read_ctx)
-        if result and context and not context.get('tree_m2m_filter') and context.get('search_read_name_get') and len(record_ids) > 1:
+        if result and context and context.get('search_read_name_get') and len(record_ids) > 1:
             m2m_fields = []
             for field_name in result[0].keys():
                 field = self._fields.get(field_name)
