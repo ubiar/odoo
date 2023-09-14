@@ -114,7 +114,8 @@ class ir_ui_menu(osv.osv):
                             menu = menu.parent_id
 
                 self._menu_cache[key] = visible._ids
-
+            if self._context.get('visible_menu'):
+                return visible
             return self.filtered(lambda menu: menu in visible)
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
