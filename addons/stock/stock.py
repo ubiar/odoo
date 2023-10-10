@@ -316,7 +316,7 @@ class stock_quant(osv.osv):
 
         # Used for negative quants to reconcile after compensated by a new positive one
         'propagated_from_id': fields.many2one('stock.quant', 'Linked Quant', help='The negative quant this is coming from', readonly=True, select=True),
-        'negative_move_id': fields.many2one('stock.move', 'Move Negative Quant', help='If this is a negative quant, this will be the move that caused this negative quant.', readonly=True),
+        'negative_move_id': fields.many2one('stock.move', 'Move Negative Quant', help='If this is a negative quant, this will be the move that caused this negative quant.', readonly=True, select=True),
         'negative_dest_location_id': fields.related('negative_move_id', 'location_dest_id', type='many2one', relation='stock.location', string="Negative Destination Location", readonly=True, 
                                                     help="Technical field used to record the destination location of a move that created a negative quant"),
     }
@@ -2016,7 +2016,7 @@ class stock_move(osv.osv):
         'price_unit': fields.float('Unit Price', copy=False, help="Technical field used to record the product cost set by the user during a picking confirmation (when costing method used is 'average price' or 'real'). Value given in company currency and in product uom."),  # as it's a technical field, we intentionally don't provide the digits attribute
 
         'company_id': fields.many2one('res.company', 'Company', required=True, select=True),
-        'split_from': fields.many2one('stock.move', string="Move Split From", help="Technical field used to track the origin of a split move, which can be useful in case of debug", copy=False),
+        'split_from': fields.many2one('stock.move', string="Move Split From", help="Technical field used to track the origin of a split move, which can be useful in case of debug", copy=False, select=True),
         'backorder_id': fields.related('picking_id', 'backorder_id', type='many2one', relation="stock.picking", string="Back Order of", select=True),
         'origin': fields.char("Source Document"),
         'procure_method': fields.selection([('make_to_stock', 'Default: Take From Stock'), ('make_to_order', 'Advanced: Apply Procurement Rules')], 'Supply Method', required=True, 
@@ -2038,12 +2038,12 @@ class stock_move(osv.osv):
         'picking_type_id': fields.many2one('stock.picking.type', 'Picking Type', select=True),
         'inventory_id': fields.many2one('stock.inventory', 'Inventory', select=True),
         'lot_ids': fields.function(_get_lot_ids, type='many2many', relation='stock.production.lot', string='Lots'),
-        'origin_returned_move_id': fields.many2one('stock.move', 'Origin return move', help='move that created the return move', copy=False),
+        'origin_returned_move_id': fields.many2one('stock.move', 'Origin return move', help='move that created the return move', copy=False, select=True),
         'returned_move_ids': fields.one2many('stock.move', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move'),
         'reserved_availability': fields.function(_get_reserved_availability, type='float', digits=dp.get_precision('Product Unit of Measure'), string='Quantity Reserved', readonly=True, help='Quantity that has already been reserved for this move'),
         'availability': fields.function(_get_product_availability, type='float', string='Quantity Available', readonly=True, help='Quantity in stock that can still be reserved for this move'),
         'string_availability_info': fields.function(_get_string_qty_information, type='text', string='Availability', readonly=True, help='Show various information on stock availability for this move'),
-        'restrict_lot_id': fields.many2one('stock.production.lot', 'Lot', help="Technical field used to depict a restriction on the lot of quants to consider when marking this move as 'done'"),
+        'restrict_lot_id': fields.many2one('stock.production.lot', 'Lot', help="Technical field used to depict a restriction on the lot of quants to consider when marking this move as 'done'", select=True),
         'restrict_partner_id': fields.many2one('res.partner', 'Owner ', help="Technical field used to depict a restriction on the ownership of quants to consider when marking this move as 'done'"),
         'route_ids': fields.many2many('stock.location.route', 'stock_location_route_move', 'move_id', 'route_id', 'Destination route', help="Preferred route to be followed by the procurement order"),
         'warehouse_id': fields.many2one('stock.warehouse', 'Warehouse', help="Technical field depicting the warehouse to consider for the route selection on the next procurement (if any)."),
@@ -4360,7 +4360,7 @@ class stock_pack_operation(osv.osv):
         'product_qty': fields.float('Quantity', digits_compute=dp.get_precision('Product Unit of Measure'), required=True),
         'qty_done': fields.float('Quantity Processed', digits_compute=dp.get_precision('Product Unit of Measure')),
         'package_id': fields.many2one('stock.quant.package', 'Source Package'),  # 2
-        'lot_id': fields.many2one('stock.production.lot', 'Lot/Serial Number'),
+        'lot_id': fields.many2one('stock.production.lot', 'Lot/Serial Number', select=True),
         'result_package_id': fields.many2one('stock.quant.package', 'Destination Package', help="If set, the operations are packed into this package", required=False, ondelete='cascade'),
         'date': fields.datetime('Date', required=True),
         'owner_id': fields.many2one('res.partner', 'Owner', help="Owner of the quants"),
@@ -4372,7 +4372,7 @@ class stock_pack_operation(osv.osv):
         'location_id': fields.many2one('stock.location', 'Source Location', required=True),
         'location_dest_id': fields.many2one('stock.location', 'Destination Location', required=True),
         'processed': fields.selection([('true','Yes'), ('false','No')],'Has been processed?', required=True),
-        'reservation_id': fields.many2one('stock.move', 'Reservation'),
+        'reservation_id': fields.many2one('stock.move', 'Reservation', select=True),
         'fresh_record': fields.boolean('Pack Operation Nuevo'),
         'lots_visible': fields.function(_compute_lots_visible, string="Lotes Visibles", type='boolean'),
         'state': fields.related('picking_id', 'state', type='selection', selection=[
@@ -4551,7 +4551,7 @@ class stock_move_operation_link(osv.osv):
         'qty': fields.float('Quantity', help="Quantity of products to consider when talking about the contribution of this pack operation towards the remaining quantity of the move (and inverse). Given in the product main uom."),
         'operation_id': fields.many2one('stock.pack.operation', 'Operation', required=True, ondelete="cascade", select=True),
         'move_id': fields.many2one('stock.move', 'Move', required=True, ondelete="cascade", select=True),
-        'reserved_quant_id': fields.many2one('stock.quant', 'Reserved Quant', help="Technical field containing the quant that created this link between an operation and a stock move. Used at the stock_move_obj.action_done() time to avoid seeking a matching quant again"),
+        'reserved_quant_id': fields.many2one('stock.quant', 'Reserved Quant', help="Technical field containing the quant that created this link between an operation and a stock move. Used at the stock_move_obj.action_done() time to avoid seeking a matching quant again", select=True),
     }
 
     def get_specific_domain(self, cr, uid, record, context=None):
