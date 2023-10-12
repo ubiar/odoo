@@ -307,8 +307,13 @@ class AccountAssetAsset(models.Model):
     @api.multi
     def write(self, vals):
         res = super(AccountAssetAsset, self).write(vals)
-        if 'depreciation_line_ids' not in vals:
-            self.compute_depreciation_board()
+        for obj in self:
+            campos_permitidos = all(key not in vals for key in ['depreciation_line_ids', 'code', 'sucursal_id', 'fecha_alta', 'state'])
+            if obj.state == 'draft' and 'depreciation_line_ids' not in vals:
+                obj.compute_depreciation_board()
+            elif obj.state == 'open' and campos_permitidos:
+                # se intenta calcular líneas de amortización desde algún proceso que no es la edición del form
+                raise UserError(_('Se están intentando modificar las líneas de Amortización. Por favor, contacte con el Administrador.'))
         return res
 
     @api.multi

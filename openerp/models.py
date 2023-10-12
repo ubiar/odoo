@@ -265,7 +265,6 @@ IdType = (int, long, basestring, NewId)
 
 # maximum number of prefetched records
 PREFETCH_MAX = 1000
-PREFETCH_BROWSE_MAX = 50
 
 # special columns automatically created by the ORM
 LOG_ACCESS_COLUMNS = ['create_uid', 'create_date', 'write_uid', 'write_date']
@@ -1303,10 +1302,11 @@ class BaseModel(object):
                         template, params = res_msg
                         res_msg = template % params
                 else:
-                    res_msg = trans._get_source(self._name, 'constraint', self.env.lang, msg)
+                    lang = self.env.lang or self.env.user.lang or 'es_AR'
+                    res_msg = trans._get_source(self._name, 'constraint', lang, msg)
                 fields_translated = {}
                 for field in names:
-                    fields_translated[field] = trans._get_source(self._name + ',' + field, 'field', self.env.lang, self._fields[field].string)
+                    fields_translated[field] = trans._get_source(self._name + ',' + field, 'field', lang, self._fields[field].string)
                 for id in ids:
                     res_msg += "\n\n%s" % (_('En los registros:'))
                     if (set(names) & field_names) or not fun(self._model, cr, uid, [id]): #Reviso en cada registro a ver en cual falla para dar mejor el error
@@ -1317,7 +1317,9 @@ class BaseModel(object):
                         for field, data in res.iteritems():
                             if field and field != 'id' and data and type(data) in [str, unicode]:
                                 reg_data += "%s: %s (%s) " % (fields_translated.get(field), data, data.encode('ascii', 'replace'))
-                        res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(' con los datos: '), reg_data)
+                            elif field and field != 'id' and data and type(data) in [tuple] and len(data) == 2 and type(data[1]) in [str, unicode]:
+                                reg_data += "%s: (%s) %s " % (fields_translated.get(field), data[0], data[1].encode('ascii', 'replace'))
+                        res_msg += "\n%s%s%s " % (self._model.name_get(cr, uid, id)[0][1], _(', con los datos: '), reg_data)
                 if extra_error:
                     res_msg += "\n\n%s\n%s" % (_('Detalles del error:'), extra_error) #Se tradujo en el fuente porque no funcionaba con las traducciones comunes 
                 errors.append(_(res_msg))
@@ -5439,8 +5441,7 @@ class BaseModel(object):
         records = object.__new__(cls)
         records.env = env
         records._ids = ids
-        if ids and len(ids) < PREFETCH_BROWSE_MAX:
-            env.prefetch[cls._name].update(ids)
+        env.prefetch[cls._name].update(ids)
         return records
 
     @api.v7
