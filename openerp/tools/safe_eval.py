@@ -154,7 +154,7 @@ def assert_valid_codeobj(allowed_codes, code_obj, expr):
         if isinstance(const, CodeType):
             assert_valid_codeobj(allowed_codes, const, 'lambda')
 
-def test_expr(expr, allowed_codes, mode="eval"):
+def test_expr(expr, allowed_codes, mode="eval", allow_commit=False):
     """test_expr(expression, allowed_codes[, mode]) -> code_object
 
     Test that the expression contains only the allowed opcodes.
@@ -162,6 +162,8 @@ def test_expr(expr, allowed_codes, mode="eval"):
     return the compiled code object.
     Otherwise raise a ValueError, a Syntax Error or TypeError accordingly.
     """
+    if not allow_commit and '.commit(' in expr:
+        raise ValueError, "No se puede comitear un cursor en medio de un proceso, debe eliminar la sentencia .commit()"
     try:
         if mode == 'eval':
             # eval() does not like leading/trailing whitespace
@@ -267,7 +269,7 @@ _BUILTINS = {
     'zip': zip,
     'Exception': Exception,
 }
-def safe_eval(expr, globals_dict=None, locals_dict=None, mode="eval", nocopy=False, locals_builtins=False):
+def safe_eval(expr, globals_dict=None, locals_dict=None, mode="eval", nocopy=False, locals_builtins=False, allow_commit=False):
     """safe_eval(expression[, globals[, locals[, mode[, nocopy]]]]) -> result
 
     System-restricted Python expression evaluation
@@ -309,7 +311,7 @@ def safe_eval(expr, globals_dict=None, locals_dict=None, mode="eval", nocopy=Fal
         if locals_dict is None:
             locals_dict = {}
         locals_dict.update(_BUILTINS)
-    c = test_expr(expr, _SAFE_OPCODES, mode=mode)
+    c = test_expr(expr, _SAFE_OPCODES, mode=mode, allow_commit=allow_commit)
     try:
         return eval(c, globals_dict, locals_dict)
     except openerp.exceptions.except_orm:
