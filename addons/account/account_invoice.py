@@ -857,7 +857,7 @@ class account_invoice(models.Model):
                 if inv.anticipo_porc:
                     ctx['anticipo_porc'] = inv.anticipo_porc
                     ctx['anticipo_val'] = inv.anticipo_val
-                if 'anticipo_impuestos' in inv:
+                if 'anticipo_impuestos' in inv and ctx.get('anticipo_val'):
                     ctx['anticipo_val'] = ctx.get('anticipo_val') + inv.anticipo_impuestos
                 totlines = inv.with_context(ctx).sudo().payment_term.compute(total, date_invoice)[0]
             if totlines:
