@@ -879,7 +879,7 @@ class purchase_order(osv.osv):
         return picking_id
 
     def picking_done(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'shipped':1,'state':'approved'}, context=context)
+        self.write(cr, uid, ids, {'shipped':1}, context=context)
         # Do check on related procurements:
         proc_obj = self.pool.get("procurement.order")
         po_lines = []
