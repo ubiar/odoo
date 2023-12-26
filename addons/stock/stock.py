@@ -2648,8 +2648,8 @@ class stock_move(osv.osv):
             for record in ops.linked_move_operation_ids:
                 move = record.move_id
                 self.check_tracking(cr, uid, move, not ops.product_id and ops.package_id.id or ops.lot_id.id, context=context)
-                prefered_domain = [('reservation_id', '=', move.id)]
-                fallback_domain = [('reservation_id', '=', False)]
+                prefered_domain = [('reservation_id', '=', move.id), ('package_id', '=', False)]
+                fallback_domain = [('reservation_id', '=', False), ('package_id', '=', False)]
                 # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
                 # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
                 prefered_domain_list = [prefered_domain] + [fallback_domain]
