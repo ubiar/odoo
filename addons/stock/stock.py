@@ -2647,12 +2647,19 @@ class stock_move(osv.osv):
             main_domain = [('qty', '>', 0)]
             for record in ops.linked_move_operation_ids:
                 move = record.move_id
+                pack_dom = []
+                if hasattr(move.picking_id, 'paquete_ids') and move.picking_id.paquete_ids:
+                    pack_dom = [('package_id', 'in', list(move.picking_id.paquete_ids._ids))]
+                if 'filter_package_ids' in context.keys():
+                    pack_dom = [('package_id', 'in', list(context.get('filter_package_ids')))]
                 self.check_tracking(cr, uid, move, not ops.product_id and ops.package_id.id or ops.lot_id.id, context=context)
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
                 # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
                 # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
                 prefered_domain_list = [prefered_domain] + [fallback_domain]
+                if pack_dom:
+                    prefered_domain_list = [pack_dom + prefered_domain] + [pack_dom + fallback_domain] + [prefered_domain] + [fallback_domain]
                 dom = main_domain + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
                 ctxx = context.copy()
                 if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
@@ -2687,17 +2694,18 @@ class stock_move(osv.osv):
             move_qty_cmp = float_compare(move_qty[move.id], 0, precision_rounding=move.product_id.uom_id.rounding)
             if move_qty_cmp > 0:  # (=In case no pack operations in picking)
                 main_domain = [('qty', '>', 0)]
-                # Si se le envian paquetes filtra solo esos o los quants
-                # que no tengan paquetes
+                pack_dom = []
+                if hasattr(move.picking_id, 'paquete_ids') and move.picking_id.paquete_ids:
+                    pack_dom = [('package_id', 'in', list(move.picking_id.paquete_ids._ids))]
                 if 'filter_package_ids' in context.keys():
-                    package_ids = list(context.get('filter_package_ids') or [])
-                    package_ids.append(False)
-                    main_domain += [('package_id', 'in', package_ids)]
+                    pack_dom = [('package_id', 'in', list(context.get('filter_package_ids')))]
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
                 # Se comenta porque si llegaba a esta instancia se robaba cualquier Quant, incluso reservado, reservado de cualquier lugar
                 # fallback_domain2 = ['&', ('reservation_id', '!=', move.id), ('reservation_id', '!=', False)]
                 prefered_domain_list = [prefered_domain] + [fallback_domain]
+                if pack_dom:
+                    prefered_domain_list = [pack_dom + prefered_domain] + [pack_dom + fallback_domain] + [prefered_domain] + [fallback_domain]
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()

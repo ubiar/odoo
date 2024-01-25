@@ -6294,8 +6294,13 @@ class BaseModel(object):
     @api.v7
     def btn_ir_codigo_python_ubiar(self, cr, uid, ids, context=None):
         if context and context.get('ubiar_ir_codigo_python_boton_id'):
-            context = context.copy()
-            boton = self.pool.get('ir.codigo.python.boton').browse(cr, SUPERUSER_ID, context.get('ubiar_ir_codigo_python_boton_id'))
+            ctx = context.copy()
+            boton = self.pool.get('ir.codigo.python.boton').browse(cr, SUPERUSER_ID, ctx.get('ubiar_ir_codigo_python_boton_id'))
+            # Limpio el contexto que me pueda venir heredado para evitar problemas
+            context = {}
+            for key in ctx.keys():
+                if key in boton.context:
+                    context[key] = ctx[key]
             context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
             return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
         else:
