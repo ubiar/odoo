@@ -6297,7 +6297,7 @@ class BaseModel(object):
             ctx = context.copy()
             boton = self.pool.get('ir.codigo.python.boton').browse(cr, SUPERUSER_ID, ctx.get('ubiar_ir_codigo_python_boton_id'))
             # Limpio el contexto que me pueda venir heredado para evitar problemas
-            context = {}
+            context = {'ubiar_ir_codigo_python_boton_id': boton.id}
             for key in ctx.keys():
                 if key in boton.context:
                     context[key] = ctx[key]
