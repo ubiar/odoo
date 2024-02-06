@@ -2650,7 +2650,7 @@ class stock_move(osv.osv):
                 pack_dom = []
                 if hasattr(move.picking_id, 'paquete_ids') and move.picking_id.paquete_ids:
                     pack_dom = [('package_id', 'in', list(move.picking_id.paquete_ids._ids))]
-                if 'filter_package_ids' in context.keys():
+                if context.get('filter_package_ids'):
                     pack_dom = [('package_id', 'in', list(context.get('filter_package_ids')))]
                 self.check_tracking(cr, uid, move, not ops.product_id and ops.package_id.id or ops.lot_id.id, context=context)
                 prefered_domain = [('reservation_id', '=', move.id)]
@@ -2660,6 +2660,9 @@ class stock_move(osv.osv):
                 prefered_domain_list = [prefered_domain] + [fallback_domain]
                 if pack_dom:
                     prefered_domain_list = [pack_dom + prefered_domain] + [pack_dom + fallback_domain] + [prefered_domain] + [fallback_domain]
+                    main_domain = main_domain + [('package_id', 'in', pack_dom[0][2] + [False])]
+                else:
+                    main_domain = main_domain + [('package_id', '=', False)]
                 dom = main_domain + self.pool.get('stock.move.operation.link').get_specific_domain(cr, uid, record, context=context)
                 ctxx = context.copy()
                 if 'subcompania_id' in move and 'stock_no_utilizar_ubicaciones_hijas' in move.subcompania_id.config_ubiar_id and ((move.picking_id.picking_type_id.code == 'internal' and move.picking_id.picking_type_id.subcode == 'int') or (move.picking_id.picking_type_id.code == 'outgoing' and move.picking_id.subtipo == 'normal')):
@@ -2697,7 +2700,7 @@ class stock_move(osv.osv):
                 pack_dom = []
                 if hasattr(move.picking_id, 'paquete_ids') and move.picking_id.paquete_ids:
                     pack_dom = [('package_id', 'in', list(move.picking_id.paquete_ids._ids))]
-                if 'filter_package_ids' in context.keys():
+                if context.get('filter_package_ids'):
                     pack_dom = [('package_id', 'in', list(context.get('filter_package_ids')))]
                 prefered_domain = [('reservation_id', '=', move.id)]
                 fallback_domain = [('reservation_id', '=', False)]
@@ -2706,6 +2709,9 @@ class stock_move(osv.osv):
                 prefered_domain_list = [prefered_domain] + [fallback_domain]
                 if pack_dom:
                     prefered_domain_list = [pack_dom + prefered_domain] + [pack_dom + fallback_domain] + [prefered_domain] + [fallback_domain]
+                    main_domain = main_domain + [('package_id', 'in', pack_dom[0][2] + [False])]
+                else:
+                    main_domain = main_domain + [('package_id', '=', False)]
                 self.check_tracking(cr, uid, move, move.restrict_lot_id.id, context=context)
                 qty = move_qty[move.id]
                 ctxx = context.copy()
