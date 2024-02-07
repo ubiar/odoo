@@ -6299,7 +6299,7 @@ class BaseModel(object):
             # Limpio el contexto que me pueda venir heredado para evitar problemas
             context = {'ubiar_ir_codigo_python_boton_id': boton.id}
             for key in ctx.keys():
-                if key in boton.context:
+                if boton.context and key in boton.context:
                     context[key] = ctx[key]
             context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
             return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
