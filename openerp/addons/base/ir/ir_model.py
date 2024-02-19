@@ -422,8 +422,14 @@ class ir_model_fields(osv.osv):
                     field_state='manual',
                     select=vals.get('select_level', '0'),
                     update_custom_fields=True)
-                model._auto_init(cr, ctx)
-                model._auto_end(cr, ctx) # actually create FKs!
+                try:
+                    model._auto_init(cr, ctx)
+                    model._auto_end(cr, ctx) # actually create FKs!
+                except Exception, e:
+                    cr.rollback()
+                    self.unlink(cr, user, res)
+                    cr.commit()
+                    raise UserError(_("No se pudo crear el campo %s\n\n%s") % (vals['name'], e))
                 RegistryManager.signal_registry_change(cr.dbname)
 
         return res
