@@ -532,8 +532,6 @@ class ConnectionPool(object):
         """
         # free idle, dead and leaked connections
         for i, (cnx, used, last_used) in tools.reverse_enumerate(self._connections):
-            print '---> ', used
-            print '---->>> ', time.time() - last_used
             if not used and not cnx.closed and time.time() - last_used > MAX_IDLE_TIMEOUT:
                 self._debug('Close connection at index %d: %r', i, cnx.dsn)
                 cnx.close()
