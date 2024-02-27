@@ -308,7 +308,6 @@ class AccountAssetAsset(models.Model):
     def write(self, vals):
         res = super(AccountAssetAsset, self).write(vals)
         for obj in self:
-            ctx = self._context.copy()
             if obj.state == 'draft' and 'depreciation_line_ids' not in vals:
                 obj.compute_depreciation_board()
             elif obj.state == 'open' and 'desde_form_activos' not in ctx:
