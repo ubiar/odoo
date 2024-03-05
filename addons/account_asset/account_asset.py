@@ -310,7 +310,7 @@ class AccountAssetAsset(models.Model):
         for obj in self:
             if obj.state == 'draft' and 'depreciation_line_ids' not in vals:
                 obj.compute_depreciation_board()
-            elif obj.state == 'open' and 'desde_form_activos' not in ctx:
+            elif obj.state == 'open' and 'desde_form_activos' not in self._context:
                 # se intenta calcular líneas de amortización desde algún proceso que no es la edición del form
                 raise UserError(_('Se están intentando modificar las líneas de Amortización. Por favor, contacte con el Administrador.'))
         return res
