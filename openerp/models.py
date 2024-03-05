@@ -6301,8 +6301,10 @@ class BaseModel(object):
             for key in ctx.keys():
                 if key in boton.context:
                     context[key] = ctx[key]
-            context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
-            return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
+            context['ir_codigo_python_variable_%s' % (boton.variable_id.name or boton.id)] = ids[0]
+            if boton.codigo_id:
+                return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
+            return boton.with_context(context).sudo(uid).btn_ejecutar()
         else:
             raise UserError(_("No se encontro el Codigo Python a ejecutar"))
 
