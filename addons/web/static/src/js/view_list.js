@@ -1087,12 +1087,14 @@ instance.web.ListView.List = instance.web.Class.extend( /** @lends instance.web.
             });
     },
     row_clicked: function (e, view) {
+        // Atención función heredada y pisada completamente!
         $(this).trigger(
             'row_link',
             [this.dataset.ids[this.dataset.index],
              this.dataset, view]);
     },
     render_cell: function (record, column) {
+        // Atención función heredada y pisada completamente!
         var value;
         if(column.type === 'reference') {
             value = record.get(column.id);

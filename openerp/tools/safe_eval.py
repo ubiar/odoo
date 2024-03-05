@@ -162,7 +162,7 @@ def test_expr(expr, allowed_codes, mode="eval", allow_commit=False):
     return the compiled code object.
     Otherwise raise a ValueError, a Syntax Error or TypeError accordingly.
     """
-    if False and not allow_commit and '.commit(' in expr:
+    if not allow_commit and '.commit(' in expr:
         raise ValueError, "No se puede comitear un cursor en medio de un proceso, debe eliminar la sentencia .commit()"
     try:
         if mode == 'eval':
