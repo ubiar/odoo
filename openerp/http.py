@@ -294,7 +294,7 @@ class WebRequest(object):
 
     def _call_function(self, *args, **kwargs):
         request = self
-        if self.endpoint.routing['type'] != self._request_type:
+        if self.endpoint.routing['type'] not in [self._request_type, 'multi']:
             msg = "%s, %s: Function declared as capable of handling request of type '%s' but called with a request of type '%s'"
             params = (self.endpoint.original, self.httprequest.path, self.endpoint.routing['type'], self._request_type)
             _logger.info(msg, *params)
@@ -401,7 +401,7 @@ def route(route=None, **kw):
     :param cors: The Access-Control-Allow-Origin cors directive value.
     """
     routing = kw.copy()
-    assert not 'type' in routing or routing['type'] in ("http", "json")
+    assert not 'type' in routing or routing['type'] in ("http", "json", "multi")
     def decorator(f):
         if route:
             if isinstance(route, list):
@@ -424,8 +424,8 @@ def route(route=None, **kw):
                 response = Response.force_type(response)
                 response.set_default()
                 return response
-
-            _logger.warn("<function %s.%s> returns an invalid response type for an http request" % (f.__module__, f.__name__))
+            if routing['type'] != 'multi':
+                _logger.warn("<function %s.%s> returns an invalid response type for an http request" % (f.__module__, f.__name__))
             return response
         response_wrap.routing = routing
         response_wrap.original_func = f
@@ -507,6 +507,7 @@ class JsonRequest(WebRequest):
         # Read POST content or POST Form Data named "request"
         try:
             self.jsonrequest = simplejson.loads(request)
+            self.httprequest_data = request
         except simplejson.JSONDecodeError:
             msg = 'Invalid JSON data: %r' % (request,)
             _logger.info('%s: %s', self.httprequest.path, msg)
