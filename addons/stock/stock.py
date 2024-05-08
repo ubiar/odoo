@@ -439,7 +439,10 @@ class stock_quant(osv.osv):
             vals['lot_id'] = lot_id
         if not context.get('entire_pack'):
             vals.update({'package_id': dest_package_id})
-        self.write(cr, SUPERUSER_ID, [q.id for q in quants], vals, context=context)
+        ctx = context.copy()
+        if move.location_id.usage == 'transit' and move.location_dest_id.usage == 'internal' and move.product_id.tracking == 'none':
+            ctx['no_agrupar_quants'] = True
+        self.write(cr, SUPERUSER_ID, [q.id for q in quants], vals, context=ctx)
 
     def quants_get_prefered_domain(self, cr, uid, location, product, qty, domain=None, prefered_domain_list=[], restrict_lot_id=False, restrict_partner_id=False, context=None):
         ''' This function tries to find quants in the given location for the given domain, by trying to first limit
