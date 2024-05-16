@@ -6297,12 +6297,14 @@ class BaseModel(object):
             ctx = context.copy()
             boton = self.pool.get('ir.codigo.python.boton').browse(cr, SUPERUSER_ID, ctx.get('ubiar_ir_codigo_python_boton_id'))
             # Limpio el contexto que me pueda venir heredado para evitar problemas
-            context = {}
+            context = {'ubiar_ir_codigo_python_boton_id': boton.id}
             for key in ctx.keys():
-                if key in boton.context:
+                if boton.context and key in boton.context:
                     context[key] = ctx[key]
-            context['ir_codigo_python_variable_' + boton.variable_id.name] = ids[0]
-            return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
+            context['ir_codigo_python_variable_%s' % (boton.variable_id.name or boton.id)] = ids[0]
+            if boton.codigo_id:
+                return boton.codigo_id.with_context(context).sudo(uid).btn_ejecutar()
+            return boton.with_context(context).sudo(uid).btn_ejecutar()
         else:
             raise UserError(_("No se encontro el Codigo Python a ejecutar"))
 

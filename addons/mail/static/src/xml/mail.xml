@@ -254,7 +254,7 @@
                         </a>
                         <span t-if="!widget.options.show_link and widget.show_record_name"><t t-esc="widget.record_name"/></span>
                         <t t-if="widget.show_record_name and widget.subject">: </t>
-                        <t t-if="widget.subject" t-esc="widget.subject"/>
+                        <t t-if="widget.subject" t-raw="widget.subject"/>
                     </h1>
                     <div class="oe_msg_body">
                         <t t-if="widget.body_short">
