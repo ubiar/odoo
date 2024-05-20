@@ -71,6 +71,7 @@ instance.web_kanban.KanbanView = instance.web.View.extend({
         if (unsorted && default_order) {
             this.dataset.set_sort(default_order.split(','));
         }
+        this.disable_drag = this.fields_view.arch.attrs.disable_drag;
         this.$el.addClass(this.fields_view.arch.attrs['class']);
         this.$buttons = $(QWeb.render("KanbanView.buttons", {'widget': this}));
         if (this.options.$buttons) {
@@ -400,7 +401,7 @@ instance.web_kanban.KanbanView = instance.web.View.extend({
     },
     on_groups_started: function() {
         var self = this;
-        if (this.group_by || this.fields_keys.indexOf("sequence") !== -1) {
+        if (!this.disable_drag && (this.group_by || this.fields_keys.indexOf("sequence") !== -1)) {
             // Kanban cards drag'n'drop
             var prev_widget, is_folded, record, $columns;
             if (this.group_by) {
