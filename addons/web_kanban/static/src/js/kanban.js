@@ -992,7 +992,7 @@ instance.web_kanban.KanbanRecord = instance.web.Widget.extend({
         });
 
         // If no draghandle is found, make the whole card as draghandle (provided one can edit)
-        if (!this.$el.find('.oe_kanban_draghandle').length) {
+        if (!this.view.disable_drag && !this.$el.find('.oe_kanban_draghandle').length) {
             this.$el.children(':first')
                 .toggleClass('oe_kanban_draghandle', this.view.is_action_enabled('edit'));
         }
