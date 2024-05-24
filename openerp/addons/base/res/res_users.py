@@ -914,6 +914,8 @@ class users_view(osv.osv):
         # add reified groups fields
         if uid != SUPERUSER_ID and not self.pool['res.users'].has_group(cr, uid, 'base.group_erp_manager'):
             return res
+        context = (context or {}).copy()
+        context['from_fields_get'] = True
         for app, kind, gs in self.pool['res.groups'].get_groups_by_application(cr, uid, context):
             if kind == 'selection':
                 # selection group field
