@@ -61,7 +61,7 @@ def transfer_node_to_modifiers(node, modifiers, context=None, in_tree_view=False
         else:
             modifiers['invisible'] = [('state', 'not in', node.get('states').split(','))]
 
-    for a in ('invisible', 'readonly', 'required'):
+    for a in ('invisible', 'readonly', 'required', 'validate'):
         if node.get(a):
             v = bool(eval(node.get(a), {'context': context or {}, 'config': context and context.get('_config_ubiar') or {}}))
             if in_tree_view and a == 'invisible':
@@ -75,7 +75,7 @@ def transfer_node_to_modifiers(node, modifiers, context=None, in_tree_view=False
 
 
 def simplify_modifiers(modifiers):
-    for a in ('invisible', 'readonly', 'required'):
+    for a in ('invisible', 'readonly', 'required', 'validate'):
         if a in modifiers and not modifiers[a]:
             del modifiers[a]
 

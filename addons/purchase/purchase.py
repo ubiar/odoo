@@ -1407,7 +1407,10 @@ class procurement_order(osv.osv):
             name = names_dict[procurement.product_id.id]
             if procurement.product_id.description_purchase:
                 name += '\n' + procurement.product_id.description_purchase
-            price = prices[procurement.product_id.id][pricelist_id]
+            if isinstance(prices.get(procurement.product_id), dict):
+                price = prices[procurement.product_id.id][pricelist_id]
+            else:
+                price = prices[procurement.product_id.id]
 
             values = {
                 'name': name,
