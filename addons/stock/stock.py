@@ -4156,6 +4156,8 @@ class stock_package(osv.osv):
                 pack = pack.parent_id
         return list(res)
 
+    # MAKOR-000356 - paquete que aparece cambiada la ubicación
+    # Los errores que se presentan en esta tarea ocurren por quants = quant_obj.search(cr, uid, [('package_id', 'child_of', pack.id)], context=context)
     def _get_package_info(self, cr, uid, ids, name, args, context=None):
         quant_obj = self.pool.get("stock.quant")
         default_company_id = self.pool.get('res.users').browse(cr, uid, uid, context=context).company_id.id
