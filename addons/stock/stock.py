@@ -1313,6 +1313,7 @@ class stock_picking(osv.osv):
                 prod2move_ids[product_id].pop(index)
                 return qty_on_link
             self.pool.get('stock.move.operation.link').create(cr, uid, {'move_id': move_dict['move'].id, 'operation_id': operation_id, 'qty': qty_on_link, 'reserved_quant_id': quant_id}, context=context)
+            quants_in_lote_done.add(quant.id)
             if move_dict['remaining_qty'] == qty_on_link:
                 prod2move_ids[product_id].pop(index)
             else:
@@ -1359,6 +1360,7 @@ class stock_picking(osv.osv):
         link_obj = self.pool.get('stock.move.operation.link')
         op_obj = self.pool.get('stock.pack.operation')
         quants_in_package_done = set()
+        quants_in_lote_done = set()
         prod2move_ids = {}
         still_to_do = []
         # Se cuentan los moves que se van filtrando cuando la operacion tiene un reservation_id
@@ -1419,7 +1421,9 @@ class stock_picking(osv.osv):
                             break
                         if quant.id in quants_in_package_done:
                             continue
-
+                        # Se evita que se procese siempre 'el primer quant de reserved_quant_ids', reservado para el 'move' relacionado con el 'ops' procesado
+                        if ops.product_id.tracking == 'lot' and quant.id in quants_in_lote_done:
+                            continue
                         #check if the quant is matching the operation details
                         if ops.package_id:
                             flag = quant.package_id and bool(package_obj.search(cr, uid, [('id', 'child_of', [ops.package_id.id])], context=context)) or False
