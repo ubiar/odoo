@@ -1313,7 +1313,7 @@ class stock_picking(osv.osv):
                 prod2move_ids[product_id].pop(index)
                 return qty_on_link
             self.pool.get('stock.move.operation.link').create(cr, uid, {'move_id': move_dict['move'].id, 'operation_id': operation_id, 'qty': qty_on_link, 'reserved_quant_id': quant_id}, context=context)
-            quants_in_lote_done.add(quant.id)
+            quants_in_lote_done.add(quant_id)
             if move_dict['remaining_qty'] == qty_on_link:
                 prod2move_ids[product_id].pop(index)
             else:
