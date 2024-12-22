@@ -3281,6 +3281,26 @@ class BaseModel(object):
                                if k in attributes}
             res[fname] = description
 
+        # Esto pertence al modulo advance_sync_cli_ubiar
+        # No puedo heredar este metodo en base_ubiar ni con la api nueva ni con la vieja
+        # termina andando mal siempre por eso lo dejo aca
+        if 'ir.advance.sync.modelo' in self.pool.models.keys() and not 'ir.advance.sync.instancia' in self.pool.models.keys():
+            cr.execute('''
+                SELECT 
+                    array_agg(campo.name) AS campos
+                FROM 
+                    ir_advance_sync_modelo AS sync_modelo
+                    LEFT JOIN ir_model modelo ON sync_modelo.modelo_id = modelo.id
+                    LEFT JOIN ir_advance_sync_modelo_x_campo_rel AS modelo_campo_rel ON modelo_campo_rel.modelo_id = sync_modelo.id
+                    LEFT JOIN ir_model_fields AS campo ON campo.id = modelo_campo_rel.campo_id
+                WHERE 
+                    modelo.model = '%s'
+                    AND (sync_modelo.sin_sync_auto = FALSE or sync_modelo.sin_sync_auto IS NULL)
+            ''' % self._name)
+            campos = cr.fetchone()[0]
+            if campos:
+                for campo in list(set(campos) & set(res.keys())):
+                    res[campo]['readonly'] = True
         return res
 
     def get_empty_list_help(self, cr, user, help, context=None):
