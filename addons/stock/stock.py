@@ -1521,6 +1521,8 @@ class stock_picking(osv.osv):
         This can be used to provide a button that rereserves taking into account the existing pack operations
         """
         for pick in self.browse(cr, uid, ids, context=context):
+            if pick.id not in ids:
+                raise UserError(_('Error en el método rereserve_pick. El stock.picking(%s) no se encuentra entre los ids %s para los cuales se está invocando el método.') % (pick.id, ids))
             self.rereserve_quants(cr, uid, pick, move_ids = [x.id for x in pick.move_lines], context=context)
 
     def rereserve_quants(self, cr, uid, picking, move_ids=[], context=None):

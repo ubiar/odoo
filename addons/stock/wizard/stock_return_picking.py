@@ -74,7 +74,7 @@ class stock_return_picking(osv.osv_memory):
                 raise UserError(_("You may only return pickings that are Done!"))
 
             quants_devueltos = []
-            if pick.wave_id:
+            if pick.picking_type_id.code == 'outgoing' and pick.wave_id: # este query se usa para validar que no se vuelvan a devolver quants ya devueltos de una OE de ventas
                 cr.execute('''
                     SELECT
                         quant.ID
