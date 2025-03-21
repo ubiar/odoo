@@ -134,6 +134,7 @@ class configmanager(object):
 
         group.add_option("-D", "--data-dir", dest="data_dir", my_default=_get_default_datadir(),
                          help="Directory where to store Odoo data")
+        group.add_option("--filestore-dir", dest="filestore_dir", help="Directory where to store Odoo attachments files")
         group.add_option("--administrar-modulos", dest="administrar_modulos", my_default=False, help="Permite instalar modulos en ambientes de produccion")
         parser.add_option_group(group)
 
@@ -412,7 +413,7 @@ class configmanager(object):
             'list_db', 'proxy_mode',
             'test_file', 'test_enable', 'test_commit', 'test_report_directory',
             'osv_memory_count_limit', 'osv_memory_age_limit', 'max_cron_threads', 'unaccent',
-            'data_dir', 'administrar_modulos'
+            'data_dir', 'filestore_dir', 'administrar_modulos'
         ]
 
         posix_keys = [
@@ -647,7 +648,11 @@ class configmanager(object):
                 "%s: directory is not writable" % d
         return d
 
-    def filestore(self, dbname):
+    def filestore(self, dbname, data_dir=False):
+        if not data_dir and self['filestore_dir'] and os.path.isdir(self['filestore_dir']):
+            if not os.path.isdir(os.path.join(self['filestore_dir'], dbname)):
+                os.mkdir(os.path.join(self['filestore_dir'], dbname))
+            return os.path.join(self['filestore_dir'], dbname)
         return os.path.join(self['data_dir'], 'filestore', dbname)
 
 config = configmanager()

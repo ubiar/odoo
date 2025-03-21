@@ -117,8 +117,8 @@ class ir_attachment(osv.osv):
     def _storage(self, cr, uid, context=None):
         return self.pool['ir.config_parameter'].get_param(cr, SUPERUSER_ID, 'ir_attachment.location', 'file')
 
-    def _filestore(self, cr, uid, context=None):
-        return tools.config.filestore(cr.dbname)
+    def _filestore(self, cr, uid, data_dir=False, context=None):
+        return tools.config.filestore(cr.dbname, data_dir)
 
     def force_storage(self, cr, uid, context=None):
         """Force all attachments to be stored in the currently configured storage"""
@@ -141,7 +141,13 @@ class ir_attachment(osv.osv):
         # sanitize ath
         path = re.sub('[.]', '', path)
         path = path.strip('/\\')
-        return os.path.join(self._filestore(cr, uid), path)
+        full_path = os.path.join(self._filestore(cr, uid), path)
+        # Por si tiene establecido un path especifico para los archivos
+        # pero ese archivo se genero antes de definir el path y se guardo
+        # en el directorio de archivos adjuntos por defecto
+        if not os.path.isfile(full_path):
+            full_path = os.path.join(self._filestore(cr, uid, data_dir=True), path)
+        return full_path
 
     def _get_path(self, cr, uid, bin_data, sha):
         # retro compatibility
