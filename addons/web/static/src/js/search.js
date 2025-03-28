@@ -710,7 +710,14 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
                         console.warn('intervalo_fechas mal definido en la vista de busqueda.');
                         return;
                     }
-                    current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<=',context_today().strftime('%Y-%m-%d')+' 23:59:59'),('"+filter.item.attrs.field_name+"','>',context_today().strftime('%Y-%m-%d')+' 00:00:00')]", help:"Hoy", string:"Hoy", name: 'hoy'}, children:[], tag: "filter"}, self));
+                    let domain_hoy;
+                    const isDatetime = self.fields_view_get.fields[filter.item.attrs.field_name].type === 'datetime';
+                    if (isDatetime) {
+                        domain_hoy = "[('"+filter.item.attrs.field_name+"','<=',context_today().strftime('%Y-%m-%d')+' 23:59:59'),('"+filter.item.attrs.field_name+"','>',context_today().strftime('%Y-%m-%d')+' 00:00:00')]";
+                    } else {
+                        domain_hoy = "[('"+filter.item.attrs.field_name+"','=', context_today().strftime('%Y-%m-%d'))]";
+                    }
+                    current_group.push(new my.Filter({attrs: {domain: domain_hoy, help:"Hoy", string:"Hoy", name: 'hoy'}, children:[], tag: "filter"}, self));
                     current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<=', context_today().strftime('%Y-%m-%d')),('"+filter.item.attrs.field_name+"','>', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]", help:"Última semana", string:"Última Semana", name: 'ultima_semana'}, children:[], tag: "filter"}, self));
                     current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<', (context_today() + relativedelta(months=1)).strftime('%Y-%m-%d')),('"+filter.item.attrs.field_name+"','>=', context_today().strftime('%Y-%m-01'))]", help:"Mes actual", string:"Mes actual", name: 'mes_actual'}, children:[], tag: "filter"}, self));
                     current_group.push(new my.Filter({attrs: {domain: "[('"+filter.item.attrs.field_name+"','<', context_today().strftime('%Y-%m-01')),('"+filter.item.attrs.field_name+"','>=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01'))]", help:"Mes anterior", string:"Mes anterior", name: 'mes_anterior'}, children:[], tag: "filter"}, self));
