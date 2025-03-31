@@ -711,7 +711,7 @@ instance.web.SearchView = instance.web.Widget.extend(/** @lends instance.web.Sea
                         return;
                     }
                     let domain_hoy;
-                    const isDatetime = self.fields_view_get.fields[filter.item.attrs.field_name].type === 'datetime';
+                    const isDatetime = self.fields_view_get.fields[filter.item.attrs.field_name]?.type === 'datetime';
                     if (isDatetime) {
                         domain_hoy = "[('"+filter.item.attrs.field_name+"','<=',context_today().strftime('%Y-%m-%d')+' 23:59:59'),('"+filter.item.attrs.field_name+"','>',context_today().strftime('%Y-%m-%d')+' 00:00:00')]";
                     } else {
