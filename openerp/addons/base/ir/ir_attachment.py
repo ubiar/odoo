@@ -141,12 +141,18 @@ class ir_attachment(osv.osv):
         # sanitize ath
         path = re.sub('[.]', '', path)
         path = path.strip('/\\')
-        full_path = os.path.join(self._filestore(cr, uid), path)
+        folder_path = self._filestore(cr, uid)
+        full_path = os.path.join(folder_path, path)
         # Por si tiene establecido un path especifico para los archivos
         # pero ese archivo se genero antes de definir el path y se guardo
         # en el directorio de archivos adjuntos por defecto
         if not os.path.isfile(full_path):
-            full_path = os.path.join(self._filestore(cr, uid, data_dir=True), path)
+            full_path_base = os.path.join(self._filestore(cr, uid, data_dir=True), path)
+            # Si no tenemos acceso al directorio configurado para el filestore
+            # o el archivo no existe en el filestore pero si existe en la carpeta base
+            # se devuelve el path base para que lo pueda leer
+            if os.path.isfile(full_path_base) or not os.path.isdir(folder_path):
+                full_path = full_path_base 
         return full_path
 
     def _get_path(self, cr, uid, bin_data, sha):
@@ -174,7 +180,8 @@ class ir_attachment(osv.osv):
             else:
                 r = open(full_path,'rb').read().encode('base64')
         except IOError:
-            _logger.info("_read_file reading %s", full_path, exc_info=True)
+            if tools.config.get('servidor_produccion'):
+                _logger.info("_read_file reading %s", full_path, exc_info=True)
         return r
 
     def _file_write(self, cr, uid, value, checksum, context=None):

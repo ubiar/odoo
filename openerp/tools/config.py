@@ -650,9 +650,12 @@ class configmanager(object):
 
     def filestore(self, dbname, data_dir=False):
         if not data_dir and self['filestore_dir'] and os.path.isdir(self['filestore_dir']):
-            if not os.path.isdir(os.path.join(self['filestore_dir'], dbname)):
-                os.mkdir(os.path.join(self['filestore_dir'], dbname))
-            return os.path.join(self['filestore_dir'], dbname)
+            try:
+                if not os.path.isdir(os.path.join(self['filestore_dir'], dbname)):
+                    os.mkdir(os.path.join(self['filestore_dir'], dbname))
+                return os.path.join(self['filestore_dir'], dbname)
+            except Exception:
+                pass
         return os.path.join(self['data_dir'], 'filestore', dbname)
 
 config = configmanager()
