@@ -130,18 +130,10 @@ class stock_return_picking(osv.osv_memory):
                 for quant in quant_obj.browse(cr, SUPERUSER_ID, quant_search, context=context):
                     lote = quant.lot_id
                     cantidad = quant.qty
-
                     if not quant.reservation_id or quant.reservation_id.origin_returned_move_id.id != move.id:
                         if lote and tracking in ['lote_indivisible', 'serial']:
                             result1.append({'product_id': move.product_id.id, 'quantity': cantidad, 'move_id': move.id, 'lot_id': lote.id, 'procesada': True})
                         elif lote and tracking == 'lot':
-                            # Hago esto acá por la tarea INSDES-000234, en caso de estar mal tendrá un impacto minimo y serán casos especificos
-                            move_quants = move.quant_ids
-
-                            # Son quants que trajo quant_search desde otras OE, por lo que las filtro por los moves de la OE seleccionada
-                            if quant.id not in move_quants.ids:
-                                continue
-
                             if lote.id not in lote_result_ids:
                                 lote_result_ids.append(lote.id)
                                 if cantidad > lote_cantidad.get(lote.id, 0.0):
