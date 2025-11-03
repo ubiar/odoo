@@ -469,6 +469,15 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         });
     },
     _get_onchange_values: function() {
+        let remove_slow_fields = (fields, fv)=>{
+            // Evito que se envien los campos que pueden ser pesados ya que eso hace que funciona muy lento
+            // el sistema y son campos que no se suelen usar en un on_change
+            _.each(fields, f=>{
+                if (f.field !== undefined && ['html', 'binary', 'thread'].includes(f.field.type)) {
+                    fv[f.name] = false;
+                }
+            });
+        };
         var field_values = this.get_fields_values();
         if (field_values.id.toString().match(instance.web.BufferedDataSet.virtual_id_regex)) {
             delete field_values.id;
@@ -476,22 +485,18 @@ instance.web.FormView = instance.web.View.extend(instance.web.form.FieldManagerM
         if (this.dataset.parent_view) {
             // this belongs to a parent view: add parent field if possible
             var parent_view = this.dataset.parent_view;
+            var parent_fields = this.dataset.parent_view.fields;
             var child_name = this.dataset.child_name;
             var parent_name = parent_view.get_field_desc(child_name).relation_field;
             if (parent_name) {
                 // consider all fields except the inverse of the parent field
                 var parent_values = parent_view.get_fields_values();
+                remove_slow_fields(parent_fields, parent_values);
                 delete parent_values[child_name];
                 field_values[parent_name] = parent_values;
             }
         }
-        // Evito que se envien los campos que pueden ser pesados ya que eso hace que funciona muy lento
-        // el sistema y son campos que no se suelen usar en un on_change
-        _.each(this.fields, f=>{
-            if (f.field !== undefined && ['html', 'binary'].includes(f.field.type)) {
-                field_values[f.name] = false;
-            }
-        });
+        remove_slow_fields(this.fields, field_values);
         return field_values;
     },
 
