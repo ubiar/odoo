@@ -45,12 +45,19 @@ openerp.hr_attendance = function (instance) {
         },
         do_update_attendance: function () {
             var self = this;
-            var hr_employee = new instance.web.DataSet(self, 'hr.employee');
-            hr_employee.call('attendance_action_change', [
+            var action = self.get("signed_in") ? 'sign_out' : 'sign_in';
+            new instance.web.Model('hr.employee').call('attendance_action_change', [
                 [self.employee.id]
-            ]).done(function (result) {
+            ], {context: {action: action}}).done(function (result) {
                 self.last_sign = new Date();
                 self.set({"signed_in": ! self.get("signed_in")});
+            }).fail(function (error, event) {
+                // El estado real difiere del que muestra el botón: evitamos el error
+                // genérico, avisamos qué acción ya existía y resincronizamos el botón.
+                if (event) { event.preventDefault(); }
+                var titulo = action === 'sign_in' ? _t("Ya existe una Entrada.") : _t("Ya existe una Salida.");
+                self.do_warn(titulo, _t("Se actualizó el botón de marcación."));
+                self.check_attendance();
             });
         },
         check_attendance: function () {
