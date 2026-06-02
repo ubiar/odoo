@@ -14,9 +14,13 @@ openerp.hr_attendance = function (instance) {
         start: function() {
             var self = this;
             var tmp = function() {
+                var signed_in = this.get("signed_in");
                 var $sign_in_out_icon = this.$('#oe_attendance_sign_in_out_icon');
-                $sign_in_out_icon.toggleClass("fa-sign-in", ! this.get("signed_in"));
-                $sign_in_out_icon.toggleClass("fa-sign-out", this.get("signed_in"));
+                $sign_in_out_icon.toggleClass("fa-sign-in", ! signed_in);
+                $sign_in_out_icon.toggleClass("fa-sign-out", signed_in);
+                this.$el.toggleClass("oe_fichaje_dentro", signed_in);
+                this.$el.toggleClass("oe_fichaje_fuera", ! signed_in);
+                this.$('.oe_attendance_status_text').text(signed_in ? _t("Salir") : _t("Ingresar"));
             };
             this.on("change:signed_in", this, tmp);
             _.bind(tmp, this)();
@@ -27,12 +31,13 @@ openerp.hr_attendance = function (instance) {
             this.$el.tooltip({
                 title: function() {
                     var last_text = instance.web.format_value(self.last_sign, {type: "datetime"});
-                    var current_text = instance.web.format_value(new Date(), {type: "datetime"});
                     var duration = self.last_sign ? $.timeago(self.last_sign) : "none";
                     if (self.get("signed_in")) {
                         return _.str.sprintf(_t("Last sign in: %s,<br />%s.<br />Click to sign out."), last_text, duration);
+                    } else if (self.last_sign) {
+                        return _.str.sprintf(_t("Última salida: %s (%s).<br />Click para ingresar."), last_text, duration);
                     } else {
-                        return _.str.sprintf(_t("Click to Sign In at %s."), current_text);
+                        return _t("Click para ingresar.");
                     }
                 },
             });

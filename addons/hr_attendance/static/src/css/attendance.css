@@ -1,3 +1,39 @@
 .oe_systray #oe_attendance_sign_in_out_icon {
     color: white;
 }
+
+.oe_systray .oe_attendance_status {
+    padding: 0 8px;
+    border-radius: 3px;
+}
+
+.oe_systray .oe_attendance_status_text {
+    margin-left: 5px;
+    font-weight: bold;
+    vertical-align: middle;
+    color: white;
+}
+
+/* Estado: trabajando (fichado) -> verde fijo */
+.oe_systray .oe_attendance_status.oe_fichaje_dentro {
+    background-color: #449d44;
+}
+
+/* Estado: fuera (sin fichar) -> rojo parpadeante para que no se olviden de marcar */
+.oe_systray .oe_attendance_status.oe_fichaje_fuera {
+    background-color: #c9302c;
+    -webkit-animation: oe_fichaje_parpadeo 1.2s ease-in-out infinite;
+    animation: oe_fichaje_parpadeo 1.2s ease-in-out infinite;
+}
+
+@-webkit-keyframes oe_fichaje_parpadeo {
+    0%   { background-color: #c9302c; }
+    50%  { background-color: transparent; }
+    100% { background-color: #c9302c; }
+}
+
+@keyframes oe_fichaje_parpadeo {
+    0%   { background-color: #c9302c; }
+    50%  { background-color: transparent; }
+    100% { background-color: #c9302c; }
+}
